@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -125,6 +126,7 @@ const Login = () => {
   const [userType, setUserType] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const { login, loading } = useAuth();
   
   const validateForm = () => {
     const newErrors = {};
@@ -145,27 +147,33 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
-      // Demo login - redirect to appropriate dashboard
-      switch(userType) {
-        case 'student':
-        case 'proStudent':
-          navigate('/dashboard');
-          break;
-        case 'company':
-          navigate('/company/dashboard');
-          break;
-        case 'scadOffice':
-          navigate('/scad/dashboard');
-          break;
-        case 'faculty':
-          navigate('/faculty/dashboard');
-          break;
-        default:
-          navigate('/dashboard');
+      try {
+        await login(email, password, userType);
+        
+        // Redirect based on user type
+        switch(userType) {
+          case 'student':
+          case 'proStudent':
+            navigate('/dashboard');
+            break;
+          case 'company':
+            navigate('/company/dashboard');
+            break;
+          case 'scadOffice':
+            navigate('/scad/dashboard');
+            break;
+          case 'faculty':
+            navigate('/faculty/dashboard');
+            break;
+          default:
+            navigate('/dashboard');
+        }
+      } catch (error) {
+        setErrors({ general: 'Login failed. Please check your credentials.' });
       }
     }
   };
@@ -179,6 +187,8 @@ const Login = () => {
         </LoginHeader>
         
         <LoginForm onSubmit={handleSubmit}>
+          {errors.general && <ErrorMessage>{errors.general}</ErrorMessage>}
+          
           <FormGroup>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -223,7 +233,9 @@ const Login = () => {
             {errors.userType && <ErrorMessage>{errors.userType}</ErrorMessage>}
           </FormGroup>
           
-          <Button type="submit">Login</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </Button>
           
           <RegisterLink>
             Don't have an account?{' '}
