@@ -12,10 +12,10 @@ import StudentRegistration from './pages/StudentRegistration';
 import FacultyRegistration from './pages/FacultyRegistration';
 import StudentProfile from './pages/StudentProfile';
 import CompanyDashboard from './pages/CompanyDashboard';
-import ScadDashboard from './pages/ScadDashboard';
+//import ScadDashboard from './pages/ScadDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
 import FacultyFeedback from './pages/FacultyFeedback';
-import InternshipList from './pages/InternshipList';
+
 import InternshipListings from './pages/InternshipListings';
 import InternshipDetails from './pages/InternshipDetails';
 import InternshipPost from './pages/InternshipPost';
@@ -69,7 +69,7 @@ function App() {
             {/* SCAD Office routes */}
             <Route path="/scad/companies" element={<CompanyList />} />
             <Route path="/scad/companies/:id" element={<CompanyDetails />} />
-            <Route path="/scad/dashboard" element={<ScadDashboard />} />
+            {/*<Route path="/scad/dashboard" element={<ScadDashboard />} />}
             
             {/* Faculty routes */}
             <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
