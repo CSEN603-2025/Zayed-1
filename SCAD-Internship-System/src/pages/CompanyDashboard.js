@@ -401,8 +401,8 @@ const CompanyDashboard = () => {
   };
   
   const handleViewApplication = (id) => {
-    // Navigate to view application page
-    alert(`Viewing application with ID: ${id}`);
+    // Navigate to applicant details page
+    navigate(`/company/applicants/${id}`);
   };
   
   const handleViewIntern = (id) => {
@@ -516,7 +516,7 @@ const CompanyDashboard = () => {
             </StatContent>
           </StatCard>
           
-          <StatCard>
+          <StatCard onClick={() => navigate('/company/interns')} style={{ cursor: 'pointer' }}>
             <StatIconContainer>
               <FaUsers />
             </StatIconContainer>
@@ -670,47 +670,6 @@ const CompanyDashboard = () => {
                       <option value="accepted">Accepted</option>
                       <option value="rejected">Rejected</option>
                     </FilterSelect>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        
-        <SectionTitle>
-          <FaUsers /> Current Interns
-        </SectionTitle>
-        
-        <TableContainer>
-          <Table>
-            <TableHeader>
-              <tr>
-                <TableHeaderCell>Name</TableHeaderCell>
-                <TableHeaderCell>Position</TableHeaderCell>
-                <TableHeaderCell>Start Date</TableHeaderCell>
-                <TableHeaderCell>End Date</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                <TableHeaderCell>Actions</TableHeaderCell>
-              </tr>
-            </TableHeader>
-            <TableBody>
-              {filteredInterns.map(intern => (
-                <TableRow key={intern.id}>
-                  <TableCell>{intern.name}</TableCell>
-                  <TableCell>{intern.position}</TableCell>
-                  <TableCell>{intern.started}</TableCell>
-                  <TableCell>{intern.ends}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={intern.status === 'current' ? 'active' : 'closed'}>
-                      {intern.status.charAt(0).toUpperCase() + intern.status.slice(1)}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell>
-                    <ActionButtons>
-                      <ActionButton title="View" onClick={() => handleViewIntern(intern.id)}>
-                        <FaEye />
-                      </ActionButton>
-                    </ActionButtons>
                   </TableCell>
                 </TableRow>
               ))}
