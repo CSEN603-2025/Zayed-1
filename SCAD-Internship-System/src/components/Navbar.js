@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaUser, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 import NotificationCenter from './NotificationCenter';
+import { useAuth } from '../contexts/AuthContext';
 
 const NavbarContainer = styled.nav`
   background-color: ${props => props.theme.colors.primary};
@@ -85,12 +86,13 @@ const MobileMenuButton = styled.button`
   }
 `;
 
-const Navbar = ({ userType = "student" }) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { userType, logout } = useAuth();
   
   const handleLogout = () => {
-    // Handle logout logic
+    logout();
     navigate('/');
   };
   
@@ -114,7 +116,7 @@ const Navbar = ({ userType = "student" }) => {
         return (
           <>
             <NavLink to="/company/dashboard">Dashboard</NavLink>
-            <NavLink to="/company/internships">My Internships</NavLink>
+            <NavLink to="/internships">All Internships</NavLink>
             <NavLink to="/company/applications">Applications</NavLink>
             <NavLink to="/company/interns">Interns</NavLink>
           </>

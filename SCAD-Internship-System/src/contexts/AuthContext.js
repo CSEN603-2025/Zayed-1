@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userType, setUserType] = useState('');
 
   // Login function
   const login = async (email, password, userType) => {
@@ -24,9 +25,9 @@ export const AuthProvider = ({ children }) => {
         setUser({
           id: '123',
           email,
-          type: userType,
           name: 'Demo User'
         });
+        setUserType(userType);
         setLoading(false);
       }, 1000);
     } catch (err) {
@@ -39,11 +40,13 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     setUser(null);
+    setUserType('');
   };
 
   // Value object that will be passed to consumers
   const value = {
     user,
+    userType,
     loading,
     error,
     login,

@@ -3,19 +3,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import styled, { ThemeProvider } from 'styled-components';
 import GlobalStyle from './styles/GlobalStyle';
 import theme from './styles/theme';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Pages
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CompanyRegistration from './pages/CompanyRegistration';
-import StudentRegistration from './pages/StudentRegistration';
-import FacultyRegistration from './pages/FacultyRegistration';
 import StudentProfile from './pages/StudentProfile';
 import CompanyDashboard from './pages/CompanyDashboard';
-import ScadDashboard from './pages/ScadDashboard';
+//import ScadDashboard from './pages/ScadDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
 import FacultyFeedback from './pages/FacultyFeedback';
-import InternshipList from './pages/InternshipList';
 import InternshipListings from './pages/InternshipListings';
 import InternshipDetails from './pages/InternshipDetails';
 import InternshipPost from './pages/InternshipPost';
@@ -42,54 +40,54 @@ function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <AppContainer>
-        <Router>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Login />} />
-            <Route path="/register/company" element={<CompanyRegistration />} />
-            <Route path="/register/student" element={<StudentRegistration />} />
-            <Route path="/register/faculty" element={<FacultyRegistration />} />
-            
-            {/* Student routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<StudentProfile />} />
-            <Route path="/report/create" element={<ReportCreate />} />
-            <Route path="/report/list" element={<ReportList />} />
-            
-            {/* Routes for workshops */}
-            <Route path="/workshops" element={<Workshop />} />
-            <Route path="/workshops/calls" element={<WorkshopCall />} />
-            <Route path="/workshops/calls/:id" element={<WorkshopCall />} />
-            <Route path="/workshops/proposal/:id" element={<WorkshopProposal />} />
-            <Route path="/workshops/:id" element={<WorkshopDetails />} />
-            
-            {/* Company routes */}
-            <Route path="/company/dashboard" element={<CompanyDashboard />} />
-            
-            {/* SCAD Office routes */}
-            <Route path="/scad/companies" element={<CompanyList />} />
-            <Route path="/scad/companies/:id" element={<CompanyDetails />} />
-            <Route path="/scad/dashboard" element={<ScadDashboard />} />
-            
-            {/* Faculty routes */}
-            <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
-            <Route path="/faculty/feedback" element={<FacultyFeedback />} />
-            <Route path="/faculty/reports" element={<ReportList />} />
-            
-            {/* Shared routes - Order matters for routing! */}
-            <Route path="/internships" element={<InternshipListings />} /> {/* Using InternshipListings as the main page */}
-            <Route path="/internships/post" element={<InternshipPost />} />
-            <Route path="/internships/edit/:id" element={<InternshipPost />} />
-            <Route path="/internships/:id" element={<InternshipDetails />} />
-            <Route path="/applications" element={<ApplicationList />} />
-            <Route path="/interns" element={<InternList />} />
-            <Route path="/report/:id" element={<ReportDetails />} />
-            <Route path="/evaluation/create/:id" element={<EvaluationForm />} />
+        <AuthProvider>
+          <Router>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Login />} />
+              <Route path="/register/company" element={<CompanyRegistration />} />
+              
+              {/* Student routes */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<StudentProfile />} />
+              <Route path="/report/create" element={<ReportCreate />} />
+              <Route path="/report/list" element={<ReportList />} />
+              
+              {/* Routes for workshops */}
+              <Route path="/workshops" element={<Workshop />} />
+              <Route path="/workshops/calls" element={<WorkshopCall />} />
+              <Route path="/workshops/calls/:id" element={<WorkshopCall />} />
+              <Route path="/workshops/proposal/:id" element={<WorkshopProposal />} />
+              <Route path="/workshops/:id" element={<WorkshopDetails />} />
+              
+              {/* Company routes */}
+              <Route path="/company/dashboard" element={<CompanyDashboard />} />
+              
+              {/* SCAD Office routes */}
+              <Route path="/scad/companies" element={<CompanyList />} />
+              <Route path="/scad/companies/:id" element={<CompanyDetails />} />
+              {/*<Route path="/scad/dashboard" element={<ScadDashboard />} />*/}
+              
+              {/* Faculty routes */}
+              <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
+              <Route path="/faculty/feedback" element={<FacultyFeedback />} />
+              <Route path="/faculty/reports" element={<ReportList />} />
+              
+              {/* Shared routes - Order matters for routing! */}
+              <Route path="/internships" element={<InternshipListings />} />
+              <Route path="/internships/post" element={<InternshipPost />} />
+              <Route path="/internships/edit/:id" element={<InternshipPost />} />
+              <Route path="/internships/:id" element={<InternshipDetails />} />
+              <Route path="/applications" element={<ApplicationList />} />
+              <Route path="/interns" element={<InternList />} />
+              <Route path="/report/:id" element={<ReportDetails />} />
+              <Route path="/evaluation/create/:id" element={<EvaluationForm />} />
 
-            {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Router>
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Router>
+        </AuthProvider>
       </AppContainer>
     </ThemeProvider>
   );
