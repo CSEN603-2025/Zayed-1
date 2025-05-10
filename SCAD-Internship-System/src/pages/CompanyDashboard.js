@@ -131,19 +131,26 @@ const SearchIcon = styled.div`
   color: ${props => props.theme.colors.secondary};
 `;
 
-const FilterButton = styled.button`
-  display: flex;
-  align-items: center;
-  background: none;
+
+const FilterSelect = styled.select`
+  padding: 0.75rem 1rem;
   border: 1px solid ${props => props.theme.colors.tertiary};
   border-radius: 5px;
-  padding: 0.75rem 1rem;
   margin-left: 1rem;
-  cursor: pointer;
+  font-size: 0.9rem;
   color: ${props => props.theme.colors.primary};
-  
-  svg {
-    margin-right: 0.5rem;
+  cursor: pointer;
+  background-color: white;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C114.5L157.5%2C244.1c-4.5%2C4.5-12%2C4.5-16.5%2C0l-129.4-129.6c-4.5-4.5-4.5-12%2C0-16.5l22.2-22.2c4.5-4.5%2C12-4.5%2C16.5%2C0L149.2%2C178l115.5-115.5c4.5-4.5%2C12-4.5%2C16.5%2C0l22.2%2C22.2C291.5%2C102.5%2C291.5%2C110%2C287%2C114.5z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.secondary};
   }
 `;
 
@@ -295,37 +302,6 @@ const mockInternships = [
   }
 ];
 
-const mockApplications = [
-  {
-    id: 1,
-    student: 'John Smith',
-    position: 'Frontend Developer Intern',
-    applied: '01/15/2023',
-    status: 'pending'
-  },
-  {
-    id: 2,
-    student: 'Sarah Johnson',
-    position: 'Frontend Developer Intern',
-    applied: '01/16/2023',
-    status: 'finalized'
-  },
-  {
-    id: 3,
-    student: 'Michael Brown',
-    position: 'UI/UX Design Intern',
-    applied: '01/10/2023',
-    status: 'accepted'
-  },
-  {
-    id: 4,
-    student: 'Emily Davis',
-    position: 'Backend Developer Intern',
-    applied: '12/20/2022',
-    status: 'rejected'
-  }
-];
-
 const mockInterns = [
   {
     id: 1,
@@ -349,6 +325,38 @@ const CompanyDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('internships');
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterInternship, setFilterInternship] = useState('all');
+  const [applications, setApplications] = useState([
+    {
+      id: 1,
+      student: 'John Smith',
+      position: 'Frontend Developer Intern',
+      applied: '01/15/2023',
+      status: 'pending'
+    },
+    {
+      id: 2,
+      student: 'Sarah Johnson',
+      position: 'Frontend Developer Intern',
+      applied: '01/16/2023',
+      status: 'finalized'
+    },
+    {
+      id: 3,
+      student: 'Michael Brown',
+      position: 'UI/UX Design Intern',
+      applied: '01/10/2023',
+      status: 'accepted'
+    },
+    {
+      id: 4,
+      student: 'Emily Davis',
+      position: 'Backend Developer Intern',
+      applied: '12/20/2022',
+      status: 'rejected'
+    }
+  ]);
   
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -356,11 +364,13 @@ const CompanyDashboard = () => {
   
   const filteredInternships = mockInternships.filter(internship => 
     internship.title.toLowerCase().includes(searchTerm.toLowerCase())
+    && (filterStatus === 'all' || internship.status === filterStatus)
   );
   
-  const filteredApplications = mockApplications.filter(application => 
-    application.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    application.position.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredApplications = applications.filter(application => 
+    (application.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    application.position.toLowerCase().includes(searchTerm.toLowerCase()))
+    && (filterInternship === 'all' || application.position === filterInternship)
   );
   
   const filteredInterns = mockInterns.filter(intern => 
@@ -391,13 +401,34 @@ const CompanyDashboard = () => {
   };
   
   const handleViewApplication = (id) => {
-    // Navigate to view application page
-    alert(`Viewing application with ID: ${id}`);
+    // Navigate to applicant details page
+    navigate(`/company/applicants/${id}`);
   };
   
   const handleViewIntern = (id) => {
     // Navigate to view intern page
     alert(`Viewing intern with ID: ${id}`);
+  };
+  
+  const handleStatusChange = (id, newStatus) => { // New handler for status change
+    // In a real application, you would update the backend here
+    console.log(`Changing status for application ${id} to ${newStatus}`);
+    // For now, we'll just update the mock data state (this requires state management beyond useState)
+    // A more robust solution would involve Redux, Context API, or a state management library like Zustand
+    // For demonstration, let's find and log the application being updated
+    // const appToUpdate = mockApplications.find(app => app.id === id);
+    // if (appToUpdate) {
+    //   console.log(`Found application:`, appToUpdate);
+    //   // To actually update the UI with mock data, you'd need to update the state holding mockApplications
+    //   // This would involve creating a new array with the updated application and setting the state
+    //   // setMockApplications(prevApps => prevApps.map(app => app.id === id ? { ...app, status: newStatus } : app));
+    // }
+    
+    setApplications(prevApps => 
+      prevApps.map(app => 
+        app.id === id ? { ...app, status: newStatus } : app
+      )
+    );
   };
   
   return (
@@ -480,12 +511,12 @@ const CompanyDashboard = () => {
               <FaUsers />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockApplications.length}</StatValue>
+              <StatValue>{applications.length}</StatValue>
               <StatLabel>Total Applications</StatLabel>
             </StatContent>
           </StatCard>
           
-          <StatCard>
+          <StatCard onClick={() => navigate('/company/interns')} style={{ cursor: 'pointer' }}>
             <StatIconContainer>
               <FaUsers />
             </StatIconContainer>
@@ -520,12 +551,13 @@ const CompanyDashboard = () => {
                 onChange={handleSearchChange}
               />
             </SearchContainer>
-            
-            <FilterButton>
-              <FaFilter />
-              Filter
-              <FaChevronDown style={{ marginLeft: '0.5rem' }} />
-            </FilterButton>
+
+            <FilterSelect value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+              <option value="draft">Draft</option>
+            </FilterSelect>
           </div>
         </ActionsContainer>
         
@@ -578,6 +610,26 @@ const CompanyDashboard = () => {
           <FaUsers /> Recent Applications
         </SectionTitle>
         
+        <ActionsContainer>
+          <SearchContainer>
+            <SearchIcon>
+              <FaSearch />
+            </SearchIcon>
+            <SearchInput 
+              placeholder="Search applications..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </SearchContainer>
+
+          <FilterSelect value={filterInternship} onChange={(e) => setFilterInternship(e.target.value)}>
+            <option value="all">All Internships</option>
+            {mockInternships.map(internship => (
+              <option key={internship.id} value={internship.title}>{internship.title}</option>
+            ))}
+          </FilterSelect>
+        </ActionsContainer>
+        
         <TableContainer>
           <Table>
             <TableHeader>
@@ -587,6 +639,7 @@ const CompanyDashboard = () => {
                 <TableHeaderCell>Applied Date</TableHeaderCell>
                 <TableHeaderCell>Status</TableHeaderCell>
                 <TableHeaderCell>Actions</TableHeaderCell>
+                <TableHeaderCell>Update Status</TableHeaderCell>
               </tr>
             </TableHeader>
             <TableBody>
@@ -607,46 +660,16 @@ const CompanyDashboard = () => {
                       </ActionButton>
                     </ActionButtons>
                   </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        
-        <SectionTitle>
-          <FaUsers /> Current Interns
-        </SectionTitle>
-        
-        <TableContainer>
-          <Table>
-            <TableHeader>
-              <tr>
-                <TableHeaderCell>Name</TableHeaderCell>
-                <TableHeaderCell>Position</TableHeaderCell>
-                <TableHeaderCell>Start Date</TableHeaderCell>
-                <TableHeaderCell>End Date</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                <TableHeaderCell>Actions</TableHeaderCell>
-              </tr>
-            </TableHeader>
-            <TableBody>
-              {filteredInterns.map(intern => (
-                <TableRow key={intern.id}>
-                  <TableCell>{intern.name}</TableCell>
-                  <TableCell>{intern.position}</TableCell>
-                  <TableCell>{intern.started}</TableCell>
-                  <TableCell>{intern.ends}</TableCell>
                   <TableCell>
-                    <StatusBadge status={intern.status === 'current' ? 'active' : 'closed'}>
-                      {intern.status.charAt(0).toUpperCase() + intern.status.slice(1)}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell>
-                    <ActionButtons>
-                      <ActionButton title="View" onClick={() => handleViewIntern(intern.id)}>
-                        <FaEye />
-                      </ActionButton>
-                    </ActionButtons>
+                    <FilterSelect 
+                      value={application.status} 
+                      onChange={(e) => handleStatusChange(application.id, e.target.value)}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="finalized">Finalized</option>
+                      <option value="accepted">Accepted</option>
+                      <option value="rejected">Rejected</option>
+                    </FilterSelect>
                   </TableCell>
                 </TableRow>
               ))}

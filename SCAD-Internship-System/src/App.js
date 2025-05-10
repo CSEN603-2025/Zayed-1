@@ -29,6 +29,7 @@ import WorkshopCall from './pages/WorkshopCall';
 import WorkshopProposal from './pages/WorkshopProposal';
 import CompanyDetails from './pages/CompanyDetails';
 import CompanyList from './pages/CompanyList';
+import InternProfilePreview from './pages/InternProfilePreview';
 
 const AppContainer = styled.div`
   font-family: ${props => props.theme.fonts.main};
@@ -62,6 +63,10 @@ function App() {
               
               {/* Company routes */}
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
+              <Route path="/company/interns" element={<InternList />} />
+              <Route path="/company/interns/evaluation/:id" element={<EvaluationForm />} />
+              <Route path="/company/interns/:id" element={<InternProfilePreview />} />
+              <Route path="/company/applicants/:id" element={<InternProfilePreview />} />
               
               {/* SCAD Office routes */}
               <Route path="/scad/companies" element={<CompanyList />} />

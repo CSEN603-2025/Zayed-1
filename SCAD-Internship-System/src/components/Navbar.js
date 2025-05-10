@@ -117,7 +117,6 @@ const Navbar = () => {
           <>
             <NavLink to="/company/dashboard">Dashboard</NavLink>
             <NavLink to="/internships">All Internships</NavLink>
-            <NavLink to="/company/applications">Applications</NavLink>
             <NavLink to="/company/interns">Interns</NavLink>
           </>
         );
