@@ -8,14 +8,11 @@ import theme from './styles/theme';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CompanyRegistration from './pages/CompanyRegistration';
-import StudentRegistration from './pages/StudentRegistration';
-import FacultyRegistration from './pages/FacultyRegistration';
 import StudentProfile from './pages/StudentProfile';
 import CompanyDashboard from './pages/CompanyDashboard';
 //import ScadDashboard from './pages/ScadDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
 import FacultyFeedback from './pages/FacultyFeedback';
-
 import InternshipListings from './pages/InternshipListings';
 import InternshipDetails from './pages/InternshipDetails';
 import InternshipPost from './pages/InternshipPost';
@@ -47,8 +44,6 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<Login />} />
             <Route path="/register/company" element={<CompanyRegistration />} />
-            <Route path="/register/student" element={<StudentRegistration />} />
-            <Route path="/register/faculty" element={<FacultyRegistration />} />
             
             {/* Student routes */}
             <Route path="/dashboard" element={<Dashboard />} />
