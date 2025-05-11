@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import { useContext } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   FaArrowLeft, 
   FaBuilding, 
@@ -433,7 +435,7 @@ const InternshipDetails = () => {
   const [interestLevel, setInterestLevel] = useState("high");
   const [resumeFile, setResumeFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
-  const [userType, setUserType] = useState("student"); // Would come from context
+  const { userType } = useAuth();
   
   useEffect(() => {
     // In a real app, this would fetch data from an API based on the ID
@@ -459,9 +461,17 @@ const InternshipDetails = () => {
   
   const handleApply = (e) => {
     e.preventDefault();
-    // In a real app, this would submit the application data to an API
-    alert(`Application submitted with interest level: ${interestLevel}`);
-    setIsApplicationOpen(false);
+    // Only process application if user is a student or prostudent
+    if (userType === "student" || userType === "prostudent") {
+      // In a real app, this would submit the application data to an API
+      alert(`Application submitted with interest level: ${interestLevel}`);
+      setIsApplicationOpen(false);
+    }
+  };
+  
+  // Helper to check if application form should be visible
+  const shouldShowApplicationForm = () => {
+    return userType === "student" || userType === "prostudent";
   };
   
   const handleFileChange = (e) => {
@@ -578,112 +588,116 @@ const InternshipDetails = () => {
                 {renderRatingStars(internship.rating)}
                 <Description>{internship.reviewCount} students have reviewed this internship</Description>
                 
-                <ActionButtons>
-                  <Button 
-                    variant="primary" 
-                    icon={<FaPaperPlane />}
-                    onClick={() => setIsApplicationOpen(!isApplicationOpen)}
-                  >
-                    Apply Now
-                  </Button>
-                  <Button 
-                    variant={isSaved ? "secondary" : "outlined"}
-                    icon={<FaBookmark />}
-                    onClick={handleSaveInternship}
-                  >
-                    {isSaved ? "Saved" : "Save for Later"}
-                  </Button>
-                  <Button 
-                    variant="outlined"
-                    icon={<FaShare />}
-                    onClick={handleShareInternship}
-                  >
-                    Share
-                  </Button>
-                </ActionButtons>
+                {(userType === "student" || userType === "proStudent") && (
+                  <ActionButtons>
+                    <Button 
+                      variant="primary" 
+                      icon={<FaPaperPlane />}
+                      onClick={() => shouldShowApplicationForm() && setIsApplicationOpen(!isApplicationOpen)}
+                    >
+                      Apply Now
+                    </Button>
+                    <Button 
+                      variant={isSaved ? "secondary" : "outlined"}
+                      icon={<FaBookmark />}
+                      onClick={handleSaveInternship}
+                    >
+                      {isSaved ? "Saved" : "Save for Later"}
+                    </Button>
+                    <Button 
+                      variant="outlined"
+                      icon={<FaShare />}
+                      onClick={handleShareInternship}
+                    >
+                      Share
+                    </Button>
+                  </ActionButtons>
+                )}
                 
-                <ApplicationForm>
-                  <CollapseButton onClick={() => setIsApplicationOpen(!isApplicationOpen)}>
-                    Quick Apply
-                    {isApplicationOpen ? <FaChevronUp /> : <FaChevronDown />}
-                  </CollapseButton>
-                  
-                  <CollapseContent isOpen={isApplicationOpen}>
-                    <Card.Body>
-                      <form onSubmit={handleApply}>
-                        <InterestLevel>
-                          <label>How interested are you in this internship?</label>
-                          <InterestOptions>
-                            <InterestOption 
-                              type="button"
-                              selected={interestLevel === "high"}
-                              onClick={() => setInterestLevel("high")}
-                            >
-                              Very Interested
-                            </InterestOption>
-                            <InterestOption 
-                              type="button"
-                              selected={interestLevel === "medium"}
-                              onClick={() => setInterestLevel("medium")}
-                            >
-                              Somewhat Interested
-                            </InterestOption>
-                            <InterestOption 
-                              type="button"
-                              selected={interestLevel === "low"}
-                              onClick={() => setInterestLevel("low")}
-                            >
-                              Just Exploring
-                            </InterestOption>
-                          </InterestOptions>
-                        </InterestLevel>
-                        
-                        <div style={{ marginBottom: '1rem' }}>
-                          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                            Upload your resume (PDF)
-                          </label>
-                          <input 
-                            type="file" 
-                            accept=".pdf"
-                            onChange={handleFileChange}
-                            style={{ 
-                              border: '1px solid #ddd', 
-                              borderRadius: '4px', 
-                              padding: '0.5rem',
-                              width: '100%' 
-                            }}
-                          />
-                        </div>
-                        
-                        <div style={{ marginBottom: '1rem' }}>
-                          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-                            Cover Letter (Optional)
-                          </label>
-                          <textarea
-                            value={coverLetter}
-                            onChange={(e) => setCoverLetter(e.target.value)}
-                            placeholder="Tell the company why you're interested in this position..."
-                            style={{ 
-                              width: '100%', 
-                              minHeight: '150px', 
-                              padding: '0.75rem',
-                              borderRadius: '4px',
-                              border: '1px solid #ddd'
-                            }}
-                          />
-                        </div>
-                        
-                        <Button 
-                          type="submit" 
-                          variant="primary" 
-                          style={{ width: '100%' }}
-                        >
-                          Submit Application
-                        </Button>
-                      </form>
-                    </Card.Body>
-                  </CollapseContent>
-                </ApplicationForm>
+                {(userType === "student" || userType === "proStudent") && (
+                  <ApplicationForm>
+                    <CollapseButton onClick={() => shouldShowApplicationForm() && setIsApplicationOpen(!isApplicationOpen)}>
+                      Quick Apply
+                      {isApplicationOpen ? <FaChevronUp /> : <FaChevronDown />}
+                    </CollapseButton>
+                    
+                    <CollapseContent isOpen={isApplicationOpen}>
+                      <Card.Body>
+                        <form onSubmit={handleApply}>
+                          <InterestLevel>
+                            <label>How interested are you in this internship?</label>
+                            <InterestOptions>
+                              <InterestOption 
+                                type="button"
+                                selected={interestLevel === "high"}
+                                onClick={() => setInterestLevel("high")}
+                              >
+                                Very Interested
+                              </InterestOption>
+                              <InterestOption 
+                                type="button"
+                                selected={interestLevel === "medium"}
+                                onClick={() => setInterestLevel("medium")}
+                              >
+                                Somewhat Interested
+                              </InterestOption>
+                              <InterestOption 
+                                type="button"
+                                selected={interestLevel === "low"}
+                                onClick={() => setInterestLevel("low")}
+                              >
+                                Just Exploring
+                              </InterestOption>
+                            </InterestOptions>
+                          </InterestLevel>
+                          
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+                              Upload your resume (PDF)
+                            </label>
+                            <input 
+                              type="file" 
+                              accept=".pdf"
+                              onChange={handleFileChange}
+                              style={{ 
+                                border: '1px solid #ddd', 
+                                borderRadius: '4px', 
+                                padding: '0.5rem',
+                                width: '100%' 
+                              }}
+                            />
+                          </div>
+                          
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+                              Cover Letter (Optional)
+                            </label>
+                            <textarea
+                              value={coverLetter}
+                              onChange={(e) => setCoverLetter(e.target.value)}
+                              placeholder="Tell the company why you're interested in this position..."
+                              style={{ 
+                                width: '100%', 
+                                minHeight: '150px', 
+                                padding: '0.75rem',
+                                borderRadius: '4px',
+                                border: '1px solid #ddd'
+                              }}
+                            />
+                          </div>
+                          
+                          <Button 
+                            type="submit" 
+                            variant="primary" 
+                            style={{ width: '100%' }}
+                          >
+                            Submit Application
+                          </Button>
+                        </form>
+                      </Card.Body>
+                    </CollapseContent>
+                  </ApplicationForm>
+                )}
               </Card.Body>
             </Card>
           </div>
@@ -721,20 +735,22 @@ const InternshipDetails = () => {
               </Card.Body>
             </Card>
             
-            <Card style={{ marginTop: '1.5rem' }}>
-              <Card.Header>
-                <h3>Application Deadline</h3>
-              </Card.Header>
-              <Card.Body>
-                <div style={{ display: 'flex', alignItems: 'center', color: '#dc3545' }}>
-                  <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
-                  <span style={{ fontWeight: '600' }}>{internship.applicationDeadline}</span>
-                </div>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#6c757d' }}>
-                  Don't miss your chance to apply for this opportunity.
-                </p>
-              </Card.Body>
-            </Card>
+            {(userType === "student" || userType === "proStudent") && (
+              <Card style={{ marginTop: '1.5rem' }}>
+                <Card.Header>
+                  <h3>Application Deadline</h3>
+                </Card.Header>
+                <Card.Body>
+                  <div style={{ display: 'flex', alignItems: 'center', color: '#dc3545' }}>
+                    <FaCalendarAlt style={{ marginRight: '0.5rem' }} />
+                    <span style={{ fontWeight: '600' }}>{internship.applicationDeadline}</span>
+                  </div>
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#6c757d' }}>
+                    Don't miss your chance to apply for this opportunity.
+                  </p>
+                </Card.Body>
+              </Card>
+            )}
             
             <SimilarInternships>
               <Card>
