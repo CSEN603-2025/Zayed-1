@@ -1,0 +1,26 @@
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Navbar from '../components/Navbar';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import Select from '../components/Select';
+import Card from '../components/Card';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  FaUser, 
+  FaGraduationCap, 
+  FaEdit, 
+  FaBriefcase, 
+  FaAward, 
+  FaPlus, 
+  FaTrash, 
+  FaCheck,
+  FaTimes,
+  FaStar,
+  FaUniversity,
+  FaChartBar,
+  FaEye,
+  FaEyeSlash
+} from 'react-icons/fa';
+
+// Rest of the file remains unchanged 

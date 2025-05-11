@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Select from '../components/Select';
 import Card from '../components/Card';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   FaUser, 
   FaGraduationCap, 
@@ -486,6 +487,7 @@ const StudentProfile = () => {
     jobInterests: false
   });
   const [newInterest, setNewInterest] = useState('');
+  const { userType } = useAuth();
   
   // Load saved assessments when component mounts
   useEffect(() => {
@@ -583,6 +585,7 @@ const StudentProfile = () => {
       <ContentContainer>
         <ProfileHeader>
           <PageTitle>My Profile</PageTitle>
+          <p>Current User Type: {userType}</p>
         </ProfileHeader>
         
         <TwoColumnLayout>
@@ -611,12 +614,14 @@ const StudentProfile = () => {
               
               <BadgeContainer>
                 {userData.badges.map(badge => (
-                  <Badge key={badge.id}>
-                    <BadgeIcon>
-                      {badge.icon}
-                    </BadgeIcon>
-                    <BadgeLabel>{badge.name}</BadgeLabel>
-                  </Badge>
+                  (badge.name !== 'PRO Student' || userType === 'proStudent') && (
+                    <Badge key={badge.id}>
+                      <BadgeIcon>
+                        {badge.icon}
+                      </BadgeIcon>
+                      <BadgeLabel>{badge.name}</BadgeLabel>
+                    </Badge>
+                  )
                 ))}
               </BadgeContainer>
               
@@ -723,11 +728,21 @@ const StudentProfile = () => {
                     
                     {editing.academicInfo ? (
                       <FormContainer>
-                        <Input 
+                        <Select 
                           label="Major"
                           name="major"
                           value={editedUserData.major}
                           onChange={handleInputChange}
+                          options={[
+                            { value: 'MET', label: 'MET' },
+                            { value: 'BI', label: 'BI' },
+                            { value: 'CIVL', label: 'CIVL' },
+                            { value: 'Applied Arts', label: 'Applied Arts' },
+                            { value: 'architechture', label: 'architechture' },
+                            { value: 'Law', label: 'Law' },
+                            { value: 'IET', label: 'IET' },
+                            { value: 'Mechatronics', label: 'Mechatronics' }
+                          ]}
                         />
                         <Input 
                           label="Semester"
