@@ -374,6 +374,85 @@ const mockStats = {
   totalReports: 48
 };
 
+// Mock data for evaluation reports
+const mockEvaluations = [
+  {
+    id: 1,
+    student: "David Wilson",
+    studentId: "S10021",
+    major: "Computer Science",
+    company: "Tech Innovations",
+    supervisor: "Sarah Parker",
+    startDate: "2023-05-01",
+    endDate: "2023-07-31",
+    submittedDate: "2023-08-05",
+    rating: 4.5,
+    status: "completed"
+  },
+  {
+    id: 2,
+    student: "Emily Davis",
+    studentId: "S10043",
+    major: "Marketing",
+    company: "Global Marketing Solutions",
+    supervisor: "Michael Rodriguez",
+    startDate: "2023-06-15",
+    endDate: "2023-09-15",
+    submittedDate: "2023-09-20",
+    rating: 4.8,
+    status: "completed"
+  },
+  {
+    id: 3,
+    student: "James Thompson",
+    studentId: "S10056",
+    major: "Graphic Design",
+    company: "Creative Studios",
+    supervisor: "Amanda Lee",
+    startDate: "2023-05-15",
+    endDate: "2023-08-15",
+    submittedDate: "2023-08-18",
+    rating: 3.7,
+    status: "completed"
+  },
+  {
+    id: 4,
+    student: "Sophia Martinez",
+    studentId: "S10067",
+    major: "Data Science",
+    company: "FinTech Corp",
+    supervisor: "Robert Johnson",
+    startDate: "2023-06-01",
+    endDate: "2023-08-31",
+    submittedDate: "2023-09-02",
+    rating: 4.2,
+    status: "completed"
+  },
+  {
+    id: 5,
+    student: "Ethan Brown",
+    studentId: "S10089",
+    major: "Computer Science",
+    company: "SoftDev Inc.",
+    supervisor: "Jennifer Williams",
+    startDate: "2023-05-10",
+    endDate: "2023-08-10",
+    submittedDate: "2023-08-15",
+    rating: 4.0,
+    status: "completed"
+  }
+];
+
+// Add clarification reasons array above the component
+const rejectionReasons = [
+  { value: 'incomplete', label: 'Incomplete Information' },
+  { value: 'formatting', label: 'Improper Formatting' },
+  { value: 'plagiarism', label: 'Suspected Plagiarism' },
+  { value: 'inaccurate', label: 'Inaccurate Information' },
+  { value: 'inappropriate', label: 'Inappropriate Content' },
+  { value: 'other', label: 'Other (Contact Faculty)' }
+];
+
 const FacultyDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('reports');
@@ -381,6 +460,16 @@ const FacultyDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [majorFilter, setMajorFilter] = useState('');
   const [reports, setReports] = useState([]);
+  const [evaluations, setEvaluations] = useState([]);
+  
+  // Add clarification handler
+  const handleClarificationChange = (id, reason) => {
+    setReports(prevReports => 
+      prevReports.map(report => 
+        report.id === id ? { ...report, clarification: reason } : report
+      )
+    );
+  };
   
   useEffect(() => {
     // Filter reports based on search term and filters
@@ -406,9 +495,34 @@ const FacultyDashboard = () => {
     
     setReports(filteredReports);
   }, [searchTerm, statusFilter, majorFilter]);
+
+  useEffect(() => {
+    // Filter evaluations based on search term and major filter
+    let filteredEvaluations = [...mockEvaluations];
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filteredEvaluations = filteredEvaluations.filter(
+        evaluation => 
+          evaluation.student.toLowerCase().includes(term) ||
+          evaluation.company.toLowerCase().includes(term) ||
+          evaluation.supervisor.toLowerCase().includes(term)
+      );
+    }
+    
+    if (majorFilter) {
+      filteredEvaluations = filteredEvaluations.filter(evaluation => evaluation.major === majorFilter);
+    }
+    
+    setEvaluations(filteredEvaluations);
+  }, [searchTerm, majorFilter]);
   
   const handleViewReport = (id) => {
     navigate(`/report/${id}`);
+  };
+
+  const handleViewEvaluation = (id) => {
+    navigate(`/evaluation/${id}`);
   };
   
   const handleGenerateReport = () => {
@@ -537,6 +651,7 @@ const FacultyDashboard = () => {
                       <TableHeaderCell>Submitted Date</TableHeaderCell>
                       <TableHeaderCell>Status</TableHeaderCell>
                       <TableHeaderCell>Actions</TableHeaderCell>
+                      <TableHeaderCell>Clarification</TableHeaderCell>
                     </tr>
                   </TableHeader>
                   
@@ -573,6 +688,19 @@ const FacultyDashboard = () => {
                               </>
                             )}
                           </ActionButtons>
+                        </TableCell>
+                        <TableCell>
+                          {(report.status === 'rejected' || report.status === 'flagged') && (
+                            <FilterSelect
+                              value={report.clarification || ''}
+                              onChange={(e) => handleClarificationChange(report.id, e.target.value)}
+                            >
+                              <option value="">Select reason</option>
+                              {rejectionReasons.map(reason => (
+                                <option key={reason.value} value={reason.value}>{reason.label}</option>
+                              ))}
+                            </FilterSelect>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -639,7 +767,7 @@ const FacultyDashboard = () => {
                 <FaSearch />
                 <input
                   type="text"
-                  placeholder="Search evaluations by student, company, or internship..."
+                  placeholder="Search evaluations by student, company, or supervisor..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -657,10 +785,72 @@ const FacultyDashboard = () => {
               </FilterSelect>
             </SearchFilterContainer>
             
-            <EmptyState>
-              <p>Evaluation reports feature is coming soon.</p>
-              <p>This section will display company evaluations of students and student evaluations of internships.</p>
-            </EmptyState>
+            {evaluations.length > 0 ? (
+              <TableContainer>
+                <Table>
+                  <TableHeader>
+                    <tr>
+                      <TableHeaderCell>Student</TableHeaderCell>
+                      <TableHeaderCell>Student ID</TableHeaderCell>
+                      <TableHeaderCell>Major</TableHeaderCell>
+                      <TableHeaderCell>Company</TableHeaderCell>
+                      <TableHeaderCell>Supervisor</TableHeaderCell>
+                      <TableHeaderCell>Internship Period</TableHeaderCell>
+                      <TableHeaderCell>Rating</TableHeaderCell>
+                      <TableHeaderCell>Actions</TableHeaderCell>
+                    </tr>
+                  </TableHeader>
+                  
+                  <TableBody>
+                    {evaluations.map(evaluation => (
+                      <TableRow key={evaluation.id}>
+                        <TableCell>{evaluation.student}</TableCell>
+                        <TableCell>{evaluation.studentId}</TableCell>
+                        <TableCell>{evaluation.major}</TableCell>
+                        <TableCell>{evaluation.company}</TableCell>
+                        <TableCell>{evaluation.supervisor}</TableCell>
+                        <TableCell>{`${evaluation.startDate} to ${evaluation.endDate}`}</TableCell>
+                        <TableCell>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {evaluation.rating} / 5
+                            <div style={{ 
+                              marginLeft: '8px', 
+                              width: '80px', 
+                              height: '8px', 
+                              backgroundColor: '#e0e0e0',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{ 
+                                width: `${(evaluation.rating / 5) * 100}%`, 
+                                height: '100%', 
+                                backgroundColor: '#4caf50',
+                                borderRadius: '4px'
+                              }} />
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <ActionButtons>
+                            <ActionButton title="View Evaluation Report" onClick={() => handleViewEvaluation(evaluation.id)}>
+                              <FaEye />
+                            </ActionButton>
+                            <ActionButton title="Download Evaluation Report" onClick={() => alert(`Downloading evaluation ID: ${evaluation.id}`)}>
+                              <FaDownload />
+                            </ActionButton>
+                          </ActionButtons>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <EmptyState>
+                <p>No evaluation reports found matching your criteria.</p>
+                <p>Try adjusting your filters or search term.</p>
+              </EmptyState>
+            )}
           </>
         )}
       </ContentContainer>

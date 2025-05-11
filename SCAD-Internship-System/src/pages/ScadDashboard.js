@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
@@ -17,7 +17,10 @@ import {
   FaFilter,
   FaChartBar,
   FaCalendarAlt,
-  FaClock
+  FaClock,
+  FaFlag,
+  FaDownload,
+  FaStar
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -377,6 +380,85 @@ const mockReports = [
   }
 ];
 
+// Mock data for evaluation reports
+const mockEvaluations = [
+  {
+    id: 1,
+    student: "David Wilson",
+    studentId: "S10021",
+    major: "Computer Science",
+    company: "Tech Innovations",
+    supervisor: "Sarah Parker",
+    startDate: "2023-05-01",
+    endDate: "2023-07-31",
+    submittedDate: "2023-08-05",
+    rating: 4.5,
+    status: "completed"
+  },
+  {
+    id: 2,
+    student: "Emily Davis",
+    studentId: "S10043",
+    major: "Marketing",
+    company: "Global Marketing Solutions",
+    supervisor: "Michael Rodriguez",
+    startDate: "2023-06-15",
+    endDate: "2023-09-15",
+    submittedDate: "2023-09-20",
+    rating: 4.8,
+    status: "completed"
+  },
+  {
+    id: 3,
+    student: "James Thompson",
+    studentId: "S10056",
+    major: "Graphic Design",
+    company: "Creative Studios",
+    supervisor: "Amanda Lee",
+    startDate: "2023-05-15",
+    endDate: "2023-08-15",
+    submittedDate: "2023-08-18",
+    rating: 3.7,
+    status: "completed"
+  },
+  {
+    id: 4,
+    student: "Sophia Martinez",
+    studentId: "S10067",
+    major: "Data Science",
+    company: "FinTech Corp",
+    supervisor: "Robert Johnson",
+    startDate: "2023-06-01",
+    endDate: "2023-08-31",
+    submittedDate: "2023-09-02",
+    rating: 4.2,
+    status: "completed"
+  },
+  {
+    id: 5,
+    student: "Ethan Brown",
+    studentId: "S10089",
+    major: "Computer Science",
+    company: "SoftDev Inc.",
+    supervisor: "Jennifer Williams",
+    startDate: "2023-05-10",
+    endDate: "2023-08-10",
+    submittedDate: "2023-08-15",
+    rating: 4.0,
+    status: "completed"
+  }
+];
+
+// Add clarification reasons array above the component
+const rejectionReasons = [
+  { value: 'incomplete', label: 'Incomplete Information' },
+  { value: 'formatting', label: 'Improper Formatting' },
+  { value: 'plagiarism', label: 'Suspected Plagiarism' },
+  { value: 'inaccurate', label: 'Inaccurate Information' },
+  { value: 'inappropriate', label: 'Inappropriate Content' },
+  { value: 'other', label: 'Other (Contact SCAD Office)' }
+];
+
 const ScadDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('companies');
@@ -392,6 +474,16 @@ const ScadDashboard = () => {
     endDate: '2023-08-31'
   });
   const [reports, setReports] = useState(mockReports);
+  const [evaluations, setEvaluations] = useState([]);
+  
+  // Add clarification handler
+  const handleClarificationChange = (id, reason) => {
+    setReports(prevReports => 
+      prevReports.map(report => 
+        report.id === id ? { ...report, clarification: reason } : report
+      )
+    );
+  };
   
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -465,6 +557,14 @@ const ScadDashboard = () => {
       return false;
     }
     
+    // Major filter - lookup student major from mockStudents array by name
+    if (filters.studentMajor) {
+      const student = mockStudents.find(s => s.name === report.student);
+      if (!student || student.major !== filters.studentMajor) {
+        return false;
+      }
+    }
+    
     return true;
   });
   
@@ -529,6 +629,31 @@ const ScadDashboard = () => {
     );
   };
   
+  useEffect(() => {
+    // Filter evaluations based on search term and major filter
+    let filteredEvaluations = [...mockEvaluations];
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filteredEvaluations = filteredEvaluations.filter(
+        evaluation => 
+          evaluation.student.toLowerCase().includes(term) ||
+          evaluation.company.toLowerCase().includes(term) ||
+          evaluation.supervisor.toLowerCase().includes(term)
+      );
+    }
+    
+    if (filters.studentMajor) {
+      filteredEvaluations = filteredEvaluations.filter(evaluation => evaluation.major === filters.studentMajor);
+    }
+    
+    setEvaluations(filteredEvaluations);
+  }, [searchTerm, filters.studentMajor]);
+  
+  const handleViewEvaluation = (id) => {
+    navigate(`/evaluation/${id}`);
+  };
+  
   return (
     <PageContainer>
       <Navbar userType="scadOffice" />
@@ -574,6 +699,16 @@ const ScadDashboard = () => {
             <StatContent>
               <StatValue>{mockReports.filter(r => r.status === 'pending').length}</StatValue>
               <StatLabel>Pending Reports</StatLabel>
+            </StatContent>
+          </StatCard>
+          
+          <StatCard onClick={() => setActiveTab('evaluations')}>
+            <StatIconContainer>
+              <FaStar />
+            </StatIconContainer>
+            <StatContent>
+              <StatValue>{mockEvaluations.length}</StatValue>
+              <StatLabel>Evaluation Reports</StatLabel>
             </StatContent>
           </StatCard>
         </StatCardsContainer>
@@ -638,6 +773,12 @@ const ScadDashboard = () => {
             onClick={() => setActiveTab('statistics')}
           >
             Statistics
+          </Tab>
+          <Tab 
+            active={activeTab === 'evaluations'} 
+            onClick={() => setActiveTab('evaluations')}
+          >
+            Evaluation Reports
           </Tab>
         </TabsContainer>
         
@@ -795,6 +936,14 @@ const ScadDashboard = () => {
                   style={{ flex: 1, marginRight: '1rem' }}
                 />
                 <Select
+                  name="studentMajor"
+                  value={filters.studentMajor}
+                  onChange={handleFilterChange}
+                  options={majorOptions}
+                  placeholder="Filter by Major"
+                  style={{ marginRight: '1rem' }}
+                />
+                <Select
                   name="reportStatus"
                   value={filters.reportStatus}
                   onChange={handleFilterChange}
@@ -815,6 +964,7 @@ const ScadDashboard = () => {
                     <TableHeaderCell>Current Status</TableHeaderCell>
                     <TableHeaderCell>Change Status</TableHeaderCell>
                     <TableHeaderCell>Actions</TableHeaderCell>
+                    <TableHeaderCell>Clarification</TableHeaderCell>
                   </tr>
                 </TableHeader>
                 <TableBody>
@@ -848,6 +998,20 @@ const ScadDashboard = () => {
                             <FaEye />
                           </ActionButton>
                         </ActionButtons>
+                      </TableCell>
+                      <TableCell>
+                        {/* Show clarification dropdown only for rejected or flagged reports */}
+                        {(report.status === 'rejected' || report.status === 'flagged') && (
+                          <Select
+                            value={report.clarification || ''}
+                            onChange={(e) => handleClarificationChange(report.id, e.target.value)}
+                            options={[
+                              { value: '', label: 'Select reason' },
+                              ...rejectionReasons
+                            ]}
+                            style={{ minWidth: '150px', fontSize: '0.9rem' }}
+                          />
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -887,6 +1051,101 @@ const ScadDashboard = () => {
               </ChartContainer>
             </Card>
           </StatsContainer>
+        )}
+        
+        {activeTab === 'evaluations' && (
+          <>
+            <ActionBar>
+              <SearchFilterContainer>
+                <Input
+                  type="text"
+                  placeholder="Search evaluations by student, company, or supervisor..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  icon={<FaSearch />}
+                />
+                <Select
+                  name="studentMajor"
+                  value={filters.studentMajor}
+                  onChange={handleFilterChange}
+                  style={{ marginLeft: '1rem', minWidth: '180px' }}
+                >
+                  <option value="">All Majors</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Graphic Design">Graphic Design</option>
+                  <option value="Data Science">Data Science</option>
+                </Select>
+              </SearchFilterContainer>
+            </ActionBar>
+            
+            {evaluations.length > 0 ? (
+              <TableContainer>
+                <Table>
+                  <TableHeader>
+                    <tr>
+                      <TableHeaderCell>Student</TableHeaderCell>
+                      <TableHeaderCell>Student ID</TableHeaderCell>
+                      <TableHeaderCell>Major</TableHeaderCell>
+                      <TableHeaderCell>Company</TableHeaderCell>
+                      <TableHeaderCell>Supervisor</TableHeaderCell>
+                      <TableHeaderCell>Internship Period</TableHeaderCell>
+                      <TableHeaderCell>Rating</TableHeaderCell>
+                      <TableHeaderCell>Actions</TableHeaderCell>
+                    </tr>
+                  </TableHeader>
+                  
+                  <TableBody>
+                    {evaluations.map(evaluation => (
+                      <TableRow key={evaluation.id}>
+                        <TableCell>{evaluation.student}</TableCell>
+                        <TableCell>{evaluation.studentId}</TableCell>
+                        <TableCell>{evaluation.major}</TableCell>
+                        <TableCell>{evaluation.company}</TableCell>
+                        <TableCell>{evaluation.supervisor}</TableCell>
+                        <TableCell>{`${evaluation.startDate} to ${evaluation.endDate}`}</TableCell>
+                        <TableCell>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {evaluation.rating} / 5
+                            <div style={{ 
+                              marginLeft: '8px', 
+                              width: '80px', 
+                              height: '8px', 
+                              backgroundColor: '#e0e0e0',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{ 
+                                width: `${(evaluation.rating / 5) * 100}%`, 
+                                height: '100%', 
+                                backgroundColor: '#4caf50',
+                                borderRadius: '4px'
+                              }} />
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <ActionButtons>
+                            <ActionButton title="View Evaluation Report" onClick={() => handleViewEvaluation(evaluation.id)}>
+                              <FaEye />
+                            </ActionButton>
+                            <ActionButton title="Download Evaluation Report" onClick={() => alert(`Downloading evaluation ID: ${evaluation.id}`)}>
+                              <FaDownload />
+                            </ActionButton>
+                          </ActionButtons>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
+                <p>No evaluation reports found matching your criteria.</p>
+                <p>Try adjusting your filters or search term.</p>
+              </div>
+            )}
+          </>
         )}
       </ContentContainer>
     </PageContainer>
