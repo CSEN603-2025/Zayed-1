@@ -23,6 +23,7 @@ import ReportCreate from './pages/ReportCreate';
 import ReportList from './pages/ReportList';
 import ReportDetails from './pages/ReportDetails';
 import EvaluationForm from './pages/EvaluationForm';
+import EvaluationReport from './pages/EvaluationReport';
 import Workshop from './pages/Workshop';
 import WorkshopDetails from './pages/WorkshopDetails';
 import WorkshopCall from './pages/WorkshopCall';
@@ -89,6 +90,7 @@ function App() {
               <Route path="/interns" element={<InternList />} />
               <Route path="/report/:id" element={<ReportDetails />} />
               <Route path="/evaluation/create/:id" element={<EvaluationForm />} />
+              <Route path="/evaluation/:id" element={<EvaluationReport />} />
 
               {/* Fallback route */}
               <Route path="*" element={<Navigate to="/" />} />
