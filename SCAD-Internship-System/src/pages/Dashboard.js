@@ -446,15 +446,7 @@ const Dashboard = () => {
                 </Status>
               </InternshipItem>
             ))}
-            <Card.Footer>
-              <Button 
-                variant="secondary" 
-                size="small"
-                onClick={() => navigate('/internships')}
-              >
-                View All Applications
-              </Button>
-            </Card.Footer>
+            
           </Card>
         </InternshipList>
         
@@ -488,7 +480,7 @@ const Dashboard = () => {
                   <Button 
                     variant="secondary" 
                     size="small"
-                    onClick={() => navigate(`/company/${company.id}`)}
+                    onClick={() => navigate(`/student/companies/${company.id}`)}
                   >
                     View
                   </Button>
@@ -498,20 +490,20 @@ const Dashboard = () => {
           </Card>
         </SuggestedCompanies>
         
-        <SectionTitle>Notifications</SectionTitle>
+        <SectionTitle>Helpful Video Guide</SectionTitle>
         <Card>
-          {mockNotifications.map(notification => (
-            <NotificationItem key={notification.id}>
-              <NotificationTitle>{notification.title}</NotificationTitle>
-              <NotificationTime>{notification.time}</NotificationTime>
-            </NotificationItem>
-          ))}
-          <Card.Footer>
-            <Button variant="secondary" size="small">
-              View All Notifications
-            </Button>
-          </Card.Footer>
+          <iframe 
+            title="Internship Guide Video"
+            width="100%" 
+            height="500" 
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+          ></iframe>
         </Card>
+        
+        
       </DashboardContent>
     </DashboardContainer>
   );
