@@ -389,6 +389,84 @@ const VisibilityToggle = styled.button`
   }
 `;
 
+const Modal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+`;
+
+const ModalTitle = styled.h2`
+  color: ${props => props.theme.colors.primary};
+  margin: 0;
+  font-size: 1.5rem;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: ${props => props.theme.colors.darkGray};
+  
+  &:hover {
+    color: ${props => props.theme.colors.secondary};
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid ${props => props.theme.colors.tertiary};
+  border-radius: 5px;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+`;
+
+const Label = styled.label`
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: ${props => props.theme.colors.darkGray};
+  display: block;
+`;
+
 // Mock data
 const mockUserData = {
   id: 1,
@@ -489,6 +567,30 @@ const StudentProfile = () => {
   const [newInterest, setNewInterest] = useState('');
   const { userType } = useAuth();
   
+  const [showExperienceModal, setShowExperienceModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingItemId, setEditingItemId] = useState(null);
+  
+  const [newExperience, setNewExperience] = useState({
+    title: '',
+    company: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    skills: []
+  });
+  
+  const [newActivity, setNewActivity] = useState({
+    name: '',
+    role: '',
+    startDate: '',
+    endDate: '',
+    description: ''
+  });
+  
+  const [newSkill, setNewSkill] = useState('');
+  
   // Load saved assessments when component mounts
   useEffect(() => {
     const savedAssessments = JSON.parse(localStorage.getItem('studentAssessments') || '[]');
@@ -496,6 +598,23 @@ const StudentProfile = () => {
       setUserData(prev => ({
         ...prev,
         assessments: savedAssessments
+      }));
+    }
+    
+    // Load saved experiences and activities
+    const savedExperiences = JSON.parse(localStorage.getItem('studentExperiences') || '[]');
+    if (savedExperiences.length > 0) {
+      setUserData(prev => ({
+        ...prev,
+        workExperiences: savedExperiences
+      }));
+    }
+    
+    const savedActivities = JSON.parse(localStorage.getItem('studentActivities') || '[]');
+    if (savedActivities.length > 0) {
+      setUserData(prev => ({
+        ...prev,
+        activities: savedActivities
       }));
     }
   }, []);
@@ -515,6 +634,209 @@ const StudentProfile = () => {
       ...prev,
       [name]: value
     }));
+  };
+  
+  const handleExperienceInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewExperience(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const handleActivityInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewActivity(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const addSkillToExperience = () => {
+    if (newSkill.trim() === '') return;
+    
+    if (!newExperience.skills.includes(newSkill)) {
+      setNewExperience(prev => ({
+        ...prev,
+        skills: [...prev.skills, newSkill]
+      }));
+    }
+    
+    setNewSkill('');
+  };
+  
+  const removeSkillFromExperience = (skill) => {
+    setNewExperience(prev => ({
+      ...prev,
+      skills: prev.skills.filter(item => item !== skill)
+    }));
+  };
+  
+  const openEditExperienceModal = (experience) => {
+    setNewExperience({
+      title: experience.title,
+      company: experience.company,
+      startDate: experience.startDate,
+      endDate: experience.endDate || '',
+      description: experience.description || '',
+      skills: experience.skills || []
+    });
+    setIsEditing(true);
+    setEditingItemId(experience.id);
+    setShowExperienceModal(true);
+  };
+  
+  const openEditActivityModal = (activity) => {
+    setNewActivity({
+      name: activity.name,
+      role: activity.role,
+      startDate: activity.startDate,
+      endDate: activity.endDate || '',
+      description: activity.description || ''
+    });
+    setIsEditing(true);
+    setEditingItemId(activity.id);
+    setShowActivityModal(true);
+  };
+  
+  const openAddExperienceModal = () => {
+    setNewExperience({
+      title: '',
+      company: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      skills: []
+    });
+    setIsEditing(false);
+    setEditingItemId(null);
+    setShowExperienceModal(true);
+  };
+  
+  const openAddActivityModal = () => {
+    setNewActivity({
+      name: '',
+      role: '',
+      startDate: '',
+      endDate: '',
+      description: ''
+    });
+    setIsEditing(false);
+    setEditingItemId(null);
+    setShowActivityModal(true);
+  };
+  
+  const saveExperience = () => {
+    // Validate required fields
+    if (!newExperience.title || !newExperience.company || !newExperience.startDate) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    let updatedExperiences;
+    
+    if (isEditing) {
+      // Update existing experience
+      updatedExperiences = userData.workExperiences.map(exp => 
+        exp.id === editingItemId ? { ...newExperience, id: editingItemId } : exp
+      );
+    } else {
+      // Add new experience
+      const newExperienceItem = {
+        ...newExperience,
+        id: Date.now() // Generate a unique ID
+      };
+      updatedExperiences = [...userData.workExperiences, newExperienceItem];
+    }
+    
+    // Update state
+    setUserData(prev => ({
+      ...prev,
+      workExperiences: updatedExperiences
+    }));
+    
+    // Save to localStorage
+    localStorage.setItem('studentExperiences', JSON.stringify(updatedExperiences));
+    
+    // Reset form and close modal
+    setNewExperience({
+      title: '',
+      company: '',
+      startDate: '',
+      endDate: '',
+      description: '',
+      skills: []
+    });
+    setIsEditing(false);
+    setEditingItemId(null);
+    setShowExperienceModal(false);
+  };
+  
+  const saveActivity = () => {
+    // Validate required fields
+    if (!newActivity.name || !newActivity.role || !newActivity.startDate) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    let updatedActivities;
+    
+    if (isEditing) {
+      // Update existing activity
+      updatedActivities = userData.activities.map(act => 
+        act.id === editingItemId ? { ...newActivity, id: editingItemId } : act
+      );
+    } else {
+      // Add new activity
+      const newActivityItem = {
+        ...newActivity,
+        id: Date.now() // Generate a unique ID
+      };
+      updatedActivities = [...userData.activities, newActivityItem];
+    }
+    
+    // Update state
+    setUserData(prev => ({
+      ...prev,
+      activities: updatedActivities
+    }));
+    
+    // Save to localStorage
+    localStorage.setItem('studentActivities', JSON.stringify(updatedActivities));
+    
+    // Reset form and close modal
+    setNewActivity({
+      name: '',
+      role: '',
+      startDate: '',
+      endDate: '',
+      description: ''
+    });
+    setIsEditing(false);
+    setEditingItemId(null);
+    setShowActivityModal(false);
+  };
+  
+  const deleteExperience = (id) => {
+    const updatedExperiences = userData.workExperiences.filter(exp => exp.id !== id);
+    
+    setUserData(prev => ({
+      ...prev,
+      workExperiences: updatedExperiences
+    }));
+    
+    localStorage.setItem('studentExperiences', JSON.stringify(updatedExperiences));
+  };
+  
+  const deleteActivity = (id) => {
+    const updatedActivities = userData.activities.filter(act => act.id !== id);
+    
+    setUserData(prev => ({
+      ...prev,
+      activities: updatedActivities
+    }));
+    
+    localStorage.setItem('studentActivities', JSON.stringify(updatedActivities));
   };
   
   const savePersonalInfo = () => {
@@ -587,6 +909,173 @@ const StudentProfile = () => {
           <PageTitle>My Profile</PageTitle>
           <p>Current User Type: {userType}</p>
         </ProfileHeader>
+        
+        {/* Work Experience Modal */}
+        {showExperienceModal && (
+          <Modal>
+            <ModalContent>
+              <ModalHeader>
+                <ModalTitle>{isEditing ? 'Edit Work Experience' : 'Add Work Experience'}</ModalTitle>
+                <CloseButton onClick={() => setShowExperienceModal(false)}>×</CloseButton>
+              </ModalHeader>
+              
+              <FormContainer>
+                <Input 
+                  label="Job Title *"
+                  name="title"
+                  value={newExperience.title}
+                  onChange={handleExperienceInputChange}
+                />
+                <Input 
+                  label="Company Name *"
+                  name="company"
+                  value={newExperience.company}
+                  onChange={handleExperienceInputChange}
+                />
+                <Input 
+                  label="Start Date *"
+                  name="startDate"
+                  placeholder="e.g., Jun 2022"
+                  value={newExperience.startDate}
+                  onChange={handleExperienceInputChange}
+                />
+                <Input 
+                  label="End Date"
+                  name="endDate"
+                  placeholder="e.g., Aug 2022 or Present"
+                  value={newExperience.endDate}
+                  onChange={handleExperienceInputChange}
+                />
+              </FormContainer>
+              
+              <div style={{ marginTop: '1rem' }}>
+                <Label>Description & Responsibilities</Label>
+                <TextArea
+                  name="description"
+                  value={newExperience.description}
+                  onChange={handleExperienceInputChange}
+                  placeholder="Describe your responsibilities and achievements in this role"
+                />
+              </div>
+              
+              <div style={{ marginTop: '1rem' }}>
+                <Label>Skills</Label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <Input 
+                    placeholder="Add a skill"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                  />
+                  <Button 
+                    variant="secondary" 
+                    size="small" 
+                    onClick={addSkillToExperience}
+                    icon={<FaPlus />}
+                  >
+                    Add
+                  </Button>
+                </div>
+                
+                <KeywordsList>
+                  {newExperience.skills.map((skill, index) => (
+                    <Keyword key={index}>
+                      {skill}
+                      <FaTimes 
+                        size={12} 
+                        onClick={() => removeSkillFromExperience(skill)}
+                      />
+                    </Keyword>
+                  ))}
+                </KeywordsList>
+              </div>
+              
+              <ModalFooter>
+                <Button 
+                  variant="tertiary" 
+                  size="small" 
+                  onClick={() => setShowExperienceModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="small" 
+                  onClick={saveExperience}
+                >
+                  {isEditing ? 'Update Experience' : 'Save Experience'}
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        )}
+        
+        {/* Activity Modal */}
+        {showActivityModal && (
+          <Modal>
+            <ModalContent>
+              <ModalHeader>
+                <ModalTitle>{isEditing ? 'Edit Activity' : 'Add Activity'}</ModalTitle>
+                <CloseButton onClick={() => setShowActivityModal(false)}>×</CloseButton>
+              </ModalHeader>
+              
+              <FormContainer>
+                <Input 
+                  label="Activity Name *"
+                  name="name"
+                  value={newActivity.name}
+                  onChange={handleActivityInputChange}
+                />
+                <Input 
+                  label="Your Role *"
+                  name="role"
+                  value={newActivity.role}
+                  onChange={handleActivityInputChange}
+                />
+                <Input 
+                  label="Start Date *"
+                  name="startDate"
+                  placeholder="e.g., Sep 2021"
+                  value={newActivity.startDate}
+                  onChange={handleActivityInputChange}
+                />
+                <Input 
+                  label="End Date"
+                  name="endDate"
+                  placeholder="e.g., Jun 2022 or Present"
+                  value={newActivity.endDate}
+                  onChange={handleActivityInputChange}
+                />
+              </FormContainer>
+              
+              <div style={{ marginTop: '1rem' }}>
+                <Label>Description</Label>
+                <TextArea
+                  name="description"
+                  value={newActivity.description}
+                  onChange={handleActivityInputChange}
+                  placeholder="Describe your involvement in this activity"
+                />
+              </div>
+              
+              <ModalFooter>
+                <Button 
+                  variant="tertiary" 
+                  size="small" 
+                  onClick={() => setShowActivityModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="small" 
+                  onClick={saveActivity}
+                >
+                  {isEditing ? 'Update Activity' : 'Save Activity'}
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        )}
         
         <TwoColumnLayout>
           <div>
@@ -834,6 +1323,7 @@ const StudentProfile = () => {
                   variant="primary" 
                   size="small" 
                   icon={<FaPlus />}
+                  onClick={openAddExperienceModal}
                 >
                   Add Work Experience
                 </AddButton>
@@ -844,13 +1334,14 @@ const StudentProfile = () => {
                       <div>
                         <ExperienceTitle>{experience.title}</ExperienceTitle>
                         <ExperienceCompany>{experience.company}</ExperienceCompany>
-                        <ExperienceDate>{experience.startDate} - {experience.endDate}</ExperienceDate>
+                        <ExperienceDate>{experience.startDate} - {experience.endDate || 'Present'}</ExperienceDate>
                       </div>
                       <ExperienceActions>
                         <Button 
                           variant="secondary" 
                           size="small" 
                           icon={<FaEdit />}
+                          onClick={() => openEditExperienceModal(experience)}
                         >
                           Edit
                         </Button>
@@ -858,6 +1349,7 @@ const StudentProfile = () => {
                           variant="danger" 
                           size="small" 
                           icon={<FaTrash />}
+                          onClick={() => deleteExperience(experience.id)}
                         >
                           Delete
                         </Button>
@@ -867,7 +1359,7 @@ const StudentProfile = () => {
                     <p>{experience.description}</p>
                     
                     <KeywordsList>
-                      {experience.skills.map((skill, index) => (
+                      {experience.skills && experience.skills.map((skill, index) => (
                         <Keyword key={index}>{skill}</Keyword>
                       ))}
                     </KeywordsList>
@@ -882,6 +1374,7 @@ const StudentProfile = () => {
                   variant="primary" 
                   size="small" 
                   icon={<FaPlus />}
+                  onClick={openAddActivityModal}
                 >
                   Add Activity
                 </AddButton>
@@ -892,13 +1385,14 @@ const StudentProfile = () => {
                       <div>
                         <ExperienceTitle>{activity.name}</ExperienceTitle>
                         <ExperienceCompany>{activity.role}</ExperienceCompany>
-                        <ExperienceDate>{activity.startDate} - {activity.endDate}</ExperienceDate>
+                        <ExperienceDate>{activity.startDate} - {activity.endDate || 'Present'}</ExperienceDate>
                       </div>
                       <ExperienceActions>
                         <Button 
                           variant="secondary" 
                           size="small" 
                           icon={<FaEdit />}
+                          onClick={() => openEditActivityModal(activity)}
                         >
                           Edit
                         </Button>
@@ -906,6 +1400,7 @@ const StudentProfile = () => {
                           variant="danger" 
                           size="small" 
                           icon={<FaTrash />}
+                          onClick={() => deleteActivity(activity.id)}
                         >
                           Delete
                         </Button>
