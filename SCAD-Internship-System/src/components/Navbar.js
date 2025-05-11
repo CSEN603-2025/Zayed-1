@@ -109,7 +109,13 @@ const Navbar = () => {
             <NavLink to="/dashboard">Dashboard</NavLink>
             <NavLink to="/internships">Internships</NavLink>
             <NavLink to="/my-reports">My Reports</NavLink>
-            {userType === 'proStudent' && <NavLink to="/workshops">Workshops</NavLink>}
+            {userType === 'proStudent' && (
+              <>
+                <NavLink to="/workshops">Workshops</NavLink>
+                <NavLink to="/career-guidance">Career Guidance</NavLink>
+                <NavLink to="/Assessments">Assessments</NavLink>
+              </>
+            )}
           </>
         );
       case 'company':

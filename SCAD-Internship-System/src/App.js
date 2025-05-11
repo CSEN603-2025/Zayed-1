@@ -32,6 +32,11 @@ import CompanyDetails from './pages/CompanyDetails';
 import CompanyList from './pages/CompanyList';
 import InternProfilePreview from './pages/InternProfilePreview';
 import MyReports from './pages/MyReports';
+import CareerGuidance from './pages/CareerGuidance';
+import VideoCall from './pages/VideoCall';
+import Assessments from './pages/Assessments';
+import AssessmentTaking from './pages/AssessmentTaking';
+import AssessmentResults from './pages/AssessmentResults';
 
 const AppContainer = styled.div`
   font-family: ${props => props.theme.fonts.main};
@@ -84,7 +89,11 @@ function App() {
               <Route path="/faculty/feedback" element={<FacultyFeedback />} />
               <Route path="/faculty/reports" element={<ReportList />} />
               
-              {/* Shared routes - Order matters for routing! */}
+              {/* Career Guidance routes */}
+              <Route path="/career-guidance" element={<CareerGuidance />} />
+              <Route path="/career-guidance/call/:appointmentId" element={<VideoCall />} />
+              
+              {/* PRO Student routes */}
               <Route path="/internships" element={<InternshipListings />} />
               <Route path="/internships/post" element={<InternshipPost />} />
               <Route path="/internships/edit/:id" element={<InternshipPost />} />
@@ -94,6 +103,9 @@ function App() {
               <Route path="/report/:id" element={<ReportDetails />} />
               <Route path="/evaluation/create/:id" element={<EvaluationForm />} />
               <Route path="/evaluation/:id" element={<EvaluationReport />} />
+              <Route path="/assessments" element={<Assessments />} />
+              <Route path="/assessments/take/:id" element={<AssessmentTaking />} />
+              <Route path="/assessments/results/:id" element={<AssessmentResults />} />
 
               {/* Fallback route */}
               <Route path="*" element={<Navigate to="/" />} />
