@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
@@ -70,6 +70,13 @@ const StatsContainer = styled.div`
 const StatCard = styled(Card)`
   display: flex;
   align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const StatIconContainer = styled.div`
@@ -461,8 +468,10 @@ const rejectionReasons = [
 
 const ScadDashboard = () => {
   const navigate = useNavigate();
+  const tabsRef = useRef(null);
   const [activeTab, setActiveTab] = useState('companies');
   const [searchTerm, setSearchTerm] = useState('');
+  const [companies, setCompanies] = useState(mockCompanies);
   const [filters, setFilters] = useState({
     companyIndustry: '',
     reportStatus: '',
@@ -509,7 +518,13 @@ const ScadDashboard = () => {
     alert(`Internship cycle dates set: ${cycleDates.startDate} to ${cycleDates.endDate}`);
   };
   
-  const filteredCompanies = mockCompanies.filter(company => {
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Scroll to tabs container smoothly
+    tabsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  const filteredCompanies = companies.filter(company => {
     // Search filter
     if (searchTerm && !company.name.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
@@ -605,11 +620,23 @@ const ScadDashboard = () => {
   };
   
   const handleApproveCompany = (id) => {
-    navigate(`/scad/companies/${id}`);
+    setCompanies(prevCompanies => 
+      prevCompanies.map(company => 
+        company.id === id ? { ...company, status: 'approved' } : company
+      )
+    );
+    // Optional: Show a success message
+    alert('Company has been approved');
   };
   
   const handleRejectCompany = (id) => {
-    navigate(`/scad/companies/${id}`);
+    setCompanies(prevCompanies => 
+      prevCompanies.map(company => 
+        company.id === id ? { ...company, status: 'rejected' } : company
+      )
+    );
+    // Optional: Show a rejection message
+    alert('Company has been rejected');
   };
   
   const handleViewStudent = (id) => {
@@ -665,24 +692,17 @@ const ScadDashboard = () => {
         </DashboardHeader>
         
         <StatCardsContainer>
-          <StatCard>
+          <StatCard onClick={() => navigate('/scad/companies')}>
             <StatIconContainer>
               <FaBuilding />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockCompanies.filter(c => c.status === 'pending').length}</StatValue>
+              <StatValue>{companies.filter(c => c.status === 'pending').length}</StatValue>
               <StatLabel>Pending Company Applications</StatLabel>
             </StatContent>
-            <Button 
-              variant="small" 
-              onClick={() => navigate('/scad/companies')}
-              style={{ marginLeft: '1rem' }}
-            >
-              View All
-            </Button>
           </StatCard>
           
-          <StatCard>
+          <StatCard onClick={() => handleTabChange('students')}>
             <StatIconContainer>
               <FaGraduationCap />
             </StatIconContainer>
@@ -692,7 +712,7 @@ const ScadDashboard = () => {
             </StatContent>
           </StatCard>
           
-          <StatCard>
+          <StatCard onClick={() => handleTabChange('reports')}>
             <StatIconContainer>
               <FaFileAlt />
             </StatIconContainer>
@@ -702,7 +722,7 @@ const ScadDashboard = () => {
             </StatContent>
           </StatCard>
           
-          <StatCard onClick={() => setActiveTab('evaluations')}>
+          <StatCard onClick={() => handleTabChange('evaluations')}>
             <StatIconContainer>
               <FaStar />
             </StatIconContainer>
@@ -749,38 +769,46 @@ const ScadDashboard = () => {
           </CycleDateSettings>
         </Card>
         
-        <TabsContainer>
-          <Tab 
-            active={activeTab === 'companies'} 
-            onClick={() => setActiveTab('companies')}
-          >
-            Company Applications
-          </Tab>
-          <Tab 
-            active={activeTab === 'students'} 
-            onClick={() => setActiveTab('students')}
-          >
-            Students
-          </Tab>
-          <Tab 
-            active={activeTab === 'reports'} 
-            onClick={() => setActiveTab('reports')}
-          >
-            Internship Reports
-          </Tab>
-          <Tab 
-            active={activeTab === 'statistics'} 
-            onClick={() => setActiveTab('statistics')}
-          >
-            Statistics
-          </Tab>
-          <Tab 
-            active={activeTab === 'evaluations'} 
-            onClick={() => setActiveTab('evaluations')}
-          >
-            Evaluation Reports
-          </Tab>
-        </TabsContainer>
+        <div ref={tabsRef}>
+          <TabsContainer>
+            <Tab 
+              active={activeTab === 'companies'} 
+              onClick={() => handleTabChange('companies')}
+            >
+              Company Applications
+            </Tab>
+            <Tab 
+              active={activeTab === 'students'} 
+              onClick={() => handleTabChange('students')}
+            >
+              Students
+            </Tab>
+            <Tab 
+              active={activeTab === 'reports'} 
+              onClick={() => handleTabChange('reports')}
+            >
+              Internship Reports
+            </Tab>
+            <Tab 
+              active={activeTab === 'statistics'} 
+              onClick={() => handleTabChange('statistics')}
+            >
+              Statistics
+            </Tab>
+            <Tab 
+              active={activeTab === 'evaluations'} 
+              onClick={() => handleTabChange('evaluations')}
+            >
+              Evaluation Reports
+            </Tab>
+            <Tab 
+              active={activeTab === 'guidance'} 
+              onClick={() => navigate('/career-guidance')}
+            >
+              Career Guidance
+            </Tab>
+          </TabsContainer>
+        </div>
         
         {activeTab === 'companies' && (
           <>

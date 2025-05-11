@@ -16,7 +16,10 @@ import {
   FaCheck,
   FaTimes,
   FaStar,
-  FaUniversity
+  FaUniversity,
+  FaChartBar,
+  FaEye,
+  FaEyeSlash
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -269,6 +272,122 @@ const EditableFieldContent = styled.div`
   line-height: 1.5;
 `;
 
+const AssessmentCard = styled(Card)`
+  margin-bottom: 1rem;
+`;
+
+const AssessmentHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+`;
+
+const AssessmentTitle = styled.h4`
+  color: ${props => props.theme.colors.primary};
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+`;
+
+const AssessmentDate = styled.div`
+  font-size: 0.9rem;
+  color: ${props => props.theme.colors.darkGray};
+`;
+
+const AssessmentDetails = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const AssessmentDetail = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const DetailLabel = styled.span`
+  font-size: 0.8rem;
+  color: ${props => props.theme.colors.darkGray};
+  margin-bottom: 0.25rem;
+`;
+
+const DetailValue = styled.span`
+  font-size: 1rem;
+  color: ${props => props.theme.colors.primary};
+  font-weight: 500;
+`;
+
+const ScoreCircle = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: ${props => {
+    const score = props.score;
+    if (score >= 80) return '#e8f5e9';
+    if (score >= 60) return '#fff3e0';
+    return '#ffebee';
+  }};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    border: 2px solid ${props => {
+      const score = props.score;
+      if (score >= 80) return '#4caf50';
+      if (score >= 60) return '#ff9800';
+      return '#f44336';
+    }};
+  }
+`;
+
+const ScoreValue = styled.div`
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: ${props => {
+    const score = props.score;
+    if (score >= 80) return '#2e7d32';
+    if (score >= 60) return '#ef6c00';
+    return '#c62828';
+  }};
+`;
+
+const ScoreLabel = styled.div`
+  font-size: 0.7rem;
+  color: ${props => props.theme.colors.secondary};
+`;
+
+const VisibilityToggle = styled.button`
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: ${props => props.visible ? '#e8f5e9' : '#f5f5f5'};
+  color: ${props => props.visible ? '#2e7d32' : '#757575'};
+  cursor: pointer;
+  
+  svg {
+    margin-right: 0.5rem;
+  }
+  
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
 // Mock data
 const mockUserData = {
   id: 1,
@@ -319,6 +438,41 @@ const mockUserData = {
       name: 'Top Performer',
       icon: <FaAward />,
       earned: true
+    }
+  ],
+  assessments: [
+    {
+      id: 1,
+      title: 'Technical Skills Assessment',
+      date: '2024-03-15',
+      score: 85,
+      totalQuestions: 30,
+      correctAnswers: 25,
+      duration: '45 minutes',
+      status: 'completed',
+      visible: true
+    },
+    {
+      id: 2,
+      title: 'Problem Solving Assessment',
+      date: '2024-03-10',
+      score: 92,
+      totalQuestions: 25,
+      correctAnswers: 23,
+      duration: '40 minutes',
+      status: 'completed',
+      visible: true
+    },
+    {
+      id: 3,
+      title: 'Communication Skills Assessment',
+      date: '2024-03-05',
+      score: 78,
+      totalQuestions: 20,
+      correctAnswers: 15,
+      duration: '30 minutes',
+      status: 'completed',
+      visible: false
     }
   ]
 };
@@ -387,6 +541,17 @@ const StudentProfile = () => {
     setUserData(prev => ({
       ...prev,
       jobInterests: prev.jobInterests.filter(item => item !== interest)
+    }));
+  };
+  
+  const toggleScoreVisibility = (assessmentId) => {
+    setUserData(prev => ({
+      ...prev,
+      assessments: prev.assessments.map(assessment =>
+        assessment.id === assessmentId
+          ? { ...assessment, visible: !assessment.visible }
+          : assessment
+      )
     }));
   };
   
@@ -465,6 +630,12 @@ const StudentProfile = () => {
                 onClick={() => setActiveTab('activities')}
               >
                 Activities
+              </Tab>
+              <Tab 
+                active={activeTab === 'assessments'} 
+                onClick={() => setActiveTab('assessments')}
+              >
+                Assessments
               </Tab>
             </TabsContainer>
             
@@ -707,6 +878,62 @@ const StudentProfile = () => {
                     
                     <p>{activity.description}</p>
                   </ExperienceCard>
+                ))}
+              </>
+            )}
+            
+            {activeTab === 'assessments' && (
+              <>
+                <SectionTitle>
+                  <FaChartBar /> Assessment Results
+                </SectionTitle>
+                
+                {userData.assessments.map(assessment => (
+                  <AssessmentCard key={assessment.id}>
+                    <AssessmentHeader>
+                      <div>
+                        <AssessmentTitle>{assessment.title}</AssessmentTitle>
+                        <AssessmentDate>
+                          Taken on {new Date(assessment.date).toLocaleDateString()}
+                        </AssessmentDate>
+                      </div>
+                      <ScoreCircle score={assessment.score}>
+                        <ScoreValue score={assessment.score}>{assessment.score}%</ScoreValue>
+                        <ScoreLabel>Score</ScoreLabel>
+                      </ScoreCircle>
+                    </AssessmentHeader>
+                    
+                    <AssessmentDetails>
+                      <AssessmentDetail>
+                        <DetailLabel>Total Questions</DetailLabel>
+                        <DetailValue>{assessment.totalQuestions}</DetailValue>
+                      </AssessmentDetail>
+                      <AssessmentDetail>
+                        <DetailLabel>Correct Answers</DetailLabel>
+                        <DetailValue>{assessment.correctAnswers}</DetailValue>
+                      </AssessmentDetail>
+                      <AssessmentDetail>
+                        <DetailLabel>Duration</DetailLabel>
+                        <DetailValue>{assessment.duration}</DetailValue>
+                      </AssessmentDetail>
+                      <AssessmentDetail>
+                        <DetailLabel>Status</DetailLabel>
+                        <DetailValue style={{ 
+                          color: assessment.status === 'completed' ? '#2e7d32' : '#f44336'
+                        }}>
+                          {assessment.status.charAt(0).toUpperCase() + assessment.status.slice(1)}
+                        </DetailValue>
+                      </AssessmentDetail>
+                    </AssessmentDetails>
+                    
+                    <VisibilityToggle
+                      visible={assessment.visible}
+                      onClick={() => toggleScoreVisibility(assessment.id)}
+                    >
+                      {assessment.visible ? <FaEye /> : <FaEyeSlash />}
+                      {assessment.visible ? 'Score is Visible' : 'Score is Hidden'}
+                    </VisibilityToggle>
+                  </AssessmentCard>
                 ))}
               </>
             )}
