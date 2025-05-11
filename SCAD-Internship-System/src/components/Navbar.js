@@ -164,7 +164,7 @@ const Navbar = () => {
         </IconWrapper>
           )}
           <IconWrapper>
-            <NotificationCenter />
+            <NotificationCenter userType={userType} />
           </IconWrapper>
           
           <IconWrapper onClick={handleLogout}>
