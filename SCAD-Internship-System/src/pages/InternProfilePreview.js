@@ -428,7 +428,7 @@ const InternProfilePreview = () => {
         
         <ProfileHeader>
           <div>
-            <PageTitle>{"isApplicant ? 'Applicant Profile' : 'Intern Profile'"}</PageTitle>
+            <PageTitle>Student Profile</PageTitle>
           </div>
           <StatusContainer>
             {intern.status && <StatusBadge status={intern.status}>{intern.status.charAt(0).toUpperCase() + intern.status.slice(1)}</StatusBadge>}
