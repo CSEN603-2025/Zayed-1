@@ -125,9 +125,7 @@ const Navbar = () => {
           <>
             <NavLink to="/scad/dashboard">Dashboard</NavLink>
             <NavLink to="/scad/companies">Companies</NavLink>
-            <NavLink to="/scad/students">Students</NavLink>
             <NavLink to="/scad/reports">Reports</NavLink>
-            <NavLink to="/scad/statistics">Statistics</NavLink>
             <NavLink to="/workshops">Workshops</NavLink>
             <NavLink to="/workshops/calls">Workshop Calls</NavLink>
           </>
