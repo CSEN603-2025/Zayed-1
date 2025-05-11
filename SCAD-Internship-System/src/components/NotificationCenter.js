@@ -332,7 +332,7 @@ const NotificationList = ({ notifications, onClearAll, onReadNotification }) => 
 };
 
 // Main Notification Center Component
-const NotificationCenter = () => {
+const NotificationCenter = ({ userType = 'student' }) => {
   const [toasts, setToasts] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -341,34 +341,87 @@ const NotificationCenter = () => {
   useEffect(() => {
     // Simulate fetching notifications
     const mockNotifications = [
+      // Company notifications for internship applications
       {
         id: 1,
-        title: 'Application Update',
-        message: 'Your application to Tech Innovations has been viewed by the company.',
+        title: 'New Application Received',
+        message: 'John Smith has applied for the Frontend Developer Intern position.',
         type: 'info',
         time: new Date(Date.now() - 20 * 60000).toISOString(), // 20 minutes ago
-        read: false
+        read: false,
+        userType: 'company'
       },
       {
         id: 2,
-        title: 'New Internship Posted',
-        message: 'A new internship matching your interests has been posted by Finance Solutions.',
+        title: 'New Application Received',
+        message: 'Sarah Johnson has applied for the Frontend Developer Intern position.',
         type: 'info',
         time: new Date(Date.now() - 3 * 3600000).toISOString(), // 3 hours ago
-        read: false
+        read: false,
+        userType: 'company'
       },
       {
         id: 3,
-        title: 'Application Accepted',
-        message: 'Congratulations! Your application to Healthcare Systems has been accepted.',
-        type: 'success',
+        title: 'New Application Received',
+        message: 'Michael Brown has applied for the UI/UX Design Intern position.',
+        type: 'info',
         time: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
-        read: true
+        read: true,
+        userType: 'company'
+      },
+      
+      // Student notifications for report status changes
+      {
+        id: 4,
+        title: 'Report Status Updated',
+        message: 'Your January monthly report has been approved by your supervisor.',
+        type: 'success',
+        time: new Date(Date.now() - 1 * 86400000).toISOString(), // 1 day ago
+        read: false,
+        userType: 'student' 
+      },
+      
+      {
+        id: 5,
+        title: 'Report Status Updated',
+        message: 'Your February monthly report requires revisions. Please check the comments.',
+        type: 'warning',
+        time: new Date(Date.now() - 3 * 86400000).toISOString(), // 3 days ago
+        read: false,
+        userType: 'student'
+      },
+      {
+        id: 6,
+        title: 'Report Status Updated',
+        message: 'Your final internship report has been approved. Congratulations on completing your internship!',
+        type: 'success',
+        time: new Date(Date.now() - 5 * 86400000).toISOString(), // 5 days ago
+        read: true,
+        userType: 'student'
+      },{
+        id: 7,
+        title: 'New internship cycle begins',
+        message: 'A new internship cycle begins. Please submit your application before the deadline.',
+        type: 'success',
+        time: new Date(Date.now() - 1 * 86400000).toISOString(), // 1 day ago
+        read: false,
+        userType: 'student' 
       }
-    ];
+      ];
     
-    setNotifications(mockNotifications);
-  }, []);
+    // Filter notifications based on user type
+    // Make sure both 'student' and 'proStudent' receive student notifications
+    const filteredNotifications = mockNotifications.filter(
+      notification => {
+        if ((userType === 'student' || userType === 'proStudent') && notification.userType === 'student') {
+          return true;
+        }
+        return notification.userType === userType;
+      }
+    );
+    
+    setNotifications(filteredNotifications);
+  }, [userType]);
   
   // Add a new toast notification
   const addToast = (notification) => {
@@ -441,20 +494,30 @@ const NotificationCenter = () => {
     }
   };
   
-  // Demonstrate adding a notification (for testing)
-  /*
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  // Demo function to trigger notifications (for testing)
+  const triggerDemoNotification = () => {
+    if (userType === 'company') {
       addNotification({
-        title: 'Test Notification',
-        message: 'This is a test notification to demonstrate the component.',
-        type: 'info'
+        title: 'New Application Received',
+        message: 'Alex Johnson has just applied for the Backend Developer Intern position.',
+        type: 'info',
+        userType: 'company'
       });
-    }, 2000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  */
+    } else if (userType === 'student' || userType === 'proStudent') {
+      addNotification({
+        title: 'Report Status Updated',
+        message: 'Your March monthly report has been reviewed. Click to view comments.',
+        type: 'success',
+        userType: 'student'
+      },);
+      addNotification({
+        title: 'New internship cycle begins',
+        message: 'A new internship cycle begins. Please submit your application before the deadline.',
+        type: 'success',
+        userType: 'student'
+      });
+    }
+  };
   
   // Count unread notifications
   const unreadCount = notifications.filter(notification => !notification.read).length;
@@ -478,10 +541,27 @@ const NotificationCenter = () => {
       
       {/* Notification Bell & Dropdown */}
       <div style={{ position: 'relative' }}>
-        <BellButton onClick={toggleDropdown}>
-          <FaBell />
-          {unreadCount > 0 && <Badge>{unreadCount}</Badge>}
-        </BellButton>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <BellButton onClick={toggleDropdown}>
+            <FaBell />
+            {unreadCount > 0 && <Badge>{unreadCount}</Badge>}
+          </BellButton>
+          
+          {/* Demo button to trigger new notifications (for testing only) */}
+          <button 
+            onClick={triggerDemoNotification}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: '#666', 
+              marginLeft: '10px',
+              fontSize: '0.8rem',
+              cursor: 'pointer'
+            }}
+          >
+            Test
+          </button>
+        </div>
         
         <DropdownContainer show={showDropdown}>
           <NotificationList
