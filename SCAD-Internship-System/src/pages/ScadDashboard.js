@@ -391,6 +391,7 @@ const ScadDashboard = () => {
     startDate: '2023-05-01',
     endDate: '2023-08-31'
   });
+  const [reports, setReports] = useState(mockReports);
   
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -449,7 +450,7 @@ const ScadDashboard = () => {
     return true;
   });
   
-  const filteredReports = mockReports.filter(report => {
+  const filteredReports = reports.filter(report => {
     // Search filter
     if (
       searchTerm && 
@@ -512,11 +513,20 @@ const ScadDashboard = () => {
   };
   
   const handleViewStudent = (id) => {
-    alert(`Viewing student profile for ID: ${id}`);
+    navigate(`/scad/studentPreview`);
   };
   
   const handleViewReport = (id) => {
-    alert(`Viewing report with ID: ${id}`);
+    navigate(`/scad/viewReport`);
+  };
+  
+  const handleReportStatusChange = (id, newStatus) => {
+    // Update the reports state with the new status
+    setReports(prevReports => 
+      prevReports.map(report => 
+        report.id === id ? {...report, status: newStatus} : report
+      )
+    );
   };
   
   return (
@@ -802,7 +812,8 @@ const ScadDashboard = () => {
                     <TableHeaderCell>Student</TableHeaderCell>
                     <TableHeaderCell>Company</TableHeaderCell>
                     <TableHeaderCell>Submission Date</TableHeaderCell>
-                    <TableHeaderCell>Status</TableHeaderCell>
+                    <TableHeaderCell>Current Status</TableHeaderCell>
+                    <TableHeaderCell>Change Status</TableHeaderCell>
                     <TableHeaderCell>Actions</TableHeaderCell>
                   </tr>
                 </TableHeader>
@@ -817,6 +828,19 @@ const ScadDashboard = () => {
                         <StatusBadge status={report.status}>
                           {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
                         </StatusBadge>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={report.status}
+                          onChange={(e) => handleReportStatusChange(report.id, e.target.value)}
+                          options={[
+                            { value: 'pending', label: 'Pending' },
+                            { value: 'accepted', label: 'Accepted' },
+                            { value: 'rejected', label: 'Rejected' },
+                            { value: 'flagged', label: 'Flagged' }
+                          ]}
+                          style={{ minWidth: '120px' }}
+                        />
                       </TableCell>
                       <TableCell>
                         <ActionButtons>

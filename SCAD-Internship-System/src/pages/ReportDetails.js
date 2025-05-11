@@ -6,6 +6,8 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import FeedbackSystem from '../components/FeedbackSystem';
+import { useContext } from 'react';
+import AuthContext from '../contexts/AuthContext';
 import { 
   FaArrowLeft, 
   FaCalendarAlt, 
@@ -442,7 +444,7 @@ const ReportDetails = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userType, setUserType] = useState("faculty"); // This would come from auth context in a real app
+  const { userType } = useContext(AuthContext);
   const [rating, setRating] = useState(0);
   const [feedbackText, setFeedbackText] = useState("");
   const [showClarificationForm, setShowClarificationForm] = useState(false);
@@ -551,7 +553,7 @@ const ReportDetails = () => {
     );
   }
   
-  const canReview = userType === "faculty" || userType === "scadOffice";
+  const canReview = userType === "faculty" ;
   
   const renderFacultyReviewSection = () => {
     if (userType !== "faculty") return null;

@@ -51,6 +51,16 @@ const CardFooter = styled.div`
   border-top: 1px solid ${props => props.theme.colors.tertiary};
 `;
 
+// Header component as a subcomponent
+const Header = ({ children, divider = true }) => {
+  return <CardHeader divider={divider}>{children}</CardHeader>;
+};
+
+// Body component as a subcomponent
+const Body = ({ children }) => {
+  return <CardBody>{children}</CardBody>;
+};
+
 // Footer component as a subcomponent
 const Footer = ({ children, align }) => {
   return <CardFooter align={align}>{children}</CardFooter>;
@@ -89,7 +99,9 @@ const Card = ({
   );
 };
 
-// Add Footer as a static property of Card
+// Add subcomponents as static properties of Card
 Card.Footer = Footer;
+Card.Header = Header;
+Card.Body = Body;
 
 export default Card; 
