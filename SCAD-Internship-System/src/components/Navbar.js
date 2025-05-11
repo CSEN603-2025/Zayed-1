@@ -160,12 +160,15 @@ const Navbar = () => {
         {getNavLinks()}
         
         <IconContainer>
+        {(userType === 'student' || userType === 'proStudent') && (
           <IconWrapper>
-            <FaUser onClick={() => navigate("/profile")} />
-          </IconWrapper>
+          <FaUser onClick={() => navigate("/profile")} />
+        </IconWrapper>
+          )}
           <IconWrapper>
             <NotificationCenter />
           </IconWrapper>
+          
           <IconWrapper onClick={handleLogout}>
             <FaSignOutAlt />
           </IconWrapper>
