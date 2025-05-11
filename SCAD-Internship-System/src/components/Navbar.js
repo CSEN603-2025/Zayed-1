@@ -146,7 +146,7 @@ const Navbar = () => {
   
   return (
     <NavbarContainer>
-      <Logo to={userType === 'student' || userType === 'proStudent' ? "/dashboard" : `/${userType}/dashboard`}>
+      <Logo>
         SCAD Internship
       </Logo>
       

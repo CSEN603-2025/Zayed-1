@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { useAuth } from '../contexts/AuthContext';
 import {
   FaBuilding,
   FaEnvelope,
@@ -279,6 +280,7 @@ const mockCompanyData = {
 const CompanyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { userType } = useAuth();
   const [company, setCompany] = useState(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [loading, setLoading] = useState(true);
@@ -340,7 +342,7 @@ const CompanyDetails = () => {
   if (loading) {
     return (
       <PageContainer>
-        <Navbar userType="scadOffice" />
+        <Navbar />
         <ContentContainer>
           <div>Loading...</div>
         </ContentContainer>
@@ -351,7 +353,7 @@ const CompanyDetails = () => {
   if (error) {
     return (
       <PageContainer>
-        <Navbar userType="scadOffice" />
+        <Navbar />
         <ContentContainer>
           <div>Error: {error}</div>
         </ContentContainer>
@@ -361,7 +363,7 @@ const CompanyDetails = () => {
   
   return (
     <PageContainer>
-      <Navbar userType="scadOffice" />
+      <Navbar />
       
       <ContentContainer>
         
@@ -454,111 +456,113 @@ const CompanyDetails = () => {
           </div>
           
           <div>
-            <ReviewSectionCard title="Review Application">
-              <div>
-                <p>Application submitted on: {company.appliedDate}</p>
-                
-                {company.status === 'pending' ? (
-                  <>
-                    <ReviewNotes>
-                      <label htmlFor="reviewNotes">Review Notes (required):</label>
-                      <TextArea
-                        id="reviewNotes"
-                        placeholder="Enter your notes for this company application review..."
-                        value={reviewNotes}
-                        onChange={(e) => setReviewNotes(e.target.value)}
-                      />
-                    </ReviewNotes>
-                    
-                    <ReviewActions>
-                      <Button 
-                        variant="danger" 
-                        onClick={() => setShowConfirm('reject')}
-                        fullWidth
-                      >
-                        Reject Application
-                      </Button>
+            {userType === 'scadOffice' && (
+              <ReviewSectionCard title="Review Application">
+                <div>
+                  <p>Application submitted on: {company.appliedDate}</p>
+                  
+                  {company.status === 'pending' ? (
+                    <>
+                      <ReviewNotes>
+                        <label htmlFor="reviewNotes">Review Notes (required):</label>
+                        <TextArea
+                          id="reviewNotes"
+                          placeholder="Enter your notes for this company application review..."
+                          value={reviewNotes}
+                          onChange={(e) => setReviewNotes(e.target.value)}
+                        />
+                      </ReviewNotes>
                       
-                      <Button 
-                        variant="success" 
-                        onClick={() => setShowConfirm('approve')}
-                        fullWidth
-                      >
-                        Approve Application
-                      </Button>
-                    </ReviewActions>
-                    
-                    {showConfirm === 'approve' && (
-                      <Card.Footer>
-                        <div>
-                          <p>Are you sure you want to approve this company application?</p>
-                          <p>An email notification will be sent to the company.</p>
-                          
-                          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <Button 
-                              variant="secondary" 
-                              onClick={() => setShowConfirm(null)}
-                            >
-                              Cancel
-                            </Button>
+                      <ReviewActions>
+                        <Button 
+                          variant="danger" 
+                          onClick={() => setShowConfirm('reject')}
+                          fullWidth
+                        >
+                          Reject Application
+                        </Button>
+                        
+                        <Button 
+                          variant="success" 
+                          onClick={() => setShowConfirm('approve')}
+                          fullWidth
+                        >
+                          Approve Application
+                        </Button>
+                      </ReviewActions>
+                      
+                      {showConfirm === 'approve' && (
+                        <Card.Footer>
+                          <div>
+                            <p>Are you sure you want to approve this company application?</p>
+                            <p>An email notification will be sent to the company.</p>
                             
-                            <Button 
-                              variant="success" 
-                              onClick={handleApproveCompany}
-                            >
-                              Confirm Approval
-                            </Button>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                              <Button 
+                                variant="secondary" 
+                                onClick={() => setShowConfirm(null)}
+                              >
+                                Cancel
+                              </Button>
+                              
+                              <Button 
+                                variant="success" 
+                                onClick={handleApproveCompany}
+                              >
+                                Confirm Approval
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </Card.Footer>
-                    )}
-                    
-                    {showConfirm === 'reject' && (
-                      <Card.Footer>
-                        <div>
-                          <p>Are you sure you want to reject this company application?</p>
-                          <p>An email notification will be sent to the company.</p>
-                          
-                          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <Button 
-                              variant="secondary" 
-                              onClick={() => setShowConfirm(null)}
-                            >
-                              Cancel
-                            </Button>
+                        </Card.Footer>
+                      )}
+                      
+                      {showConfirm === 'reject' && (
+                        <Card.Footer>
+                          <div>
+                            <p>Are you sure you want to reject this company application?</p>
+                            <p>An email notification will be sent to the company.</p>
                             
-                            <Button 
-                              variant="danger" 
-                              onClick={handleRejectCompany}
-                            >
-                              Confirm Rejection
-                            </Button>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                              <Button 
+                                variant="secondary" 
+                                onClick={() => setShowConfirm(null)}
+                              >
+                                Cancel
+                              </Button>
+                              
+                              <Button 
+                                variant="danger" 
+                                onClick={handleRejectCompany}
+                              >
+                                Confirm Rejection
+                              </Button>
+                            </div>
                           </div>
+                        </Card.Footer>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <StatusBadge status={company.status}>
+                        This application has been {company.status}
+                      </StatusBadge>
+                      
+                      {company.status === 'approved' ? (
+                        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
+                          <FaCheckCircle style={{ color: '#2e7d32', marginRight: '0.5rem' }} />
+                          Company has been notified and can now post internship opportunities
                         </div>
-                      </Card.Footer>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ marginTop: '1.5rem' }}>
-                    <StatusBadge status={company.status}>
-                      This application has been {company.status}
-                    </StatusBadge>
-                    
-                    {company.status === 'approved' ? (
-                      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
-                        <FaCheckCircle style={{ color: '#2e7d32', marginRight: '0.5rem' }} />
-                        Company has been notified and can now post internship opportunities
-                      </div>
-                    ) : (
-                      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
-                        <FaTimesCircle style={{ color: '#c62828', marginRight: '0.5rem' }} />
-                        Company has been notified about the rejection
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </ReviewSectionCard>
+                      ) : (
+                        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
+                          <FaTimesCircle style={{ color: '#c62828', marginRight: '0.5rem' }} />
+                          Company has been notified about the rejection
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </ReviewSectionCard>
+            )}
           </div>
         </TwoColumnLayout>
       </ContentContainer>
