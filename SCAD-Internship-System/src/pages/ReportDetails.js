@@ -20,7 +20,8 @@ import {
   FaTimes,
   FaFlag,
   FaStar,
-  FaComments
+  FaComments,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -389,11 +390,52 @@ const ButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
+const AppealSection = styled.div`
+  margin-top: 2rem;
+  border: 2px solid #f0ad4e;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: #FFF9F0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const AppealTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  color: ${props => props.theme.colors.primary};
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  
+  svg {
+    margin-right: 0.5rem;
+    color: #f0ad4e;
+    font-size: 1.4rem;
+  }
+`;
+
+const AppealForm = styled.div`
+  margin-top: 1rem;
+`;
+
+const AppealMessage = styled.div`
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-top: 1rem;
+  border-left: 4px solid ${props => props.theme.colors.tertiary};
+`;
+
+const AppealStatus = styled.div`
+  margin-top: 1rem;
+  font-weight: 500;
+  color: ${props => props.status === 'pending' ? '#856404' : props.status === 'approved' ? '#155724' : '#721c24'};
+`;
+
 // Mock data
 const mockReportData = {
   id: 1,
   title: "Software Development Internship at Tech Innovations",
-  status: "pending",
+  status: "flagged",
   student: {
     name: "John Smith",
     id: "STU2023001",
@@ -432,7 +474,7 @@ const mockReportData = {
       author: "Dr. Sarah Miller",
       role: "Faculty Advisor",
       date: "August 22, 2023",
-      text: "This is a comprehensive report that clearly outlines your experience and learning outcomes. I particularly appreciate the detailed description of the challenges you faced and how you overcame them."
+      text: "This report needs revisions. Please add more details about the technical aspects of your work and specific examples of the code you wrote."
     }
   ],
   rating: 4
@@ -445,6 +487,10 @@ const ReportDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { userType } = useContext(AuthContext);
+  
+  // For testing purposes, force userType to be student if not set
+  const effectiveUserType = userType || 'student';
+  
   const [rating, setRating] = useState(0);
   const [feedbackText, setFeedbackText] = useState("");
   const [showClarificationForm, setShowClarificationForm] = useState(false);
@@ -460,16 +506,32 @@ const ReportDetails = () => {
     }
   ]);
   const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
+  const [appealText, setAppealText] = useState('');
+  const [hasAppealed, setHasAppealed] = useState(false);
+  const [appealStatus, setAppealStatus] = useState(null);
   
   useEffect(() => {
     // In a real app, we would fetch the report data based on the ID
-    // For this demo, we'll use the mock data
+    // For this demo, we'll use the mock data with the status passed in the query param or default to flagged
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status');
+    
     setTimeout(() => {
-      setReport(mockReportData);
-      setRating(mockReportData.rating);
+      // If a status parameter is provided in the URL, use it for testing
+      const reportWithStatus = {
+        ...mockReportData,
+        status: statusParam || mockReportData.status
+      };
+      
+      setReport(reportWithStatus);
+      setRating(reportWithStatus.rating);
       setLoading(false);
+      
+      // Debug userType and report status
+      console.log("Current userType:", effectiveUserType);
+      console.log("Report status:", reportWithStatus.status);
     }, 500);
-  }, [id]);
+  }, [id, effectiveUserType]);
   
   const handleRatingChange = (newRating) => {
     setRating(newRating);
@@ -531,10 +593,36 @@ const ReportDetails = () => {
     setShowDetailedFeedback(!showDetailedFeedback);
   };
   
+  const handleAppealSubmit = () => {
+    if (!appealText.trim()) {
+      alert('Please provide a reason for your appeal.');
+      return;
+    }
+    
+    // In a real application, you would send this to your API
+    console.log('Submitting appeal:', appealText);
+    
+    // Simulating a successful appeal submission
+    setHasAppealed(true);
+    setAppealStatus('pending');
+    
+    // Add the message to the report object for display purposes
+    const updatedReport = {
+      ...report,
+      appealMessage: appealText
+    };
+    setReport(updatedReport);
+    
+    setAppealText('');
+    
+    // Show success message
+    alert('Your appeal has been submitted successfully.');
+  };
+  
   if (loading) {
     return (
       <PageContainer>
-        <Navbar userType={userType} />
+        <Navbar userType={effectiveUserType} />
         <ContentContainer>
           <div>Loading...</div>
         </ContentContainer>
@@ -545,7 +633,7 @@ const ReportDetails = () => {
   if (error) {
     return (
       <PageContainer>
-        <Navbar userType={userType} />
+        <Navbar userType={effectiveUserType} />
         <ContentContainer>
           <div>Error: {error}</div>
         </ContentContainer>
@@ -553,10 +641,10 @@ const ReportDetails = () => {
     );
   }
   
-  const canReview = userType === "faculty" ;
+  const canReview = effectiveUserType === "faculty" ;
   
   const renderFacultyReviewSection = () => {
-    if (userType !== "faculty") return null;
+    if (effectiveUserType !== "faculty") return null;
     
     return (
       <>
@@ -628,9 +716,93 @@ const ReportDetails = () => {
     );
   };
   
+  const renderAppealSection = () => {
+    // Debug logging for appeal conditions
+    console.log("Checking appeal section conditions:", { 
+      reportExists: !!report,
+      reportStatus: report?.status,
+      userType: effectiveUserType,
+      shouldShow: (
+        report?.status === 'flagged' || 
+        report?.status === 'rejected'
+      ) && (
+        effectiveUserType === 'student' || 
+        effectiveUserType === 'proStudent'
+      ),
+      isAccepted: report?.status === 'accepted'
+    });
+    
+    // Explicitly ensure this doesn't show for accepted reports
+    if (report?.status === 'accepted') {
+      console.log("Report is accepted - not showing appeal section");
+      return null;
+    }
+
+    // Make sure the report exists and has either flagged or rejected status
+    if (!report || (report.status !== 'flagged' && report.status !== 'rejected')) {
+      console.log("Report doesn't exist or doesn't have flagged/rejected status");
+      return null;
+    }
+    
+    // Make sure the user is either a student or prostudent
+    if (effectiveUserType !== 'student' && effectiveUserType !== 'proStudent') {
+      console.log("User is not a student or prostudent");
+      return null;
+    }
+    
+    // At this point, we have a flagged or rejected report and the user is a student/prostudent
+    if (hasAppealed) {
+      console.log("Showing appeal status section");
+      return (
+        <AppealSection>
+          <AppealTitle>
+            <FaExclamationTriangle />
+            Appeal Status
+          </AppealTitle>
+          <AppealStatus status={appealStatus}>
+            {appealStatus === 'pending' ? 'Your appeal is pending review.' : 
+             appealStatus === 'approved' ? 'Your appeal has been approved.' : 
+             'Your appeal has been denied.'}
+          </AppealStatus>
+          {report.appealMessage && (
+            <AppealMessage>
+              <strong>Your appeal message:</strong>
+              <p>{report.appealMessage}</p>
+            </AppealMessage>
+          )}
+        </AppealSection>
+      );
+    }
+    
+    console.log("Showing appeal form section");
+    return (
+      <AppealSection>
+        <AppealTitle>
+          <FaExclamationTriangle />
+          Appeal this Report
+        </AppealTitle>
+        <p>Your report has been {report.status}. You can submit an appeal with additional context or corrections.</p>
+        
+        <AppealForm>
+          <Input
+            label="Appeal Reason"
+            placeholder="Explain why you believe this report should be reconsidered..."
+            multiline
+            rows={4}
+            value={appealText}
+            onChange={(e) => setAppealText(e.target.value)}
+          />
+          <div style={{ marginTop: '1rem' }}>
+            <Button onClick={handleAppealSubmit}>Submit Appeal</Button>
+          </div>
+        </AppealForm>
+      </AppealSection>
+    );
+  };
+  
   return (
     <PageContainer>
-      <Navbar userType={userType} />
+      <Navbar userType={effectiveUserType} />
       
       <ContentContainer>
         <BackButton onClick={() => navigate(-1)}>
@@ -663,6 +835,43 @@ const ReportDetails = () => {
         <StatusBadge status={report.status}>
           Status: {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
         </StatusBadge>
+        
+        {/* Testing controls for development (only visible in development environments) */}
+        {process.env.NODE_ENV !== 'production' && (
+          <div style={{ 
+            marginTop: '1rem', 
+            padding: '0.5rem', 
+            border: '1px dashed #ccc', 
+            borderRadius: '4px',
+            backgroundColor: '#f8f9fa'
+          }}>
+            <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: '#555' }}>
+              Test different statuses:
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {['pending', 'accepted', 'rejected', 'flagged'].map(status => (
+                <button 
+                  key={status}
+                  onClick={() => setReport({ ...report, status })}
+                  style={{
+                    padding: '0.3rem 0.8rem',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    backgroundColor: report.status === status ? '#007bff' : 'white',
+                    color: report.status === status ? 'white' : '#007bff',
+                    fontWeight: report.status === status ? 'bold' : 'normal',
+                  }}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Show appeal section at the top for flagged/rejected reports for better visibility */}
+        {renderAppealSection()}
         
         <TwoColumnLayout>
           <div>
@@ -787,7 +996,26 @@ const ReportDetails = () => {
           </div>
         </TwoColumnLayout>
         
-        {renderFacultyReviewSection()}
+        {/* Show comments section if there are any comments */}
+        {report.comments && report.comments.length > 0 && (
+          <>
+            <SectionTitle>Reviewer Comments</SectionTitle>
+            <CommentSection>
+              {report.comments.map((comment, index) => (
+                <Comment key={index}>
+                  <CommentHeader>
+                    <CommentAuthor>{comment.author}</CommentAuthor>
+                    <CommentDate>{comment.date}</CommentDate>
+                  </CommentHeader>
+                  <CommentText>{comment.text}</CommentText>
+                </Comment>
+              ))}
+            </CommentSection>
+          </>
+        )}
+        
+        {/* Faculty review section */}
+        {(effectiveUserType === 'faculty' || effectiveUserType === 'scadOffice') && renderFacultyReviewSection()}
       </ContentContainer>
     </PageContainer>
   );

@@ -31,6 +31,7 @@ import WorkshopProposal from './pages/WorkshopProposal';
 import CompanyDetails from './pages/CompanyDetails';
 import CompanyList from './pages/CompanyList';
 import InternProfilePreview from './pages/InternProfilePreview';
+import MyReports from './pages/MyReports';
 
 const AppContainer = styled.div`
   font-family: ${props => props.theme.fonts.main};
@@ -54,6 +55,7 @@ function App() {
               <Route path="/profile" element={<StudentProfile />} />
               <Route path="/report/create" element={<ReportCreate />} />
               <Route path="/report/list" element={<ReportList />} />
+              <Route path="/my-reports" element={<MyReports />} />
               
               {/* Routes for workshops */}
               <Route path="/workshops" element={<Workshop />} />
