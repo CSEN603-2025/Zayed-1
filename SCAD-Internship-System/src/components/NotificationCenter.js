@@ -380,7 +380,6 @@ const NotificationCenter = ({ userType = 'student' }) => {
         read: false,
         userType: 'student' 
       },
-      
       {
         id: 5,
         title: 'Report Status Updated',
@@ -398,7 +397,8 @@ const NotificationCenter = ({ userType = 'student' }) => {
         time: new Date(Date.now() - 5 * 86400000).toISOString(), // 5 days ago
         read: true,
         userType: 'student'
-      },{
+      },
+      {
         id: 7,
         title: 'New internship cycle begins',
         message: 'A new internship cycle begins. Please submit your application before the deadline.',
@@ -406,8 +406,66 @@ const NotificationCenter = ({ userType = 'student' }) => {
         time: new Date(Date.now() - 1 * 86400000).toISOString(), // 1 day ago
         read: false,
         userType: 'student' 
+      },
+      
+      // SCAD Office notifications
+      {
+        id: 8,
+        title: 'Incoming Call Notification',
+        message: 'Pro Student Ahmed has requested a workshop call about UI/UX internship opportunities.',
+        type: 'info',
+        time: new Date(Date.now() - 40 * 60000).toISOString(), // 40 minutes ago
+        read: false,
+        userType: 'scadOffice'
+      },
+      {
+        id: 9,
+        title: 'Incoming Call Notification',
+        message: 'Pro Student Sara has requested a call about internship application process.',
+        type: 'info',
+        time: new Date(Date.now() - 5 * 3600000).toISOString(), // 5 hours ago
+        read: false,
+        userType: 'scadOffice'
+      },
+      {
+        id: 10,
+        title: 'Appointment Scheduled',
+        message: 'Your appointment with Pro Student Mohamed has been confirmed for tomorrow at 2:00 PM.',
+        type: 'success',
+        time: new Date(Date.now() - 2 * 3600000).toISOString(), // 2 hours ago
+        read: false,
+        userType: 'scadOffice'
+      },
+      
+      // Pro Student notifications
+      {
+        id: 11,
+        title: 'Call Request Status',
+        message: 'Your call request about UI/UX internship opportunities has been received by the SCAD Office.',
+        type: 'info',
+        time: new Date(Date.now() - 35 * 60000).toISOString(), // 35 minutes ago
+        read: false,
+        userType: 'proStudent'
+      },
+      {
+        id: 12,
+        title: 'Appointment Confirmed',
+        message: 'Your appointment with SCAD Officer Dr. Ali has been confirmed for tomorrow at 2:00 PM.',
+        type: 'success',
+        time: new Date(Date.now() - 1 * 3600000).toISOString(), // 1 hour ago
+        read: false,
+        userType: 'proStudent'
+      },
+      {
+        id: 13,
+        title: 'Workshop Call Accepted',
+        message: 'SCAD Officer Dr. Fatima has accepted your workshop call request. The call is scheduled for Friday at 11:00 AM.',
+        type: 'success',
+        time: new Date(Date.now() - 4 * 3600000).toISOString(), // 4 hours ago
+        read: false,
+        userType: 'proStudent'
       }
-      ];
+    ];
     
     // Filter notifications based on user type
     // Make sure both 'student' and 'proStudent' receive student notifications
@@ -509,12 +567,26 @@ const NotificationCenter = ({ userType = 'student' }) => {
         message: 'Your March monthly report has been reviewed. Click to view comments.',
         type: 'success',
         userType: 'student'
-      },);
+      });
       addNotification({
         title: 'New internship cycle begins',
         message: 'A new internship cycle begins. Please submit your application before the deadline.',
         type: 'success',
         userType: 'student'
+      });
+    } else if (userType === 'scadOffice') {
+      addNotification({
+        title: 'Incoming Call Notification',
+        message: 'Pro Student Khalid has requested a workshop call about internship opportunities in finance.',
+        type: 'info',
+        userType: 'scadOffice'
+      });
+    } else if (userType === 'proStudent') {
+      addNotification({
+        title: 'Appointment Confirmed',
+        message: 'Your appointment with SCAD Officer Dr. Ahmed has been confirmed for tomorrow at 3:30 PM.',
+        type: 'success',
+        userType: 'proStudent'
       });
     }
   };
