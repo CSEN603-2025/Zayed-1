@@ -56,6 +56,7 @@ function App() {
               <Route path="/report/create" element={<ReportCreate />} />
               <Route path="/report/list" element={<ReportList />} />
               <Route path="/my-reports" element={<MyReports />} />
+              <Route path="/student/companies/:id" element={<CompanyDetails />} />
               
               {/* Routes for workshops */}
               <Route path="/workshops" element={<Workshop />} />

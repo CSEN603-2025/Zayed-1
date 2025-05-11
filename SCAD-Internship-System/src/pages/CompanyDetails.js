@@ -364,9 +364,6 @@ const CompanyDetails = () => {
       <Navbar userType="scadOffice" />
       
       <ContentContainer>
-        <BackButton onClick={() => navigate('/scad/dashboard')}>
-          <FaArrowLeft /> Back to Dashboard
-        </BackButton>
         
         <CompanyHeader>
           <CompanyLogo>
