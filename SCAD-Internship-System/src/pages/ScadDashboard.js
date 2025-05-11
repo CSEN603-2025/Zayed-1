@@ -465,6 +465,14 @@ const ScadDashboard = () => {
       return false;
     }
     
+    // Major filter - lookup student major from mockStudents array by name
+    if (filters.studentMajor) {
+      const student = mockStudents.find(s => s.name === report.student);
+      if (!student || student.major !== filters.studentMajor) {
+        return false;
+      }
+    }
+    
     return true;
   });
   
@@ -793,6 +801,14 @@ const ScadDashboard = () => {
                   value={searchTerm}
                   onChange={handleSearchChange}
                   style={{ flex: 1, marginRight: '1rem' }}
+                />
+                <Select
+                  name="studentMajor"
+                  value={filters.studentMajor}
+                  onChange={handleFilterChange}
+                  options={majorOptions}
+                  placeholder="Filter by Major"
+                  style={{ marginRight: '1rem' }}
                 />
                 <Select
                   name="reportStatus"
