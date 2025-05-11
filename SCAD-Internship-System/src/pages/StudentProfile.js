@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
@@ -487,6 +487,17 @@ const StudentProfile = () => {
   });
   const [newInterest, setNewInterest] = useState('');
   
+  // Load saved assessments when component mounts
+  useEffect(() => {
+    const savedAssessments = JSON.parse(localStorage.getItem('studentAssessments') || '[]');
+    if (savedAssessments.length > 0) {
+      setUserData(prev => ({
+        ...prev,
+        assessments: savedAssessments
+      }));
+    }
+  }, []);
+  
   const [editedUserData, setEditedUserData] = useState({
     name: userData.name,
     email: userData.email,
@@ -545,6 +556,7 @@ const StudentProfile = () => {
   };
   
   const toggleScoreVisibility = (assessmentId) => {
+    // Update local state
     setUserData(prev => ({
       ...prev,
       assessments: prev.assessments.map(assessment =>
@@ -553,6 +565,15 @@ const StudentProfile = () => {
           : assessment
       )
     }));
+    
+    // Update localStorage
+    const savedAssessments = JSON.parse(localStorage.getItem('studentAssessments') || '[]');
+    const updatedAssessments = savedAssessments.map(assessment =>
+      assessment.id === assessmentId
+        ? { ...assessment, visible: !assessment.visible }
+        : assessment
+    );
+    localStorage.setItem('studentAssessments', JSON.stringify(updatedAssessments));
   };
   
   return (

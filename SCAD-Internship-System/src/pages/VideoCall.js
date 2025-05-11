@@ -12,7 +12,8 @@ import {
   FaUser,
   FaBell,
   FaTimes,
-  FaCheck
+  FaCheck,
+  FaCircle
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -107,19 +108,52 @@ const ControlButton = styled.button`
   }
 `;
 
+const StatusIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: ${props => props.online ? '#e8f5e9' : '#f5f5f5'};
+  color: ${props => props.online ? '#2e7d32' : '#757575'};
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  
+  svg {
+    margin-right: 0.5rem;
+    color: ${props => props.online ? '#4caf50' : '#9e9e9e'};
+    animation: ${props => props.online ? 'pulse 2s infinite' : 'none'};
+  }
+  
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+`;
+
 const NotificationBanner = styled.div`
   position: fixed;
   top: 1rem;
   right: 1rem;
-  background-color: ${props => props.type === 'error' ? '#dc3545' : '#28a745'};
+  background-color: ${props => props.theme.colors.primary};
   color: white;
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.3s ease-out;
+  
+  svg {
+    margin-right: 0.5rem;
+  }
   
   @keyframes slideIn {
     from {
@@ -180,19 +214,48 @@ const VideoCall = () => {
   const [showScreenShareOptions, setShowScreenShareOptions] = useState(false);
   const [notification, setNotification] = useState(null);
   const [participantLeft, setParticipantLeft] = useState(false);
+  const [isOtherUserOnline, setIsOtherUserOnline] = useState(true);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
   
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   
-  // Mock function to simulate participant leaving
+  // Simulate other user's online status changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Randomly change online status for demo purposes
+      // In a real app, this would be based on actual user presence
+      const newStatus = Math.random() > 0.7;
+      if (newStatus !== isOtherUserOnline) {
+        setIsOtherUserOnline(newStatus);
+        if (!newStatus) {
+          setNotificationMessage('The other participant has gone offline');
+          setShowNotification(true);
+          setTimeout(() => setShowNotification(false), 5000);
+        } else {
+          setNotificationMessage('The other participant is back online');
+          setShowNotification(true);
+          setTimeout(() => setShowNotification(false), 5000);
+        }
+      }
+    }, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [isOtherUserOnline]);
+  
+  // Simulate other user leaving the call
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setParticipantLeft(true);
-      setNotification({
-        type: 'error',
-        message: 'The other participant has left the call'
-      });
-    }, 30000); // Simulate participant leaving after 30 seconds
+      // In a real app, this would be triggered by the other user actually leaving
+      setNotificationMessage('The other participant has left the call');
+      setShowNotification(true);
+      setTimeout(() => {
+        setShowNotification(false);
+        // Optionally navigate away after notification
+        // navigate('/career-guidance');
+      }, 5000);
+    }, 30000); // Demo: other user leaves after 30 seconds
     
     return () => clearTimeout(timeout);
   }, []);
@@ -248,6 +311,11 @@ const VideoCall = () => {
       <Navbar userType="proStudent" />
       
       <ContentContainer>
+        <StatusIndicator online={isOtherUserOnline}>
+          <FaCircle />
+          {isOtherUserOnline ? 'Other participant is online' : 'Other participant is offline'}
+        </StatusIndicator>
+        
         <VideoGrid>
           <VideoBox>
             <video ref={localVideoRef} autoPlay muted playsInline />
@@ -330,10 +398,10 @@ const VideoCall = () => {
           </ScreenShareOverlay>
         )}
         
-        {participantLeft && (
-          <NotificationBanner type="error">
+        {showNotification && (
+          <NotificationBanner>
             <FaBell />
-            The other participant has left the call
+            {notificationMessage}
           </NotificationBanner>
         )}
       </ContentContainer>
