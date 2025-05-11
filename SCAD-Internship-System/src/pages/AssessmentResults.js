@@ -11,7 +11,9 @@ import {
   FaStar,
   FaEye,
   FaEyeSlash,
-  FaChartBar
+  FaChartBar,
+  FaUser,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -142,26 +144,100 @@ const DetailValue = styled.span`
   color: ${props => props.theme.colors.primary};
 `;
 
-const VisibilityToggle = styled.button`
+const ProfilePostingCard = styled(Card)`
+  margin-top: 2rem;
+  text-align: left;
+`;
+
+const ProfilePostingHeader = styled.div`
   display: flex;
   align-items: center;
-  padding: 0.75rem 1.5rem;
-  border: none;
+  margin-bottom: 1rem;
+  
+  svg {
+    margin-right: 0.5rem;
+    color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const ProfilePostingTitle = styled.h3`
+  color: ${props => props.theme.colors.primary};
+  margin: 0;
+  font-size: 1.2rem;
+`;
+
+const ProfilePostingDescription = styled.p`
+  color: ${props => props.theme.colors.secondary};
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+`;
+
+const PostToProfileButton = styled(Button)`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  
+  svg {
+    font-size: 1.1rem;
+  }
+`;
+
+const PostingStatus = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: ${props => props.posted ? '#e8f5e9' : '#f5f5f5'};
+  color: ${props => props.posted ? '#2e7d32' : '#757575'};
   border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  background-color: ${props => props.visible ? '#e8f5e9' : '#f5f5f5'};
-  color: ${props => props.visible ? '#2e7d32' : '#757575'};
-  cursor: pointer;
-  margin: 1rem auto;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  
+  svg {
+    margin-right: 0.5rem;
+    color: ${props => props.posted ? '#4caf50' : '#9e9e9e'};
+  }
+`;
+
+const ConfirmationModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled(Card)`
+  max-width: 400px;
+  width: 90%;
+  padding: 2rem;
+  text-align: center;
+`;
+
+const ModalTitle = styled.h2`
+  color: ${props => props.theme.colors.primary};
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   svg {
     margin-right: 0.5rem;
   }
-  
-  &:hover {
-    opacity: 0.9;
-  }
+`;
+
+const ModalButtons = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
 `;
 
 const ActionButtons = styled.div`
@@ -176,20 +252,63 @@ const AssessmentResults = () => {
   const { id } = useParams();
   const location = useLocation();
   const [score, setScore] = useState(null);
-  const [scoreVisible, setScoreVisible] = useState(false);
+  const [scoreVisible, setScoreVisible] = useState(true);
+  const [assessmentDetails, setAssessmentDetails] = useState(null);
+  const [isPostedToProfile, setIsPostedToProfile] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   
   useEffect(() => {
     // Get score from URL query parameter
     const params = new URLSearchParams(location.search);
     const scoreParam = params.get('score');
     if (scoreParam) {
-      setScore(parseInt(scoreParam));
+      const newScore = parseInt(scoreParam);
+      setScore(newScore);
+      
+      // Create new assessment result
+      const newAssessment = {
+        id: parseInt(id),
+        title: 'Technical Skills Assessment',
+        date: new Date().toISOString().split('T')[0],
+        score: newScore,
+        totalQuestions: 30,
+        correctAnswers: Math.round((newScore / 100) * 30),
+        duration: '45 minutes',
+        status: 'completed',
+        posted: false // New field to track if posted to profile
+      };
+      
+      setAssessmentDetails(newAssessment);
+      
+      // Check if this assessment is already posted
+      const savedAssessments = JSON.parse(localStorage.getItem('studentAssessments') || '[]');
+      const existingAssessment = savedAssessments.find(a => a.id === parseInt(id));
+      if (existingAssessment?.posted) {
+        setIsPostedToProfile(true);
+      }
     }
-  }, [location]);
+  }, [location, id]);
   
-  const toggleScoreVisibility = () => {
-    setScoreVisible(prev => !prev);
-    // In a real app, this would be an API call to update the visibility
+  const handlePostToProfile = () => {
+    setShowConfirmation(true);
+  };
+  
+  const confirmPostToProfile = () => {
+    setIsPostedToProfile(true);
+    setShowConfirmation(false);
+    
+    // Update localStorage
+    const savedAssessments = JSON.parse(localStorage.getItem('studentAssessments') || '[]');
+    const updatedAssessments = savedAssessments.map(assessment =>
+      assessment.id === parseInt(id)
+        ? { ...assessment, posted: true }
+        : assessment
+    );
+    localStorage.setItem('studentAssessments', JSON.stringify(updatedAssessments));
+  };
+  
+  const cancelPostToProfile = () => {
+    setShowConfirmation(false);
   };
   
   const getScoreColor = (score) => {
@@ -231,60 +350,116 @@ const AssessmentResults = () => {
         
         <ResultsCard>
           <ResultsHeader>
-            <AssessmentTitle>Technical Skills Assessment Results</AssessmentTitle>
+            <AssessmentTitle>
+              {assessmentDetails?.title || 'Assessment Results'}
+            </AssessmentTitle>
           </ResultsHeader>
           
-          <ScoreContainer>
-            <ScoreCircle score={score}>
-              <ScoreValue score={score}>{score}%</ScoreValue>
-              <ScoreLabel>{getScoreLabel(score)}</ScoreLabel>
-            </ScoreCircle>
-          </ScoreContainer>
-          
-          <ResultsDetails>
-            <DetailItem>
-              <DetailLabel>Assessment Date</DetailLabel>
-              <DetailValue>{new Date().toLocaleDateString()}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>Time Taken</DetailLabel>
-              <DetailValue>45 minutes</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>Questions Answered</DetailLabel>
-              <DetailValue>30/30</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>Correct Answers</DetailLabel>
-              <DetailValue>{Math.round((score / 100) * 30)}/30</DetailValue>
-            </DetailItem>
-          </ResultsDetails>
-          
-          <VisibilityToggle
-            visible={scoreVisible}
-            onClick={toggleScoreVisibility}
-          >
-            {scoreVisible ? <FaEye /> : <FaEyeSlash />}
-            {scoreVisible ? 'Score is Visible' : 'Score is Hidden'}
-          </VisibilityToggle>
-          
-          <ActionButtons>
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/assessments')}
-            >
-              Back to Assessments
-            </Button>
-            
-            <Button
-              variant="primary"
-              onClick={() => navigate('/profile')}
-            >
-              View Profile
-            </Button>
-          </ActionButtons>
+          {score !== null && (
+            <>
+              <ScoreContainer>
+                <ScoreCircle score={score}>
+                  <ScoreValue score={score}>{score}%</ScoreValue>
+                  <ScoreLabel>{getScoreLabel(score)}</ScoreLabel>
+                </ScoreCircle>
+              </ScoreContainer>
+              
+              <ResultsDetails>
+                <DetailItem>
+                  <DetailLabel>Assessment Date</DetailLabel>
+                  <DetailValue>{new Date().toLocaleDateString()}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Time Taken</DetailLabel>
+                  <DetailValue>{assessmentDetails?.duration || '45 minutes'}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Questions Answered</DetailLabel>
+                  <DetailValue>{assessmentDetails?.totalQuestions || 30}/30</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>Correct Answers</DetailLabel>
+                  <DetailValue>{assessmentDetails?.correctAnswers || Math.round((score / 100) * 30)}/30</DetailValue>
+                </DetailItem>
+              </ResultsDetails>
+              
+              <ProfilePostingCard>
+                <ProfilePostingHeader>
+                  <FaUser />
+                  <ProfilePostingTitle>Share Your Results</ProfilePostingTitle>
+                </ProfilePostingHeader>
+                
+                <ProfilePostingDescription>
+                  Post your assessment results to your profile to showcase your achievements to potential employers and advisors.
+                </ProfilePostingDescription>
+                
+                {isPostedToProfile ? (
+                  <PostingStatus posted={true}>
+                    <FaCheckCircle />
+                    This result is posted on your profile
+                  </PostingStatus>
+                ) : (
+                  <PostToProfileButton
+                    variant="primary"
+                    onClick={handlePostToProfile}
+                  >
+                    <FaUser />
+                    Post Result to Profile
+                  </PostToProfileButton>
+                )}
+              </ProfilePostingCard>
+              
+              <ActionButtons>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate('/assessments')}
+                >
+                  Back to Assessments
+                </Button>
+                
+                <Button
+                  variant="primary"
+                  onClick={() => navigate('/profile')}
+                >
+                  View Profile
+                </Button>
+              </ActionButtons>
+            </>
+          )}
         </ResultsCard>
       </ContentContainer>
+      
+      {showConfirmation && (
+        <ConfirmationModal>
+          <ModalContent>
+            <ModalTitle>
+              <FaExclamationTriangle />
+              Post Result to Profile?
+            </ModalTitle>
+            
+            <p>
+              This will make your assessment score visible on your profile. 
+              Other users, including potential employers and advisors, will be able to see your score.
+            </p>
+            
+            <ModalButtons>
+              <Button
+                variant="secondary"
+                onClick={cancelPostToProfile}
+              >
+                Cancel
+              </Button>
+              
+              <Button
+                variant="primary"
+                onClick={confirmPostToProfile}
+              >
+                Post to Profile
+              </Button>
+            </ModalButtons>
+          </ModalContent>
+        </ConfirmationModal>
+      )}
     </PageContainer>
   );
 };
