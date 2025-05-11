@@ -449,6 +449,16 @@ const mockEvaluations = [
   }
 ];
 
+// Add clarification reasons array above the component
+const rejectionReasons = [
+  { value: 'incomplete', label: 'Incomplete Information' },
+  { value: 'formatting', label: 'Improper Formatting' },
+  { value: 'plagiarism', label: 'Suspected Plagiarism' },
+  { value: 'inaccurate', label: 'Inaccurate Information' },
+  { value: 'inappropriate', label: 'Inappropriate Content' },
+  { value: 'other', label: 'Other (Contact SCAD Office)' }
+];
+
 const ScadDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('companies');
@@ -465,6 +475,15 @@ const ScadDashboard = () => {
   });
   const [reports, setReports] = useState(mockReports);
   const [evaluations, setEvaluations] = useState([]);
+  
+  // Add clarification handler
+  const handleClarificationChange = (id, reason) => {
+    setReports(prevReports => 
+      prevReports.map(report => 
+        report.id === id ? { ...report, clarification: reason } : report
+      )
+    );
+  };
   
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -945,6 +964,7 @@ const ScadDashboard = () => {
                     <TableHeaderCell>Current Status</TableHeaderCell>
                     <TableHeaderCell>Change Status</TableHeaderCell>
                     <TableHeaderCell>Actions</TableHeaderCell>
+                    <TableHeaderCell>Clarification</TableHeaderCell>
                   </tr>
                 </TableHeader>
                 <TableBody>
@@ -978,6 +998,20 @@ const ScadDashboard = () => {
                             <FaEye />
                           </ActionButton>
                         </ActionButtons>
+                      </TableCell>
+                      <TableCell>
+                        {/* Show clarification dropdown only for rejected or flagged reports */}
+                        {(report.status === 'rejected' || report.status === 'flagged') && (
+                          <Select
+                            value={report.clarification || ''}
+                            onChange={(e) => handleClarificationChange(report.id, e.target.value)}
+                            options={[
+                              { value: '', label: 'Select reason' },
+                              ...rejectionReasons
+                            ]}
+                            style={{ minWidth: '150px', fontSize: '0.9rem' }}
+                          />
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

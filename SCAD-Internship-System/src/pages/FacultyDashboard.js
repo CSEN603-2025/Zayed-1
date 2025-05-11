@@ -443,6 +443,16 @@ const mockEvaluations = [
   }
 ];
 
+// Add clarification reasons array above the component
+const rejectionReasons = [
+  { value: 'incomplete', label: 'Incomplete Information' },
+  { value: 'formatting', label: 'Improper Formatting' },
+  { value: 'plagiarism', label: 'Suspected Plagiarism' },
+  { value: 'inaccurate', label: 'Inaccurate Information' },
+  { value: 'inappropriate', label: 'Inappropriate Content' },
+  { value: 'other', label: 'Other (Contact Faculty)' }
+];
+
 const FacultyDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('reports');
@@ -451,6 +461,15 @@ const FacultyDashboard = () => {
   const [majorFilter, setMajorFilter] = useState('');
   const [reports, setReports] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
+  
+  // Add clarification handler
+  const handleClarificationChange = (id, reason) => {
+    setReports(prevReports => 
+      prevReports.map(report => 
+        report.id === id ? { ...report, clarification: reason } : report
+      )
+    );
+  };
   
   useEffect(() => {
     // Filter reports based on search term and filters
@@ -632,6 +651,7 @@ const FacultyDashboard = () => {
                       <TableHeaderCell>Submitted Date</TableHeaderCell>
                       <TableHeaderCell>Status</TableHeaderCell>
                       <TableHeaderCell>Actions</TableHeaderCell>
+                      <TableHeaderCell>Clarification</TableHeaderCell>
                     </tr>
                   </TableHeader>
                   
@@ -668,6 +688,19 @@ const FacultyDashboard = () => {
                               </>
                             )}
                           </ActionButtons>
+                        </TableCell>
+                        <TableCell>
+                          {(report.status === 'rejected' || report.status === 'flagged') && (
+                            <FilterSelect
+                              value={report.clarification || ''}
+                              onChange={(e) => handleClarificationChange(report.id, e.target.value)}
+                            >
+                              <option value="">Select reason</option>
+                              {rejectionReasons.map(reason => (
+                                <option key={reason.value} value={reason.value}>{reason.label}</option>
+                              ))}
+                            </FilterSelect>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
