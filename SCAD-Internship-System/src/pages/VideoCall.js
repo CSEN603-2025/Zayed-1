@@ -15,6 +15,7 @@ import {
   FaCheck,
   FaCircle
 } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -208,6 +209,7 @@ const ScreenShareOption = styled.button`
 const VideoCall = () => {
   const { appointmentId } = useParams();
   const navigate = useNavigate();
+  const { userType } = useAuth();
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -308,7 +310,7 @@ const VideoCall = () => {
   
   return (
     <PageContainer>
-      <Navbar userType="proStudent" />
+      <Navbar userType={userType} />
       
       <ContentContainer>
         <StatusIndicator online={isOtherUserOnline}>
@@ -321,7 +323,7 @@ const VideoCall = () => {
             <video ref={localVideoRef} autoPlay muted playsInline />
             <VideoLabel>
               <FaUser />
-              You (Local)
+              {userType === 'scadOffice' ? 'SCAD (Local)' : 'You (Local)'}
             </VideoLabel>
           </VideoBox>
           
@@ -329,7 +331,7 @@ const VideoCall = () => {
             <video ref={remoteVideoRef} autoPlay playsInline />
             <VideoLabel>
               <FaUser />
-              SCAD Advisor
+              {userType === 'scadOffice' ? 'Student' : 'SCAD Advisor'}
             </VideoLabel>
           </VideoBox>
         </VideoGrid>
