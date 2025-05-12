@@ -221,6 +221,13 @@ const DropdownItemMessage = styled.div`
   text-overflow: ellipsis;
 `;
 
+const ApplicationStatusText = styled.div`
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 5px;
+  color: ${props => props.status === 'Accepted' ? 'green' : 'red'};
+`;
+
 const EmptyState = styled.div`
   padding: 30px;
   text-align: center;
@@ -318,6 +325,11 @@ const NotificationList = ({ notifications, onClearAll, onReadNotification }) => 
                 <DropdownItemTime>{formatTime(notification.time)}</DropdownItemTime>
               </DropdownItemHeader>
               <DropdownItemMessage>{notification.message}</DropdownItemMessage>
+              {notification.applicationStatus && (
+                <ApplicationStatusText status={notification.applicationStatus}>
+                  Status: {notification.applicationStatus}
+                </ApplicationStatusText>
+              )}
             </DropdownItem>
           ))
         ) : (
@@ -349,7 +361,8 @@ const NotificationCenter = ({ userType = 'student' }) => {
         type: 'info',
         time: new Date(Date.now() - 20 * 60000).toISOString(), // 20 minutes ago
         read: false,
-        userType: 'company'
+        userType: 'company',
+        applicationStatus: null
       },
       {
         id: 2,
@@ -358,7 +371,8 @@ const NotificationCenter = ({ userType = 'student' }) => {
         type: 'info',
         time: new Date(Date.now() - 3 * 3600000).toISOString(), // 3 hours ago
         read: false,
-        userType: 'company'
+        userType: 'company',
+        applicationStatus: null
       },
       {
         id: 3,
@@ -367,7 +381,8 @@ const NotificationCenter = ({ userType = 'student' }) => {
         type: 'info',
         time: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
         read: true,
-        userType: 'company'
+        userType: 'company',
+        applicationStatus: null
       },
       
       // Student notifications for report status changes
@@ -464,7 +479,34 @@ const NotificationCenter = ({ userType = 'student' }) => {
         time: new Date(Date.now() - 4 * 3600000).toISOString(), // 4 hours ago
         read: false,
         userType: 'proStudent'
+      },
+      {
+        id: 14,
+        title: 'An upcoming workshop',
+        message: 'You have a workshop on "AI Connect" scheduled for next Monday at 10:00 AM.',
+         type: 'success',
+        time: new Date(Date.now() - 2 * 3600000).toISOString(), // 2 hours ago
+        read: false,
+        userType: 'proStudent'
+      },{
+          id: 15,
+        title: 'messages received',
+         message: 'You have a new message from Khalid who attended the workshop on "AI Connect".',
+         type: 'success',
+        time: new Date(Date.now() - 2 * 3600000).toISOString(), // 2 hours ago
+        read: false,
+        userType: 'proStudent'
+      },{
+          id: 16,
+        title: ' Your  application has been accepted',
+         message: 'Congratulations! Your application  has been accepted. You can now proceed to the next step.',
+         type: 'success',
+        time: new Date(Date.now() - 9 * 3600000).toISOString(), // 9 hours ago
+        read: false,
+        userType: 'company',
+        applicationStatus: null
       }
+      
     ];
     
     // Filter notifications based on user type
@@ -505,26 +547,36 @@ const NotificationCenter = ({ userType = 'student' }) => {
   
   // Mark a notification as read and handle any actions
   const handleReadNotification = (id) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true } 
-          : notification
-      )
+    setNotifications(prev =>
+      prev.map(notification => {
+        if (notification.id === id) {
+          const updatedNotification = { ...notification, read: true };
+
+          // Check if it's an application-related notification (company user type with 'Application' in title or ID 16)
+          if (notification.userType === 'company' && (notification.title.includes('Application') || notification.id === 16)) {
+            // Randomly set status to Accepted or Rejected
+            updatedNotification.applicationStatus = Math.random() < 0.5 ? 'Accepted' : 'Rejected';
+          }
+
+          return updatedNotification;
+        }
+        return notification;
+      })
     );
-    
+
     // Handle specific actions based on notification type
     const notification = notifications.find(n => n.id === id);
     if (notification) {
-      if (notification.type === 'success') {
-        // Show a toast to confirm the notification was seen
+      // You might want to adjust this logic based on the new status
+      if (notification.type === 'success' || (notification.userType === 'company' && (notification.title.includes('Application') || notification.id === 16))) {
+        // Show a toast to confirm the notification was seen or its status updated
         addToast({
-          title: 'Notification marked as read',
-          message: `You've read: ${notification.title}`,
-          type: 'success'
+          title: notification.applicationStatus ? `Application ${notification.applicationStatus}` : 'Notification marked as read',
+          message: notification.applicationStatus ? `Application for "${notification.title}" is ${notification.applicationStatus}.` : `You've read: ${notification.title}`,
+          type: notification.applicationStatus === 'Accepted' ? 'success' : (notification.applicationStatus === 'Rejected' ? 'error' : 'success')
         });
       }
-      
+
       // Close the dropdown
       setShowDropdown(false);
     }
@@ -637,7 +689,13 @@ const NotificationCenter = ({ userType = 'student' }) => {
         
         <DropdownContainer show={showDropdown}>
           <NotificationList
-            notifications={notifications}
+            notifications={notifications.filter(n => {
+              // Filter notifications displayed in the dropdown based on user type
+              if ((userType === 'student' || userType === 'proStudent') && n.userType === 'student') {
+                return true;
+              }
+              return n.userType === userType || (userType === 'company' && n.id === 16); // Include ID 16 for company
+            })}
             onClearAll={clearAllNotifications}
             onReadNotification={handleReadNotification}
           />
