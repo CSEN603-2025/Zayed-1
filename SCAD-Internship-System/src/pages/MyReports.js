@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import { FaEye, FaFileAlt } from 'react-icons/fa';
+import { FaEye, FaFileAlt, FaPlus, FaEdit, FaTrash, FaArrowRight } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
 const PageContainer = styled.div`
@@ -101,9 +101,35 @@ const NoReportsMessage = styled.div`
   color: ${props => props.theme.colors.darkGray};
 `;
 
+const ActionButtonsContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const FilterContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+`;
+
+const SearchInput = styled.input`
+  padding: 0.75rem 1rem;
+  border: 1px solid ${props => props.theme.colors.tertiary};
+  border-radius: 5px;
+  width: 300px;
+  font-size: 0.9rem;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.secondary};
+  }
+`;
+
 const MyReports = () => {
   const [reports, setReports] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const { userId } = useAuth();
 
@@ -121,6 +147,8 @@ const MyReports = () => {
           submittedDate: '2023-06-05',
           status: 'accepted',
           feedback: 'Great work on your first week!',
+          internshipId: '1',
+          internshipTitle: 'Frontend Developer Intern at Tech Innovations'
         },
         {
           id: '2',
@@ -128,6 +156,8 @@ const MyReports = () => {
           submittedDate: '2023-06-12',
           status: 'flagged',
           feedback: 'Some issues need to be addressed.',
+          internshipId: '1',
+          internshipTitle: 'Frontend Developer Intern at Tech Innovations'
         },
         {
           id: '3',
@@ -135,6 +165,8 @@ const MyReports = () => {
           submittedDate: '2023-06-19',
           status: 'rejected',
           feedback: 'Please revise and resubmit with the required information.',
+          internshipId: '1',
+          internshipTitle: 'Frontend Developer Intern at Tech Innovations'
         },
         {
           id: '4',
@@ -142,13 +174,39 @@ const MyReports = () => {
           submittedDate: '2023-06-26',
           status: 'pending',
           feedback: '',
+          internshipId: '1',
+          internshipTitle: 'Frontend Developer Intern at Tech Innovations'
+        },
+        {
+          id: '5',
+          title: 'Week 1 Progress Report',
+          submittedDate: '2023-01-05',
+          status: 'accepted',
+          feedback: 'Excellent start!',
+          internshipId: '2',
+          internshipTitle: 'Data Analyst Intern at ADNOC'
         },
       ];
       
       setReports(mockReports);
+      setFilteredReports(mockReports);
       setIsLoading(false);
     }, 1000);
   }, [userId]);
+
+  useEffect(() => {
+    // Filter reports based on search term
+    if (searchTerm.trim() === '') {
+      setFilteredReports(reports);
+    } else {
+      const filtered = reports.filter(
+        report => 
+          report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          report.internshipTitle.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredReports(filtered);
+    }
+  }, [searchTerm, reports]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -163,6 +221,27 @@ const MyReports = () => {
     navigate(`/report/${reportId}`);
   };
 
+  const handleManageReports = (internshipId) => {
+    navigate(`/report-management/${internshipId}`);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Group reports by internship
+  const reportsByInternship = filteredReports.reduce((acc, report) => {
+    if (!acc[report.internshipId]) {
+      acc[report.internshipId] = {
+        internshipId: report.internshipId,
+        internshipTitle: report.internshipTitle,
+        reports: []
+      };
+    }
+    acc[report.internshipId].reports.push(report);
+    return acc;
+  }, {});
+
   return (
     <PageContainer>
       <Navbar />
@@ -174,52 +253,82 @@ const MyReports = () => {
           </PageDescription>
         </PageHeader>
 
-        <TableContainer>
-          {isLoading ? (
-            <NoReportsMessage>Loading reports...</NoReportsMessage>
-          ) : reports.length === 0 ? (
-            <NoReportsMessage>You haven't submitted any reports yet.</NoReportsMessage>
-          ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeader>Report Title</TableHeader>
-                  <TableHeader>Submitted Date</TableHeader>
-                  <TableHeader>Status</TableHeader>
-                  <TableHeader>Actions</TableHeader>
-                </TableRow>
-              </TableHead>
-              <tbody>
-                {reports.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <FaFileAlt style={{ marginRight: '0.5rem', color: '#007bff' }} />
-                        {report.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>{formatDate(report.submittedDate)}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={report.status}>
-                        {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="secondary" 
-                        size="small"
-                        onClick={() => handleViewReport(report.id)}
-                      >
-                        <FaEye style={{ marginRight: '0.5rem' }} />
-                        View Report
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </TableContainer>
+        <FilterContainer>
+          <SearchInput
+            type="text"
+            placeholder="Search reports or internships..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </FilterContainer>
+
+        {isLoading ? (
+          <NoReportsMessage>Loading reports...</NoReportsMessage>
+        ) : filteredReports.length === 0 ? (
+          <NoReportsMessage>No reports found matching your search criteria.</NoReportsMessage>
+        ) : (
+          Object.values(reportsByInternship).map(group => (
+            <div key={group.internshipId} style={{ marginBottom: '2rem' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '1rem' 
+              }}>
+                <h2 style={{ color: '#05445E' }}>{group.internshipTitle}</h2>
+                <Button
+                  variant="primary"
+                  onClick={() => handleManageReports(group.internshipId)}
+                >
+                  Manage Reports <FaArrowRight style={{ marginLeft: '0.5rem' }} />
+                </Button>
+              </div>
+              
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeader>Report Title</TableHeader>
+                      <TableHeader>Submitted Date</TableHeader>
+                      <TableHeader>Status</TableHeader>
+                      <TableHeader>Actions</TableHeader>
+                    </TableRow>
+                  </TableHead>
+                  <tbody>
+                    {group.reports.map((report) => (
+                      <TableRow key={report.id}>
+                        <TableCell>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <FaFileAlt style={{ marginRight: '0.5rem', color: '#007bff' }} />
+                            {report.title}
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatDate(report.submittedDate)}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={report.status}>
+                            {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                          </StatusBadge>
+                        </TableCell>
+                        <TableCell>
+                          <ActionButtonsContainer>
+                            <Button 
+                              variant="secondary" 
+                              size="small"
+                              onClick={() => handleViewReport(report.id)}
+                            >
+                              <FaEye style={{ marginRight: '0.25rem' }} />
+                              View
+                            </Button>
+                          </ActionButtonsContainer>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </tbody>
+                </Table>
+              </TableContainer>
+            </div>
+          ))
+        )}
       </ContentContainer>
     </PageContainer>
   );

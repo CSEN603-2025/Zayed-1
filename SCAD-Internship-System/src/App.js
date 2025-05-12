@@ -11,12 +11,14 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CompanyRegistration from './pages/CompanyRegistration';
 import StudentProfile from './pages/StudentProfile';
-import CompanyDashboard from './pages/CompanyDashboard';
+import CompanyDashboard from './pages/CompanyDashboard/CompanyDashboard';
 import ScadDashboard from './pages/ScadDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
 import FacultyFeedback from './pages/FacultyFeedback';
 import InternshipListings from './pages/InternshipListings';
+import MyInternships from './pages/MyInternships';
 import InternshipDetails from './pages/InternshipDetails';
+import InternshipDetailView from './pages/InternshipDetailView';
 import InternshipPost from './pages/InternshipPost';
 import ApplicationList from './pages/ApplicationList';
 import InternList from './pages/InternList';
@@ -39,6 +41,8 @@ import VideoCall from './pages/VideoCall';
 import Assessments from './pages/Assessments';
 import AssessmentTaking from './pages/AssessmentTaking';
 import AssessmentResults from './pages/AssessmentResults';
+import ReportCRUD from './pages/ReportCRUD';
+import CompanyEvaluation from './pages/CompanyEvaluation';
 
 const AppContainer = styled.div`
   font-family: ${props => props.theme.fonts.main};
@@ -58,6 +62,32 @@ function App() {
               <Route path="/register/company" element={<CompanyRegistration />} />
               
               {/* Student routes */}
+              <Route path="/report-management/:id" element={
+                <ProtectedRoute 
+                  element={<ReportCRUD />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/internship-details/:id" element={
+                <ProtectedRoute 
+                  element={<InternshipDetailView />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/student/internships/:id" element={
+                <ProtectedRoute 
+                  element={<MyInternships />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/student/companies/:id/evaluate" element={
+                <ProtectedRoute 
+                  element={<CompanyEvaluation />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+
+
               <Route path="/dashboard" element={
                 <ProtectedRoute 
                   element={<Dashboard />} 
@@ -94,6 +124,7 @@ function App() {
                   allowedUserTypes={['student', 'proStudent']} 
                 />
               } />
+
               
               {/* Routes for workshops */}
               <Route path="/workshops" element={
