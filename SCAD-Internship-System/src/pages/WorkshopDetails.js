@@ -573,10 +573,10 @@ const WorkshopDetails = () => {
   };
 
   const handleDownloadCertificate = () => {
-    // In a real app, this would generate and download a PDF certificate
-    alert('Your certificate is being downloaded!');
-    // Close the modal after download
-    setShowCertificateModal(false);
+    const anchor = document.createElement('a');
+    anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+    anchor.download = 'Dummy_pdf.pdf';
+    anchor.click();
   };
 
   const handleSubmitFeedback = () => {
