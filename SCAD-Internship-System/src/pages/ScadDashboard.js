@@ -20,7 +20,9 @@ import {
   FaClock,
   FaFlag,
   FaDownload,
-  FaStar
+  FaStar,
+  FaChalkboardTeacher,
+  FaGlobe
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -688,7 +690,9 @@ const ScadDashboard = () => {
       <ContentContainer>
         <DashboardHeader>
           <PageTitle>SCAD Office Dashboard</PageTitle>
-          <PageDescription>Manage company applications, students, and internship reports</PageDescription>
+          <PageDescription>
+            Manage internship registrations, verify companies, and oversee the internship program
+          </PageDescription>
         </DashboardHeader>
         
         <StatCardsContainer>
@@ -698,37 +702,47 @@ const ScadDashboard = () => {
             </StatIconContainer>
             <StatContent>
               <StatValue>{companies.filter(c => c.status === 'pending').length}</StatValue>
-              <StatLabel>Pending Company Applications</StatLabel>
+              <StatLabel>Companies Pending Approval</StatLabel>
             </StatContent>
           </StatCard>
           
-          <StatCard onClick={() => handleTabChange('students')}>
+          <StatCard onClick={() => navigate('/applications')}>
             <StatIconContainer>
               <FaGraduationCap />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockStudents.length}</StatValue>
-              <StatLabel>Registered Students</StatLabel>
-            </StatContent>
-          </StatCard>
-          
-          <StatCard onClick={() => handleTabChange('reports')}>
-            <StatIconContainer>
-              <FaFileAlt />
-            </StatIconContainer>
-            <StatContent>
               <StatValue>{mockReports.filter(r => r.status === 'pending').length}</StatValue>
-              <StatLabel>Pending Reports</StatLabel>
+              <StatLabel>Reports Pending Review</StatLabel>
             </StatContent>
           </StatCard>
           
-          <StatCard onClick={() => handleTabChange('evaluations')}>
+          <StatCard onClick={() => navigate('/scad/workshops')}>
             <StatIconContainer>
-              <FaStar />
+              <FaChalkboardTeacher />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockEvaluations.length}</StatValue>
-              <StatLabel>Evaluation Reports</StatLabel>
+              <StatValue>12</StatValue>
+              <StatLabel>Manage Workshops</StatLabel>
+            </StatContent>
+          </StatCard>
+          
+          <StatCard onClick={() => navigate('/scad/workshops?view=onlineCareer')}>
+            <StatIconContainer>
+              <FaGlobe />
+            </StatIconContainer>
+            <StatContent>
+              <StatValue>5</StatValue>
+              <StatLabel>Online Career Workshops</StatLabel>
+            </StatContent>
+          </StatCard>
+          
+          <StatCard>
+            <StatIconContainer>
+              <FaChartBar />
+            </StatIconContainer>
+            <StatContent>
+              <StatValue>85%</StatValue>
+              <StatLabel>Student Placement Rate</StatLabel>
             </StatContent>
           </StatCard>
         </StatCardsContainer>
