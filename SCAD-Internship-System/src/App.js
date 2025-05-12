@@ -43,6 +43,7 @@ import AssessmentTaking from './pages/AssessmentTaking';
 import AssessmentResults from './pages/AssessmentResults';
 import ReportCRUD from './pages/ReportCRUD';
 import CompanyEvaluation from './pages/CompanyEvaluation';
+import ErrorPage from './pages/Error';
 
 const AppContainer = styled.div`
   font-family: ${props => props.theme.fonts.main};
@@ -60,6 +61,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Login />} />
               <Route path="/register/company" element={<CompanyRegistration />} />
+              <Route path="/error" element={<ErrorPage />} />
               
               {/* Student routes */}
               <Route path="/report-management/:id" element={
@@ -337,7 +339,7 @@ function App() {
               } />
 
               {/* Fallback route */}
-              <Route path="*" element={<Navigate to="/" />} />
+              <Route path="*" element={<Navigate to="/error" replace />} />
             </Routes>
           </Router>
         </AuthProvider>
