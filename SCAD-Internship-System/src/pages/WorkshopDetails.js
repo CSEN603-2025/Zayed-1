@@ -17,7 +17,11 @@ import {
   FaPlay,
   FaPause,
   FaStop,
-  FaComments
+  FaComments,
+  FaStickyNote,
+  FaCertificate,
+  FaDownload,
+  FaSave
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -392,6 +396,68 @@ const FeedbackRating = styled.div`
   }
 `;
 
+const NotesContainer = styled.div`
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid ${props => props.theme.colors.tertiary};
+`;
+
+const NotesTextarea = styled.textarea`
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid ${props => props.theme.colors.tertiary};
+  border-radius: 5px;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  min-height: 200px;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.secondary};
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+`;
+
+const CertificateIcon = styled(FaCertificate)`
+  font-size: 4rem;
+  color: ${props => props.theme.colors.primary};
+  margin-bottom: 1rem;
+`;
+
+const CertificateTitle = styled.h2`
+  color: ${props => props.theme.colors.primary};
+  margin-bottom: 1rem;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+`;
+
 // Mock data for workshop details
 const mockWorkshopData = {
   id: 1,
@@ -409,7 +475,7 @@ const mockWorkshopData = {
   ],
   category: 'Career Development',
   tags: ['Resume', 'Tech Careers', 'Job Application'],
-  status: 'upcoming',
+  status: 'completed',
   maxAttendees: 25,
   currentAttendees: 12,
   isRecorded: true,
@@ -457,6 +523,8 @@ const WorkshopDetails = () => {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const videoRef = useRef(null);
   
   useEffect(() => {
@@ -485,6 +553,30 @@ const WorkshopDetails = () => {
 
   const handleFeedbackChange = (e) => {
     setFeedback(e.target.value);
+  };
+
+  const handleNotesChange = (e) => {
+    setNotes(e.target.value);
+  };
+
+  const handleSaveNotes = () => {
+    // In a real app, we would save the notes to the server
+    alert('Your notes have been saved!');
+  };
+
+  const handleShowCertificate = () => {
+    setShowCertificateModal(true);
+  };
+
+  const handleCloseCertificate = () => {
+    setShowCertificateModal(false);
+  };
+
+  const handleDownloadCertificate = () => {
+    // In a real app, this would generate and download a PDF certificate
+    alert('Your certificate is being downloaded!');
+    // Close the modal after download
+    setShowCertificateModal(false);
   };
 
   const handleSubmitFeedback = () => {
@@ -685,6 +777,27 @@ const WorkshopDetails = () => {
                 ))}
               </LearningOutcomesList>
               
+              <NotesContainer>
+                <SectionTitle>Workshop Notes</SectionTitle>
+                <Description>Take notes during the workshop to help you remember key points</Description>
+                <NotesTextarea
+                  placeholder="Type your notes here..."
+                  value={notes}
+                  onChange={handleNotesChange}
+                  rows={8}
+                />
+                <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+                  <Button 
+                    variant="primary" 
+                    size="small"
+                    icon={<FaSave />}
+                    onClick={handleSaveNotes}
+                  >
+                    Save Notes
+                  </Button>
+                </div>
+              </NotesContainer>
+
               <PresenterSection>
                 <SectionTitle>About the Presenter</SectionTitle>
                 <PresenterHeader>
@@ -838,9 +951,53 @@ const WorkshopDetails = () => {
                 </div>
               )}
             </Card>
+
+            {workshop.status === 'completed' && (
+              <Card title="Certificate" style={{ marginTop: '1.5rem' }}>
+                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                  <FaCertificate style={{ fontSize: '3rem', color: '#ffc107', marginBottom: '1rem' }} />
+                  <p>You've completed this workshop!</p>
+                  <Button 
+                    variant="primary" 
+                    icon={<FaCertificate />}
+                    onClick={handleShowCertificate}
+                    style={{ marginTop: '1rem' }}
+                  >
+                    View Certificate
+                  </Button>
+                </div>
+              </Card>
+            )}
           </RegistrationSection>
         </TwoColumnLayout>
       </ContentContainer>
+
+      {showCertificateModal && (
+        <ModalOverlay>
+          <ModalContent>
+            <CertificateIcon />
+            <CertificateTitle>Congratulations!</CertificateTitle>
+            <p>You have successfully completed</p>
+            <h3>{workshop.title}</h3>
+            <p>on {workshop.date}</p>
+            <ActionButtons>
+              <Button 
+                variant="secondary" 
+                onClick={handleCloseCertificate}
+              >
+                Close
+              </Button>
+              <Button 
+                variant="primary" 
+                icon={<FaDownload />}
+                onClick={handleDownloadCertificate}
+              >
+                Download Certificate
+              </Button>
+            </ActionButtons>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </PageContainer>
   );
 };
