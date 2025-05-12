@@ -239,43 +239,193 @@ const TextArea = styled.textarea`
 `;
 
 // Mock data for the company details
-const mockCompanyData = {
-  id: 1,
-  name: 'Tech Innovations',
-  logo: null,
-  email: 'contact@techinnovations.com',
-  phone: '+1 (555) 123-4567',
-  website: 'www.techinnovations.com',
-  industry: 'Technology',
-  size: 'medium', // small, medium, large, corporate
-  description: 'Tech Innovations is a forward-thinking technology company specializing in software development, cloud solutions, and AI integration. We are committed to pushing the boundaries of what\'s possible with technology while creating meaningful solutions for real-world problems.',
-  address: '123 Tech Boulevard, San Francisco, CA 94107',
-  status: 'pending',
-  appliedDate: '2023-01-15',
-  documents: [
-    {
-      id: 1,
-      name: 'Company Registration Certificate',
-      type: 'PDF',
-      size: '1.2 MB',
-      uploadedDate: '2023-01-15'
-    },
-    {
-      id: 2,
-      name: 'Tax Identification Documents',
-      type: 'PDF',
-      size: '845 KB',
-      uploadedDate: '2023-01-15'
-    },
-    {
-      id: 3,
-      name: 'Business License',
-      type: 'PDF',
-      size: '1.5 MB',
-      uploadedDate: '2023-01-15'
-    }
-  ]
-};
+const mockCompanyData = [
+  {
+    id: 1,
+    name: 'Tech Innovations',
+    logo: null,
+    email: 'contact@techinnovations.com',
+    phone: '+1 (555) 123-4567',
+    website: 'www.techinnovations.com',
+    industry: 'Technology',
+    size: 'medium', // small, medium, large, corporate
+    description: 'Tech Innovations is a forward-thinking technology company specializing in software development, cloud solutions, and AI integration. We are committed to pushing the boundaries of what\'s possible with technology while creating meaningful solutions for real-world problems.',
+    address: '123 Tech Boulevard, San Francisco, CA 94107',
+    status: 'approved',
+    appliedDate: '2023-01-15',
+    documents: [
+      {
+        id: 1,
+        name: 'Company Registration Certificate',
+        type: 'PDF',
+        size: '1.2 MB',
+        uploadedDate: '2023-01-15'
+      },
+      {
+        id: 2,
+        name: 'Tax Identification Documents',
+        type: 'PDF',
+        size: '845 KB',
+        uploadedDate: '2023-01-15'
+      },
+      {
+        id: 3,
+        name: 'Business License',
+        type: 'PDF',
+        size: '1.5 MB',
+        uploadedDate: '2023-01-15'
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Global Marketing Solutions',
+    logo: null,
+    email: 'info@globalmarketing.com',
+    phone: '+1 (555) 234-5678',
+    website: 'www.globalmarketingsolutions.com',
+    industry: 'Marketing',
+    size: 'large',
+    description: 'Global Marketing Solutions is a full-service marketing agency providing digital advertising, brand strategy, and market research. Our team of creative professionals help brands connect with their audience and drive business growth.',
+    address: '456 Market Street, New York, NY 10013',
+    status: 'pending',
+    appliedDate: '2023-02-10',
+    documents: [
+      {
+        id: 1,
+        name: 'Company Registration Certificate',
+        type: 'PDF',
+        size: '1.2 MB',
+        uploadedDate: '2023-02-10'
+      },
+      {
+        id: 2,
+        name: 'Tax Identification Documents',
+        type: 'PDF',
+        size: '845 KB',
+        uploadedDate: '2023-02-10'
+      },
+      {
+        id: 3,
+        name: 'Business License',
+        type: 'PDF',
+        size: '1.5 MB',
+        uploadedDate: '2023-02-10'
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Data Systems Inc.',
+    logo: null,
+    email: 'contact@datasystems.com',
+    phone: '+1 (555) 345-6789',
+    website: 'www.datasystemsinc.com',
+    industry: 'Information Technology',
+    size: 'corporate',
+    description: 'Data Systems Inc. is a leading provider of data management and analytics solutions. We help organizations transform their data into actionable insights through innovative software and consulting services.',
+    address: '789 Technology Park, Austin, TX 78701',
+    status: 'approved',
+    appliedDate: '2023-01-05',
+    documents: [
+      {
+        id: 1,
+        name: 'Company Registration Certificate',
+        type: 'PDF',
+        size: '1.2 MB',
+        uploadedDate: '2023-01-05'
+      },
+      {
+        id: 2,
+        name: 'Tax Identification Documents',
+        type: 'PDF',
+        size: '845 KB',
+        uploadedDate: '2023-01-05'
+      },
+      {
+        id: 3,
+        name: 'Business License',
+        type: 'PDF',
+        size: '1.5 MB',
+        uploadedDate: '2023-01-05'
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Creative Studios',
+    logo: null,
+    email: 'hello@creativestudios.com',
+    phone: '+1 (555) 456-7890',
+    website: 'www.creativestudios.com',
+    industry: 'Design',
+    size: 'small',
+    description: 'Creative Studios is a boutique design agency focused on user experience, graphic design, and branding. We collaborate with clients to craft visually compelling and user-friendly digital experiences.',
+    address: '321 Design District, Portland, OR 97209',
+    status: 'rejected',
+    appliedDate: '2023-03-22',
+    documents: [
+      {
+        id: 1,
+        name: 'Company Registration Certificate',
+        type: 'PDF',
+        size: '1.2 MB',
+        uploadedDate: '2023-03-22'
+      },
+      {
+        id: 2,
+        name: 'Tax Identification Documents',
+        type: 'PDF',
+        size: '845 KB',
+        uploadedDate: '2023-03-22'
+      },
+      {
+        id: 3,
+        name: 'Business License',
+        type: 'PDF',
+        size: '1.5 MB',
+        uploadedDate: '2023-03-22'
+      }
+    ]
+  },
+  {
+    id: 5,
+    name: 'FinTech Corp',
+    logo: null,
+    email: 'info@fintechcorp.com',
+    phone: '+1 (555) 567-8901',
+    website: 'www.fintechcorp.com',
+    industry: 'Finance',
+    size: 'large',
+    description: 'FinTech Corp develops innovative financial technology solutions for banking, insurance, and investment firms. Our platform enables secure transactions, fraud detection, and automated compliance processes.',
+    address: '567 Financial District, Chicago, IL 60601',
+    status: 'pending',
+    appliedDate: '2023-04-08',
+    documents: [
+      {
+        id: 1,
+        name: 'Company Registration Certificate',
+        type: 'PDF',
+        size: '1.2 MB',
+        uploadedDate: '2023-04-08'
+      },
+      {
+        id: 2,
+        name: 'Tax Identification Documents',
+        type: 'PDF',
+        size: '845 KB',
+        uploadedDate: '2023-04-08'
+      },
+      {
+        id: 3,
+        name: 'Business License',
+        type: 'PDF',
+        size: '1.5 MB',
+        uploadedDate: '2023-04-08'
+      }
+    ]
+  }
+];
 
 const CompanyDetails = () => {
   const { id } = useParams();
@@ -289,9 +439,10 @@ const CompanyDetails = () => {
   
   useEffect(() => {
     // In a real app, we would fetch the company data from the API
-    // For this demo, we'll just use the mock data
+    // For this demo, we'll use the mock data and find the company by id
     setTimeout(() => {
-      setCompany(mockCompanyData);
+      const foundCompany = mockCompanyData.find(c => c.id === parseInt(id)) || mockCompanyData[0];
+      setCompany(foundCompany);
       setLoading(false);
     }, 500);
   }, [id]);
@@ -428,30 +579,35 @@ const CompanyDetails = () => {
               <SectionTitle>Company Address</SectionTitle>
               <p>{company.address}</p>
               
-              <SectionTitle>
-                <FaFileAlt /> Verification Documents
-              </SectionTitle>
-              
-              <DocumentContainer>
-                {company.documents.map(doc => (
-                  <Document key={doc.id}>
-                    <DocumentIcon>
-                      <FaFileAlt />
-                    </DocumentIcon>
-                    
-                    <DocumentInfo>
-                      <DocumentTitle>{doc.name}</DocumentTitle>
-                      <DocumentMeta>
-                        {doc.type} • {doc.size} • Uploaded on {doc.uploadedDate}
-                      </DocumentMeta>
-                    </DocumentInfo>
-                    
-                    <DocumentAction onClick={() => handleDownloadDocument(doc.id)}>
-                      <FaDownload />
-                    </DocumentAction>
-                  </Document>
-                ))}
-              </DocumentContainer>
+              {/* Only show verification documents for SCAD Office and Faculty users */}
+              {(userType === 'scadOffice' || userType === 'faculty') && (
+                <>
+                  <SectionTitle>
+                    <FaFileAlt /> Verification Documents
+                  </SectionTitle>
+                  
+                  <DocumentContainer>
+                    {company.documents.map(doc => (
+                      <Document key={doc.id}>
+                        <DocumentIcon>
+                          <FaFileAlt />
+                        </DocumentIcon>
+                        
+                        <DocumentInfo>
+                          <DocumentTitle>{doc.name}</DocumentTitle>
+                          <DocumentMeta>
+                            {doc.type} • {doc.size} • Uploaded on {doc.uploadedDate}
+                          </DocumentMeta>
+                        </DocumentInfo>
+                        
+                        <DocumentAction onClick={() => handleDownloadDocument(doc.id)}>
+                          <FaDownload />
+                        </DocumentAction>
+                      </Document>
+                    ))}
+                  </DocumentContainer>
+                </>
+              )}
             </Card>
           </div>
           

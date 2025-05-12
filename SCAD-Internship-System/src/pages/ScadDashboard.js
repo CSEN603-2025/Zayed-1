@@ -20,7 +20,11 @@ import {
   FaClock,
   FaFlag,
   FaDownload,
-  FaStar
+  FaStar,
+  FaChartLine,
+  FaBook,
+  FaThumbsUp,
+  FaPrint
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -58,12 +62,154 @@ const StatCardsContainer = styled.div`
 
 const StatsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+`;
+
+const StatsCard = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const StatsHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const StatsTitle = styled.h3`
+  color: ${props => props.theme.colors.primary};
+  font-size: 1.1rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
   
-  @media (max-width: ${props => props.theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
+  svg {
+    margin-right: 0.5rem;
+  }
+`;
+
+const StatsValue = styled.div`
+  font-size: 2rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.primary};
+  margin: 1rem 0;
+`;
+
+const StatsDetail = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+`;
+
+const StatsLabel = styled.span`
+  color: ${props => props.theme.colors.darkGray};
+`;
+
+const StatsNumber = styled.span`
+  color: ${props => props.theme.colors.secondary};
+  font-weight: 600;
+`;
+
+const ChartContainer = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const RankingContainer = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+`;
+
+const RankingTitle = styled.h3`
+  color: ${props => props.theme.colors.primary};
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-right: 0.5rem;
+  }
+`;
+
+const RankingItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid ${props => props.theme.colors.tertiary};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const RankingNameContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const RankingIndex = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: ${props => props.index <= 3 ? props.theme.colors.primary : props.theme.colors.tertiary};
+  color: ${props => props.index <= 3 ? 'white' : props.theme.colors.darkGray};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-right: 0.75rem;
+`;
+
+const RankingName = styled.div`
+  font-weight: 500;
+  color: ${props => props.theme.colors.darkGray};
+`;
+
+const RankingValue = styled.div`
+  font-weight: 600;
+  color: ${props => props.theme.colors.secondary};
+`;
+
+const ReportButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background-color: ${props => props.theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 2rem;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.secondary};
+  }
+  
+  svg {
+    margin-right: 0.5rem;
   }
 `;
 
@@ -255,22 +401,11 @@ const Tab = styled.div`
   `}
 `;
 
-const ChartContainer = styled.div`
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const Label = styled.label`
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
   color: ${props => props.theme.colors.darkGray};
-`;
-
-const CycleDateSettings = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  display: block;
 `;
 
 // Mock data
@@ -466,6 +601,51 @@ const rejectionReasons = [
   { value: 'other', label: 'Other (Contact SCAD Office)' }
 ];
 
+// Add mock data for statistics below other mock data
+const mockStatistics = {
+  reportStats: {
+    accepted: 35,
+    rejected: 8,
+    flagged: 5,
+    pending: 12,
+    total: 60
+  },
+  reviewTime: {
+    average: 2.3, // days
+    fastest: 0.5, // days
+    slowest: 5, // days
+  },
+  topCourses: [
+    { name: 'Data Structures and Algorithms', count: 24 },
+    { name: 'Web Development', count: 18 },
+    { name: 'Database Systems', count: 15 },
+    { name: 'Software Engineering', count: 12 },
+    { name: 'Mobile App Development', count: 10 }
+  ],
+  topCompanies: {
+    byRating: [
+      { name: 'Tech Innovations', rating: 4.8, count: 5 },
+      { name: 'Global Marketing Solutions', rating: 4.6, count: 4 },
+      { name: 'Data Systems Inc.', rating: 4.5, count: 3 },
+      { name: 'Creative Studios', rating: 4.3, count: 6 },
+      { name: 'FinTech Corp', rating: 4.2, count: 4 }
+    ],
+    byInternshipCount: [
+      { name: 'Creative Studios', count: 6, rating: 4.3 },
+      { name: 'Tech Innovations', count: 5, rating: 4.8 },
+      { name: 'Global Marketing Solutions', count: 4, rating: 4.6 },
+      { name: 'FinTech Corp', count: 4, rating: 4.2 },
+      { name: 'Data Systems Inc.', count: 3, rating: 4.5 }
+    ]
+  },
+  cycleMetrics: {
+    totalStudents: 120,
+    placedStudents: 85,
+    placementRate: 70.8,
+    averageSalary: 2500
+  }
+};
+
 const ScadDashboard = () => {
   const navigate = useNavigate();
   const tabsRef = useRef(null);
@@ -484,6 +664,8 @@ const ScadDashboard = () => {
   });
   const [reports, setReports] = useState(mockReports);
   const [evaluations, setEvaluations] = useState([]);
+  const [statistics, setStatistics] = useState(mockStatistics);
+  const [selectedReportFormat, setSelectedReportFormat] = useState('pdf');
   
   // Add clarification handler
   const handleClarificationChange = (id, reason) => {
@@ -680,7 +862,187 @@ const ScadDashboard = () => {
   const handleViewEvaluation = (id) => {
     navigate(`/evaluation/${id}`);
   };
-  
+
+  // Add a function to generate reports
+  const handleGenerateReport = () => {
+    alert(`Generating ${selectedReportFormat.toUpperCase()} report with current statistics...`);
+    // In a real implementation, this would call an API to generate the report
+  };
+
+  // Add a new statistics tab renderer
+  const renderStatisticsTab = () => {
+    return (
+      <>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{ margin: 0, color: '#084B8A' }}>Internship Program Statistics</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <select 
+              value={selectedReportFormat} 
+              onChange={(e) => setSelectedReportFormat(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
+            >
+              <option value="pdf">PDF Report</option>
+              <option value="excel">Excel Report</option>
+              <option value="csv">CSV Data</option>
+            </select>
+            <ReportButton onClick={handleGenerateReport}>
+              <FaPrint /> Generate Report
+            </ReportButton>
+          </div>
+        </div>
+        
+        <StatsContainer>
+          <StatsCard>
+            <StatsHeader>
+              <StatsTitle><FaFileAlt /> Report Statistics</StatsTitle>
+            </StatsHeader>
+            <StatsValue>{statistics.reportStats.total}</StatsValue>
+            <div>
+              <StatsDetail>
+                <StatsLabel>Accepted Reports</StatsLabel>
+                <StatsNumber>{statistics.reportStats.accepted}</StatsNumber>
+              </StatsDetail>
+              <StatsDetail>
+                <StatsLabel>Rejected Reports</StatsLabel>
+                <StatsNumber>{statistics.reportStats.rejected}</StatsNumber>
+              </StatsDetail>
+              <StatsDetail>
+                <StatsLabel>Flagged Reports</StatsLabel>
+                <StatsNumber>{statistics.reportStats.flagged}</StatsNumber>
+              </StatsDetail>
+              <StatsDetail>
+                <StatsLabel>Pending Review</StatsLabel>
+                <StatsNumber>{statistics.reportStats.pending}</StatsNumber>
+              </StatsDetail>
+            </div>
+          </StatsCard>
+          
+          <StatsCard>
+            <StatsHeader>
+              <StatsTitle><FaClock /> Review Time</StatsTitle>
+            </StatsHeader>
+            <StatsValue>{statistics.reviewTime.average} days</StatsValue>
+            <div>
+              <StatsDetail>
+                <StatsLabel>Fastest Review</StatsLabel>
+                <StatsNumber>{statistics.reviewTime.fastest} days</StatsNumber>
+              </StatsDetail>
+              <StatsDetail>
+                <StatsLabel>Slowest Review</StatsLabel>
+                <StatsNumber>{statistics.reviewTime.slowest} days</StatsNumber>
+              </StatsDetail>
+            </div>
+          </StatsCard>
+          
+          <StatsCard>
+            <StatsHeader>
+              <StatsTitle><FaChartLine /> Placement Metrics</StatsTitle>
+            </StatsHeader>
+            <StatsValue>{statistics.cycleMetrics.placementRate}%</StatsValue>
+            <div>
+              <StatsDetail>
+                <StatsLabel>Total Students</StatsLabel>
+                <StatsNumber>{statistics.cycleMetrics.totalStudents}</StatsNumber>
+              </StatsDetail>
+              <StatsDetail>
+                <StatsLabel>Placed Students</StatsLabel>
+                <StatsNumber>{statistics.cycleMetrics.placedStudents}</StatsNumber>
+              </StatsDetail>
+              <StatsDetail>
+                <StatsLabel>Average Salary</StatsLabel>
+                <StatsNumber>${statistics.cycleMetrics.averageSalary}</StatsNumber>
+              </StatsDetail>
+            </div>
+          </StatsCard>
+        </StatsContainer>
+        
+        <ChartContainer>
+          <RankingTitle><FaChartLine /> Report Status Distribution</RankingTitle>
+          <div style={{ fontSize: '5rem', opacity: 0.3, margin: '2rem 0' }}>📊</div>
+          <div>Chart visualization would be displayed here</div>
+        </ChartContainer>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <RankingContainer>
+            <RankingTitle><FaBook /> Most Frequently Used Courses</RankingTitle>
+            {statistics.topCourses.map((course, index) => (
+              <RankingItem key={`course-${index}`}>
+                <RankingNameContainer>
+                  <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
+                  <RankingName>{course.name}</RankingName>
+                </RankingNameContainer>
+                <RankingValue>{course.count} students</RankingValue>
+              </RankingItem>
+            ))}
+          </RankingContainer>
+          
+          <RankingContainer>
+            <RankingTitle><FaThumbsUp /> Top Rated Companies</RankingTitle>
+            {statistics.topCompanies.byRating.map((company, index) => (
+              <RankingItem key={`rating-${index}`}>
+                <RankingNameContainer>
+                  <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
+                  <RankingName>{company.name}</RankingName>
+                </RankingNameContainer>
+                <RankingValue>⭐ {company.rating.toFixed(1)}</RankingValue>
+              </RankingItem>
+            ))}
+          </RankingContainer>
+          
+          <RankingContainer>
+            <RankingTitle><FaBuilding /> Top Companies by Internship Count</RankingTitle>
+            {statistics.topCompanies.byInternshipCount.map((company, index) => (
+              <RankingItem key={`count-${index}`}>
+                <RankingNameContainer>
+                  <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
+                  <RankingName>{company.name}</RankingName>
+                </RankingNameContainer>
+                <RankingValue>{company.count} interns</RankingValue>
+              </RankingItem>
+            ))}
+          </RankingContainer>
+          
+          <ChartContainer style={{ height: 'auto' }}>
+            <RankingTitle><FaCalendarAlt /> Current Internship Cycle</RankingTitle>
+            <div style={{ width: '100%', padding: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <div>
+                  <Label>Start Date</Label>
+                  <div>{cycleDates.startDate}</div>
+                </div>
+                <div>
+                  <Label>End Date</Label>
+                  <div>{cycleDates.endDate}</div>
+                </div>
+              </div>
+              <div style={{ padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '4px', textAlign: 'center' }}>
+                <p style={{ margin: '0 0 0.5rem', fontWeight: '600' }}>Current Cycle Progress</p>
+                <div style={{ 
+                  height: '20px', 
+                  backgroundColor: '#e0e0e0', 
+                  borderRadius: '10px', 
+                  position: 'relative', 
+                  overflow: 'hidden' 
+                }}>
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    left: 0, 
+                    height: '100%', 
+                    width: '65%', 
+                    backgroundColor: '#084B8A',
+                    borderRadius: '10px' 
+                  }}></div>
+                </div>
+                <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem' }}>65% Complete</p>
+              </div>
+            </div>
+          </ChartContainer>
+        </div>
+      </>
+    );
+  };
+
   return (
     <PageContainer>
       <Navbar userType="scadOffice" />
@@ -722,52 +1084,16 @@ const ScadDashboard = () => {
             </StatContent>
           </StatCard>
           
-          <StatCard onClick={() => handleTabChange('evaluations')}>
+          <StatCard onClick={() => handleTabChange('statistics')}>
             <StatIconContainer>
-              <FaStar />
+              <FaChartLine />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockEvaluations.length}</StatValue>
-              <StatLabel>Evaluation Reports</StatLabel>
+              <StatValue>{statistics.cycleMetrics.placementRate}%</StatValue>
+              <StatLabel>Placement Rate</StatLabel>
             </StatContent>
           </StatCard>
         </StatCardsContainer>
-        
-        <Card>
-          <SectionTitle>
-            <FaCalendarAlt /> Set Internship Cycle Dates
-          </SectionTitle>
-          <p>Current cycle: May 1, 2023 - August 31, 2023</p>
-          
-          <CycleDateSettings>
-            <div>
-              <Input 
-                label="Start Date"
-                type="date"
-                name="startDate"
-                value={cycleDates.startDate}
-                onChange={handleDateChange}
-              />
-            </div>
-            <div>
-              <Input 
-                label="End Date"
-                type="date"
-                name="endDate"
-                value={cycleDates.endDate}
-                onChange={handleDateChange}
-              />
-            </div>
-            <div style={{ alignSelf: 'flex-end' }}>
-              <Button 
-                variant="primary"
-                onClick={handleSaveCycleDates}
-              >
-                Save Cycle Dates
-              </Button>
-            </div>
-          </CycleDateSettings>
-        </Card>
         
         <div ref={tabsRef}>
           <TabsContainer>
@@ -810,6 +1136,10 @@ const ScadDashboard = () => {
           </TabsContainer>
         </div>
         
+        {/* Add the statistics tab content */}
+        {activeTab === 'statistics' && renderStatisticsTab()}
+
+        {/* Other existing tab content */}
         {activeTab === 'companies' && (
           <>
             <ActionBar>
@@ -1047,38 +1377,6 @@ const ScadDashboard = () => {
               </Table>
             </TableContainer>
           </>
-        )}
-        
-        {activeTab === 'statistics' && (
-          <StatsContainer>
-            <Card title="Reports by Status">
-              <ChartContainer>
-                <FaChartBar size={50} />
-                <p style={{ marginLeft: '1rem' }}>Chart showing report statistics would be displayed here</p>
-              </ChartContainer>
-            </Card>
-            
-            <Card title="Internships by Company">
-              <ChartContainer>
-                <FaChartBar size={50} />
-                <p style={{ marginLeft: '1rem' }}>Chart showing internship distribution would be displayed here</p>
-              </ChartContainer>
-            </Card>
-            
-            <Card title="Average Review Time">
-              <ChartContainer>
-                <FaClock size={50} />
-                <p style={{ marginLeft: '1rem' }}>Chart showing review time statistics would be displayed here</p>
-              </ChartContainer>
-            </Card>
-            
-            <Card title="Top Rated Companies">
-              <ChartContainer>
-                <FaBuilding size={50} />
-                <p style={{ marginLeft: '1rem' }}>Chart showing company ratings would be displayed here</p>
-              </ChartContainer>
-            </Card>
-          </StatsContainer>
         )}
         
         {activeTab === 'evaluations' && (

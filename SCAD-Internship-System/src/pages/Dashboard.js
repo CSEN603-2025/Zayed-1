@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import { FaBriefcase, FaGraduationCap, FaBell, FaCalendarAlt, FaStar, FaBuilding, FaSearch } from 'react-icons/fa';
+import Select from '../components/Select';
+import { FaBriefcase, FaGraduationCap, FaBell, FaCalendarAlt, FaStar, FaBuilding, FaSearch, FaHistory } from 'react-icons/fa';
+// import Card from '../components/Card';
+// import { FaBriefcase, FaUsers, FaHistory } from 'react-icons/fa';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -358,9 +361,130 @@ const mockNotifications = [
   }
 ];
 
+// Add styles for the search container
+const SearchContainer = styled.div`
+  position: relative;
+  margin-bottom: 1rem;
+`;
+
+const SearchInput = styled.input`
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid ${props => props.theme.colors.tertiary};
+  border-radius: 5px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 0.9rem;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.secondary};
+  }
+`;
+
+const SearchIcon = styled.div`
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${props => props.theme.colors.darkGray};
+`;
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [userType] = useState('student'); // This could come from context/state in a real app
+  const [prevInternshipSearchTerm, setPrevInternshipSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  
+  // Mock internships data for previous internships
+  const [mockInternships] = useState([
+    {
+      id: 1,
+      title: 'Frontend Developer Intern',
+      company: 'Tech Innovations',
+      applications: 12,
+      posted: '10/01/2023',
+      status: 'completed',
+      duration: '3 months',
+      date: '2023'
+    },
+    {
+      id: 2,
+      title: 'Backend Developer Intern',
+      company: 'Data Systems Inc.',
+      applications: 8,
+      posted: '12/15/2022',
+      status: 'completed',
+      duration: '6 months',
+      date: '2022'
+    },
+    {
+      id: 3,
+      title: 'UX/UI Design Intern',
+      company: 'Creative Solutions',
+      applications: 15,
+      posted: '02/05/2024',
+      status: 'current',
+      duration: '4 months',
+      date: '2024'
+    },
+    {
+      id: 4,
+      title: 'Data Science Intern',
+      company: 'Analytics Pro',
+      applications: 20,
+      posted: '01/10/2024',
+      status: 'current',
+      duration: '6 months',
+      date: '2024'
+    },
+    {
+      id: 5,
+      title: 'Mobile App Developer Intern',
+      company: 'App Innovations',
+      applications: 10,
+      posted: '08/15/2023',
+      status: 'completed',
+      duration: '3 months',
+      date: '2023'
+    }
+  ]);
+  
+  // Create options arrays for select components
+  const statusOptions = [
+    { value: 'all', label: 'All' },
+    { value: 'current', label: 'Current' },
+    { value: 'completed', label: 'Completed' }
+  ];
+  
+  const yearOptions = [
+    { value: 'all', label: 'All Years' },
+    { value: '2024', label: '2024' },
+    { value: '2023', label: '2023' },
+    { value: '2022', label: '2022' }
+  ];
+  
+  const filteredInternships = mockInternships.filter(internship => {
+    // Apply search filter
+    const matchesSearch = internship.title.toLowerCase().includes(prevInternshipSearchTerm.toLowerCase()) ||
+                         internship.company.toLowerCase().includes(prevInternshipSearchTerm.toLowerCase());
+    
+    // Apply status filter
+    const matchesStatus = statusFilter === 'all' || internship.status === statusFilter;
+    
+    // Apply date filter
+    const matchesDate = dateFilter === 'all' || internship.date === dateFilter;
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+  
+  const handlePrevInternshipSearchChange = (e) => {
+    setPrevInternshipSearchTerm(e.target.value);
+  };
+  
+  const handleViewInternship = (id) => {
+    navigate(`/internship-details/${id}`);
+  };
   
   return (
     <DashboardContainer>
@@ -489,7 +613,98 @@ const Dashboard = () => {
             ))}
           </Card>
         </SuggestedCompanies>
-        
+
+        <SectionTitle>My Internships</SectionTitle>
+        <InternshipList>
+          <Card>
+            <SearchContainer>
+              <SearchIcon>
+                <FaSearch />
+              </SearchIcon>
+              <SearchInput
+                type="text"
+                placeholder="Search my internships..."
+                value={prevInternshipSearchTerm}
+                onChange={handlePrevInternshipSearchChange}
+              />
+            </SearchContainer>
+            
+            <div style={{ display: 'flex', gap: '1rem', margin: '1rem 0' }}>
+              <div style={{ width: '200px' }}>
+                <Select
+                  label="Status"
+                  id="statusFilter"
+                  name="statusFilter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  options={statusOptions}
+                />
+              </div>
+              
+              <div style={{ width: '200px' }}>
+                <Select
+                  label="Year"
+                  id="dateFilter"
+                  name="dateFilter"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  options={yearOptions}
+                />
+              </div>
+            </div>
+
+            {filteredInternships.length > 0 ? (
+              filteredInternships.map(internship => (
+                <InternshipItem key={internship.id}>
+                  <InternshipInfo>
+                    <InternshipTitle>{internship.title}</InternshipTitle>
+                    <InternshipCompany>{internship.company}</InternshipCompany>
+                    <InternshipDetails>
+                      <InternshipDetail>
+                        <FaCalendarAlt />
+                        {internship.duration}
+                      </InternshipDetail>
+                      <InternshipDetail>
+                        <FaBriefcase />
+                        {internship.applications} Applications
+                      </InternshipDetail>
+                      <InternshipDetail>
+                        <FaHistory />
+                        Posted: {internship.posted}
+                      </InternshipDetail>
+                      <Status status={internship.status === 'current' ? 'accepted' : 'completed'}>
+                        {internship.status === 'current' ? 'Current' : 'Completed'}
+                      </Status>
+                    </InternshipDetails>
+                  </InternshipInfo>
+                  <ActionButtons>
+                    <Button 
+                      variant="secondary" 
+                      size="small"
+                      onClick={() => handleViewInternship(internship.id)}
+                    >
+                      View
+                    </Button>
+                    {internship.status === 'completed' && (
+                      <Button 
+                        variant="primary" 
+                        size="small"
+                        onClick={() => navigate(`/student/companies/${internship.id}/evaluate`)}
+                      >
+                        Evaluate
+                      </Button>
+                    )}
+                  </ActionButtons>
+                </InternshipItem>
+              ))
+            ) : (
+              <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                <p>No internships found matching your filters</p>
+              </div>
+            )}
+          </Card>
+        </InternshipList>
+
         <SectionTitle>Helpful Video Guide</SectionTitle>
         <Card>
           <iframe 
@@ -502,7 +717,7 @@ const Dashboard = () => {
             allowfullscreen
           ></iframe>
         </Card>
-        
+
         
       </DashboardContent>
     </DashboardContainer>

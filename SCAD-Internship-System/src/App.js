@@ -10,12 +10,14 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CompanyRegistration from './pages/CompanyRegistration';
 import StudentProfile from './pages/StudentProfile';
-import CompanyDashboard from './pages/CompanyDashboard';
+import CompanyDashboard from './pages/CompanyDashboard/CompanyDashboard';
 import ScadDashboard from './pages/ScadDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
 import FacultyFeedback from './pages/FacultyFeedback';
 import InternshipListings from './pages/InternshipListings';
+import MyInternships from './pages/MyInternships';
 import InternshipDetails from './pages/InternshipDetails';
+import InternshipDetailView from './pages/InternshipDetailView';
 import InternshipPost from './pages/InternshipPost';
 import ApplicationList from './pages/ApplicationList';
 import InternList from './pages/InternList';
@@ -37,6 +39,8 @@ import VideoCall from './pages/VideoCall';
 import Assessments from './pages/Assessments';
 import AssessmentTaking from './pages/AssessmentTaking';
 import AssessmentResults from './pages/AssessmentResults';
+import ReportCRUD from './pages/ReportCRUD';
+import CompanyEvaluation from './pages/CompanyEvaluation';
 
 const AppContainer = styled.div`
   font-family: ${props => props.theme.fonts.main};
@@ -60,8 +64,13 @@ function App() {
               <Route path="/profile" element={<StudentProfile />} />
               <Route path="/report/create" element={<ReportCreate />} />
               <Route path="/report/list" element={<ReportList />} />
+              <Route path="/report/:id" element={<ReportDetails />} />
+              <Route path="/report-management/:id" element={<ReportCRUD />} />
               <Route path="/my-reports" element={<MyReports />} />
+              <Route path="/internship-details/:id" element={<InternshipDetailView />} />
+              <Route path="/student/internships/:id" element={<MyInternships />} />
               <Route path="/student/companies/:id" element={<CompanyDetails />} />
+              <Route path="/student/companies/:id/evaluate" element={<CompanyEvaluation />} />
               
               {/* Routes for workshops */}
               <Route path="/workshops" element={<Workshop />} />
@@ -100,7 +109,6 @@ function App() {
               <Route path="/internships/:id" element={<InternshipDetails />} />
               <Route path="/applications" element={<ApplicationList />} />
               <Route path="/interns" element={<InternList />} />
-              <Route path="/report/:id" element={<ReportDetails />} />
               <Route path="/evaluation/create/:id" element={<EvaluationForm />} />
               <Route path="/evaluation/:id" element={<EvaluationReport />} />
               <Route path="/assessments" element={<Assessments />} />

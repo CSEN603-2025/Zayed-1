@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
@@ -20,7 +21,10 @@ import {
   FaUniversity,
   FaChartBar,
   FaEye,
-  FaEyeSlash
+  FaEyeSlash,
+  FaBuilding,
+  FaCalendarAlt,
+  FaClock
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -467,6 +471,85 @@ const Label = styled.label`
   display: block;
 `;
 
+const ProfileViewContainer = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const ViewItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid ${props => props.theme.colors.tertiary};
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.tertiary}40;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const ViewCompanyLogo = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background-color: ${props => props.theme.colors.tertiary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.primary};
+  margin-right: 1rem;
+`;
+
+const ViewInfo = styled.div`
+  flex: 1;
+`;
+
+const ViewCompanyName = styled.div`
+  font-weight: 500;
+  color: ${props => props.theme.colors.primary};
+  margin-bottom: 0.25rem;
+`;
+
+const ViewDate = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: ${props => props.theme.colors.darkGray};
+  
+  svg {
+    margin-right: 0.25rem;
+  }
+`;
+
+const ViewTimeInfo = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: ${props => props.theme.colors.darkGray};
+  margin-left: 1rem;
+  
+  svg {
+    margin-right: 0.25rem;
+  }
+`;
+
+const ViewCount = styled.div`
+  background-color: ${props => props.theme.colors.primary};
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+`;
+
 // Mock data
 const mockUserData = {
   id: 1,
@@ -553,10 +636,63 @@ const mockUserData = {
       status: 'completed',
       visible: false
     }
+  ],
+  profileViews: [
+    {
+      id: 1,
+      companyName: "Tech Innovations",
+      companyLogo: null,
+      industry: "Technology",
+      date: "2024-03-20",
+      time: "14:35",
+      viewCount: 3,
+      interested: true
+    },
+    {
+      id: 2,
+      companyName: "Global Marketing Solutions",
+      companyLogo: null,
+      industry: "Marketing",
+      date: "2024-03-18",
+      time: "10:15",
+      viewCount: 1,
+      interested: false
+    },
+    {
+      id: 3,
+      companyName: "Data Systems Inc.",
+      companyLogo: null,
+      industry: "Information Technology",
+      date: "2024-03-15",
+      time: "16:22",
+      viewCount: 2,
+      interested: true
+    },
+    {
+      id: 4,
+      companyName: "Creative Studios",
+      companyLogo: null,
+      industry: "Design",
+      date: "2024-03-12",
+      time: "09:45",
+      viewCount: 1,
+      interested: false
+    },
+    {
+      id: 5,
+      companyName: "FinTech Corp",
+      companyLogo: null,
+      industry: "Finance",
+      date: "2024-03-10",
+      time: "13:30",
+      viewCount: 4,
+      interested: true
+    }
   ]
 };
 
 const StudentProfile = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [userData, setUserData] = useState(mockUserData);
   const [editing, setEditing] = useState({
@@ -900,6 +1036,74 @@ const StudentProfile = () => {
     localStorage.setItem('studentAssessments', JSON.stringify(updatedAssessments));
   };
   
+  const handleCompanyClick = (companyId) => {
+    navigate(`/scad/companies/${companyId}`);
+  };
+  
+  const renderProfileViews = () => {
+    return (
+      <>
+        <SectionTitle>
+          <FaEye /> Companies That Viewed Your Profile
+        </SectionTitle>
+        <Card>
+          <div style={{ padding: '1rem' }}>
+            <p style={{ color: '#666', marginBottom: '1rem' }}>
+              These companies have viewed your profile recently. Companies marked with a star have indicated interest in your profile.
+            </p>
+            
+            {userData.profileViews && userData.profileViews.length > 0 ? (
+              <ProfileViewContainer>
+                {userData.profileViews.map(view => (
+                  <ViewItem 
+                    key={view.id}
+                    onClick={() => handleCompanyClick(view.id)}
+                    title="Click to view company details"
+                  >
+                    <ViewCompanyLogo>
+                      <FaBuilding />
+                    </ViewCompanyLogo>
+                    <ViewInfo>
+                      <ViewCompanyName>
+                        {view.companyName} {view.interested && <FaStar size={14} color="#FFD700" style={{ marginLeft: '5px' }} />}
+                      </ViewCompanyName>
+                      <div style={{ display: 'flex' }}>
+                        <ViewDate>
+                          <FaCalendarAlt /> {view.date}
+                        </ViewDate>
+                        <ViewTimeInfo>
+                          <FaClock /> {view.time}
+                        </ViewTimeInfo>
+                      </div>
+                    </ViewInfo>
+                    <ViewCount title={`Viewed your profile ${view.viewCount} ${view.viewCount === 1 ? 'time' : 'times'}`}>
+                      {view.viewCount}
+                    </ViewCount>
+                  </ViewItem>
+                ))}
+              </ProfileViewContainer>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <FaEyeSlash style={{ fontSize: '2rem', color: '#ccc', marginBottom: '1rem' }} />
+                <p>No companies have viewed your profile yet.</p>
+              </div>
+            )}
+            
+            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <Button 
+                variant="secondary" 
+                size="small"
+                onClick={() => navigate('/internships')}
+              >
+                Find More Opportunities
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </>
+    );
+  };
+  
   return (
     <PageContainer>
       <Navbar userType="student" />
@@ -1152,7 +1356,15 @@ const StudentProfile = () => {
               >
                 Assessments
               </Tab>
+              <Tab 
+                active={activeTab === 'viewers'} 
+                onClick={() => setActiveTab('viewers')}
+              >
+                Profile Viewers
+              </Tab>
             </TabsContainer>
+            
+            {activeTab === 'viewers' && renderProfileViews()}
             
             {activeTab === 'profile' && (
               <>

@@ -336,12 +336,14 @@ const InternList = () => {
             />
           </SearchContainer>
 
-          <FilterSelect value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-            <option value="all">All Statuses</option>
-            <option value="current">Current</option>
-            <option value="completed">Completed</option>
-            <option value="terminated">Terminated</option>
-          </FilterSelect>
+          {activeTab === 'all' && (
+            <FilterSelect value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+              <option value="all">All Statuses</option>
+              <option value="current">Current</option>
+              <option value="completed">Completed</option>
+              <option value="terminated">Terminated</option>
+            </FilterSelect>
+          )}
         </ActionsContainer>
         
         <TableContainer>

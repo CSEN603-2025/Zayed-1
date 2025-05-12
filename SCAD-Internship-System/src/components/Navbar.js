@@ -122,7 +122,6 @@ const Navbar = () => {
         return (
           <>
             <NavLink to="/company/dashboard">Dashboard</NavLink>
-            <NavLink to="/internships">All Internships</NavLink>
             <NavLink to="/company/interns">Interns</NavLink>
           </>
         );
@@ -142,7 +141,6 @@ const Navbar = () => {
             <NavLink to="/faculty/dashboard">Dashboard</NavLink>
             <NavLink to="/faculty/reports">Reports</NavLink>
             <NavLink to="/faculty/feedback">Feedback</NavLink>
-            <NavLink to="/faculty/statistics">Statistics</NavLink>
           </>
         );
       default:
