@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ element, allowedUserTypes }) => {
-  const { currentUser, userType, isAuthenticated } = useAuth();
+  const { user, userType, isAuthenticated } = useAuth();
   
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
