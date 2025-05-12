@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Create the authentication context
 const AuthContext = createContext();
@@ -10,14 +10,32 @@ export const useAuth = () => {
 
 // Auth provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // Initialize user from localStorage, default to null if not found
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
   // Initialize userType from localStorage, default to empty string if not found
   const [userType, setUserType] = useState(() => {
     const savedUserType = localStorage.getItem('userType');
     return savedUserType || '';
   });
+
+  // Computed property to check if user is authenticated
+  const isAuthenticated = !!user;
+
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
 
   // Login function
   const login = async (email, password, userType) => {
@@ -57,6 +75,7 @@ export const AuthProvider = ({ children }) => {
     userType,
     loading,
     error,
+    isAuthenticated,
     login,
     logout
   };
