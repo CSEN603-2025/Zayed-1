@@ -66,18 +66,6 @@ const Input = styled.input`
   }
 `;
 
-const Select = styled.select`
-  padding: 0.75rem;
-  border: 1px solid ${props => props.error ? 'red' : props.theme.colors.tertiary};
-  border-radius: 5px;
-  font-size: 1rem;
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
-  }
-`;
-
 const ErrorMessage = styled.div`
   color: red;
   font-size: 0.8rem;
@@ -120,10 +108,18 @@ const StyledLink = styled.span`
   }
 `;
 
+// Hardcoded account credentials
+const ACCOUNTS = {
+  'student@example.com': { password: 'student123', type: 'student' },
+  'prostudent@example.com': { password: 'prostudent123', type: 'proStudent' },
+  'company@example.com': { password: 'company123', type: 'company' },
+  'scad@example.com': { password: 'scad123', type: 'scadOffice' },
+  'faculty@example.com': { password: 'faculty123', type: 'faculty' }
+};
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { login, loading } = useAuth();
@@ -139,10 +135,6 @@ const Login = () => {
       newErrors.password = 'Password is required';
     }
     
-    if (!userType) {
-      newErrors.userType = 'Please select user type';
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -151,11 +143,20 @@ const Login = () => {
     e.preventDefault();
     
     if (validateForm()) {
+      // Check if the email exists in our hardcoded accounts
+      const account = ACCOUNTS[email];
+      
+      if (!account || account.password !== password) {
+        setErrors({ general: 'Invalid email or password' });
+        return;
+      }
+      
       try {
-        await login(email, password, userType);
+        // Login with the account type
+        await login(email, password, account.type);
         
-        // Redirect based on user type
-        switch(userType) {
+        // Redirect based on account type
+        switch(account.type) {
           case 'student':
           case 'proStudent':
             navigate('/dashboard');
@@ -213,24 +214,6 @@ const Login = () => {
               error={errors.password}
             />
             {errors.password && <ErrorMessage>{errors.password}</ErrorMessage>}
-          </FormGroup>
-          
-          <FormGroup>
-            <Label htmlFor="userType">Login As</Label>
-            <Select
-              id="userType"
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-              error={errors.userType}
-            >
-              <option value="">Select user type</option>
-              <option value="student">Student</option>
-              <option value="proStudent">PRO Student</option>
-              <option value="company">Company</option>
-              <option value="scadOffice">SCAD Office</option>
-              <option value="faculty">Faculty Member</option>
-            </Select>
-            {errors.userType && <ErrorMessage>{errors.userType}</ErrorMessage>}
           </FormGroup>
           
           <Button type="submit" disabled={loading}>
