@@ -21,7 +21,8 @@ import {
   FaStickyNote,
   FaCertificate,
   FaDownload,
-  FaSave
+  FaSave,
+  FaVideo
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -140,6 +141,7 @@ const StatusBadge = styled.span`
       case 'full': return '#f8d7da';
       case 'inprogress': return '#fff3cd';
       case 'completed': return '#e2e3e5';
+      case 'live-soon': return '#ffedcc';
       default: return '#e2e3e5';
     }
   }};
@@ -149,6 +151,7 @@ const StatusBadge = styled.span`
       case 'full': return '#c62828';
       case 'inprogress': return '#856404';
       case 'completed': return '#383d41';
+      case 'live-soon': return '#ff6d00';
       default: return '#383d41';
     }
   }};
@@ -458,6 +461,29 @@ const ActionButtons = styled.div`
   margin-top: 1.5rem;
 `;
 
+const LiveJoinButton = styled(Button)`
+  background-color: #ff6d00;
+  color: white;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 109, 0, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 109, 0, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 109, 0, 0);
+    }
+  }
+  
+  &:hover {
+    background-color: #ff8f00;
+  }
+`;
+
 // Mock data for workshop details
 const mockWorkshopData = {
   id: 1,
@@ -465,6 +491,9 @@ const mockWorkshopData = {
   date: 'June 15, 2023',
   time: '10:00 AM - 12:00 PM',
   location: 'Engineering Building, Room 201',
+  isOnline: false,
+  isLiveSoon: false, // New property to indicate if the workshop is starting soon
+  joinUrl: 'https://zoom.us/j/1234567890', // URL to join the live workshop
   description: 'Learn how to craft a standout resume targeting technology companies. This workshop will cover best practices, common mistakes, and tailored approaches for different tech roles.',
   learningOutcomes: [
     'Understand the key elements of a strong technical resume',
@@ -525,16 +554,50 @@ const WorkshopDetails = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [notes, setNotes] = useState('');
   const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [countdown, setCountdown] = useState({ minutes: 0, seconds: 0 });
   const videoRef = useRef(null);
   
   useEffect(() => {
     // In a real app, we would fetch the workshop data based on the ID
     // For this demo, we'll just use the mock data
     setTimeout(() => {
-      setWorkshop(mockWorkshopData);
+      // Simulate a workshop that's starting soon for testing purposes
+      const updatedWorkshopData = {
+        ...mockWorkshopData,
+        isOnline: true,
+        isLiveSoon: true,
+        location: 'Online (Zoom)',
+        status: mockWorkshopData.status === 'upcoming' ? 'live-soon' : mockWorkshopData.status,
+        startTime: new Date(Date.now() + 15 * 60000) // Workshop starts in 15 minutes
+      };
+      setWorkshop(updatedWorkshopData);
       setLoading(false);
     }, 500);
   }, [id]);
+  
+  useEffect(() => {
+    // Countdown timer for workshop start
+    if (workshop && workshop.isLiveSoon && workshop.startTime) {
+      const timer = setInterval(() => {
+        const now = new Date();
+        const startTime = new Date(workshop.startTime);
+        const diff = startTime - now;
+        
+        if (diff <= 0) {
+          // Workshop has started
+          clearInterval(timer);
+          setCountdown({ minutes: 0, seconds: 0 });
+          // Could update the workshop status here to 'inprogress'
+        } else {
+          const minutes = Math.floor(diff / 60000);
+          const seconds = Math.floor((diff % 60000) / 1000);
+          setCountdown({ minutes, seconds });
+        }
+      }, 1000);
+      
+      return () => clearInterval(timer);
+    }
+  }, [workshop]);
   
   const handleRegister = () => {
     setIsRegistered(true);
@@ -610,6 +673,15 @@ const WorkshopDetails = () => {
     // Reset form
     setFeedback('');
     setRating(0);
+  };
+  
+  const handleJoinLive = () => {
+    // In a real app, this would open the live workshop URL
+    if (workshop && workshop.joinUrl) {
+      window.open(workshop.joinUrl, '_blank');
+    } else {
+      alert('The live session link will be available shortly before the workshop starts.');
+    }
   };
   
   // Function to check if URL is YouTube
@@ -715,8 +787,25 @@ const WorkshopDetails = () => {
         </WorkshopHeader>
         
         <StatusBadge status={workshop.status}>
-          Status: {workshop.status.charAt(0).toUpperCase() + workshop.status.slice(1)}
+          Status: {workshop.status === 'live-soon' 
+            ? 'Live Starting Soon' 
+            : workshop.status.charAt(0).toUpperCase() + workshop.status.slice(1)}
         </StatusBadge>
+        
+        {workshop.isOnline && workshop.isLiveSoon && (
+          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+            <LiveJoinButton 
+              icon={<FaVideo />}
+              onClick={handleJoinLive}
+              size="large"
+            >
+              Join Live Workshop - Starting in {String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+            </LiveJoinButton>
+            <p style={{ marginTop: '0.5rem', color: '#ff6d00', fontWeight: '500' }}>
+              The workshop will begin shortly. Click the button above to join.
+            </p>
+          </div>
+        )}
         
         <TwoColumnLayout>
           <div>
@@ -886,7 +975,16 @@ const WorkshopDetails = () => {
                 <p><strong>Available Seats:</strong> {workshop.maxAttendees - workshop.currentAttendees}</p>
               </div>
               
-              {workshop.status === 'upcoming' && !workshop.full && (
+              {workshop.isOnline && workshop.isLiveSoon ? (
+                <Card.Footer>
+                  <LiveJoinButton 
+                    icon={<FaVideo />}
+                    onClick={handleJoinLive}
+                  >
+                    Join Live - {String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+                  </LiveJoinButton>
+                </Card.Footer>
+              ) : workshop.status === 'upcoming' && !workshop.full && (
                 <Card.Footer>
                   {!isRegistered ? (
                     <Button 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
@@ -12,7 +12,8 @@ import {
   FaFilter,
   FaSearch,
   FaChevronDown,
-  FaChevronUp
+  FaChevronUp,
+  FaVideo
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -224,6 +225,7 @@ const StatusBadge = styled.span`
       case 'upcoming': return '#e6f7e6';
       case 'full': return '#f8d7da';
       case 'inprogress': return '#fff3cd';
+      case 'live-soon': return '#ffedcc';
       default: return '#e2e3e5';
     }
   }};
@@ -232,9 +234,35 @@ const StatusBadge = styled.span`
       case 'upcoming': return '#2e7d32';
       case 'full': return '#c62828';
       case 'inprogress': return '#856404';
+      case 'live-soon': return '#ff6d00';
       default: return '#383d41';
     }
   }};
+`;
+
+const LiveIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #ff6d00;
+  margin-top: 0.5rem;
+  
+  svg {
+    animation: pulse 2s infinite;
+    
+    @keyframes pulse {
+      0% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.5;
+      }
+    }
+  }
 `;
 
 // Mock data for workshops
@@ -254,7 +282,8 @@ const mockWorkshops = [
     },
     tags: ['Resume', 'Tech Careers', 'Job Application'],
     status: 'completed',
-    registered: false
+    registered: false,
+    isOnline: false
   },
   {
     id: 2,
@@ -271,7 +300,10 @@ const mockWorkshops = [
     },
     tags: ['Interviews', 'Coding', 'Algorithms'],
     status: 'upcoming',
-    registered: true
+    registered: true,
+    isOnline: true,
+    isLiveSoon: true,
+    startTime: new Date(Date.now() + 15 * 60000) // Starting in 15 minutes
   },
   {
     id: 3,
@@ -414,6 +446,29 @@ const Workshop = () => {
   const categories = [...new Set(workshops.map(workshop => workshop.category))];
   const statuses = [...new Set(workshops.map(workshop => workshop.status))];
   
+  useEffect(() => {
+    // Check for workshops that are about to start
+    const interval = setInterval(() => {
+      setWorkshops(prevWorkshops => 
+        prevWorkshops.map(workshop => {
+          if (workshop.isOnline && workshop.status === 'upcoming' && workshop.startTime) {
+            const now = new Date();
+            const startTime = new Date(workshop.startTime);
+            const diff = startTime - now;
+            
+            // If workshop is starting within 30 minutes, mark it as live-soon
+            if (diff > 0 && diff <= 30 * 60 * 1000) {
+              return { ...workshop, status: 'live-soon' };
+            }
+          }
+          return workshop;
+        })
+      );
+    }, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <PageContainer>
       <Navbar userType="proStudent" />
@@ -500,11 +555,19 @@ const Workshop = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <WorkshopTitle>{workshop.title}</WorkshopTitle>
                 <StatusBadge status={workshop.status}>
-                  {workshop.status === 'upcoming' ? 'Upcoming' : 
+                  {workshop.status === 'live-soon' ? 'Live Soon' : 
+                    workshop.status === 'upcoming' ? 'Upcoming' : 
                     workshop.status === 'full' ? 'Full' : 
                     workshop.status === 'inprogress' ? 'In Progress' : workshop.status}
                 </StatusBadge>
               </div>
+              
+              {workshop.status === 'live-soon' && (
+                <LiveIndicator>
+                  <FaVideo />
+                  <span>Live workshop starting soon!</span>
+                </LiveIndicator>
+              )}
               
               <div>
                 {workshop.tags.map((tag, index) => (
@@ -546,10 +609,10 @@ const Workshop = () => {
                     size="small"
                     onClick={() => viewWorkshopDetails(workshop.id)}
                   >
-                    View Details
+                    {workshop.status === 'live-soon' ? 'Join Live Workshop' : 'View Details'}
                   </Button>
                   
-                  {workshop.status !== 'full' && !workshop.registered ? (
+                  {workshop.status !== 'full' && !workshop.registered && workshop.status !== 'live-soon' ? (
                     <Button 
                       variant="primary" 
                       size="small"
@@ -558,13 +621,22 @@ const Workshop = () => {
                     >
                       Register
                     </Button>
-                  ) : workshop.registered ? (
+                  ) : workshop.registered && workshop.status !== 'live-soon' ? (
                     <Button 
                       variant="secondary" 
                       size="small"
                       onClick={() => handleRegister(workshop.id)}
                     >
                       Cancel Registration
+                    </Button>
+                  ) : workshop.status === 'live-soon' ? (
+                    <Button 
+                      variant="primary" 
+                      size="small"
+                      icon={<FaVideo />}
+                      onClick={() => viewWorkshopDetails(workshop.id)}
+                    >
+                      Join Now
                     </Button>
                   ) : (
                     <Button 
