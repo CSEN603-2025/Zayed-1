@@ -1,30 +1,35 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = ({ children, roles }) => {
-  const { isAuthenticated, hasRole, loading } = useAuth();
-  const location = useLocation();
+const ProtectedRoute = ({ element, allowedUserTypes }) => {
+  const { currentUser, userType, isAuthenticated } = useAuth();
   
-  // If still loading auth state, show nothing or a loader
-  if (loading) {
-    return <div>Loading...</div>;
+  // If not authenticated, redirect to login
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
   
-  // If not authenticated, redirect to login page
-  if (!isAuthenticated()) {
-    // Save the location the user was trying to access for redirecting after login
-    return <Navigate to="/" state={{ from: location }} replace />;
+  // If this route requires specific user types and user doesn't have permission
+  if (allowedUserTypes && !allowedUserTypes.includes(userType)) {
+    // Redirect to the appropriate dashboard based on user type
+    switch (userType) {
+      case 'student':
+      case 'proStudent':
+        return <Navigate to="/dashboard" replace />;
+      case 'company':
+        return <Navigate to="/company/dashboard" replace />;
+      case 'scadOffice':
+        return <Navigate to="/scad/dashboard" replace />;
+      case 'faculty':
+        return <Navigate to="/faculty/dashboard" replace />;
+      default:
+        return <Navigate to="/" replace />;
+    }
   }
   
-  // If roles are specified, check if user has the required role
-  if (roles && !hasRole(roles)) {
-    // If user doesn't have the required role, redirect to dashboard
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  // If authenticated and has the required role, render the protected component
-  return children;
+  // User is authenticated and authorized, render the element
+  return element;
 };
 
 export default ProtectedRoute; 
