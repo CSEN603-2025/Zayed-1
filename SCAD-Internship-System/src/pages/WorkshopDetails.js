@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
@@ -10,12 +10,14 @@ import {
   FaMapMarkerAlt, 
   FaUserPlus, 
   FaArrowLeft,
-  FaUser,
-  FaBuilding,
   FaEnvelope,
   FaPhone,
   FaUsers,
-  FaStar
+  FaStar,
+  FaPlay,
+  FaPause,
+  FaStop,
+  FaComments
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -272,6 +274,124 @@ const Star = styled(FaStar)`
   }
 `;
 
+const VideoSection = styled.div`
+  margin: 2rem 0;
+`;
+
+const VideoContainer = styled.div`
+  position: relative;
+  width: 100%;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+`;
+
+const VideoPlaceholder = styled.div`
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background-color: ${props => props.theme.colors.tertiary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.primary};
+  font-size: 1.2rem;
+  position: relative;
+`;
+
+const YouTubeEmbed = styled.iframe`
+  width: 100%;
+  height: 450px;
+  border: none;
+  border-radius: 8px;
+`;
+
+const VideoControls = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const ControlButton = styled.button`
+  background-color: ${props => props.theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.secondary};
+  }
+  
+  &:disabled {
+    background-color: ${props => props.theme.colors.tertiary};
+    cursor: not-allowed;
+  }
+`;
+
+const FeedbackSection = styled.div`
+  margin-top: 2rem;
+`;
+
+const FeedbackTextarea = styled.textarea`
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid ${props => props.theme.colors.tertiary};
+  border-radius: 5px;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.secondary};
+  }
+`;
+
+const FeedbackItem = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: ${props => props.theme.colors.light};
+  border-radius: 5px;
+`;
+
+const FeedbackHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+`;
+
+const FeedbackUser = styled.div`
+  font-weight: 600;
+  color: ${props => props.theme.colors.primary};
+`;
+
+const FeedbackDate = styled.div`
+  font-size: 0.8rem;
+  color: ${props => props.theme.colors.darkGray};
+`;
+
+const FeedbackText = styled.div`
+  font-size: 0.9rem;
+  color: ${props => props.theme.colors.darkGray};
+`;
+
+const FeedbackRating = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  
+  svg {
+    color: #ffc107;
+    margin-right: 0.25rem;
+  }
+`;
+
 // Mock data for workshop details
 const mockWorkshopData = {
   id: 1,
@@ -292,6 +412,8 @@ const mockWorkshopData = {
   status: 'upcoming',
   maxAttendees: 25,
   currentAttendees: 12,
+  isRecorded: true,
+  videoUrl: 'https://www.youtube.com/watch?v=CgkZ7MvWUAA', // Placeholder for video URL
   presenter: {
     name: 'Jennifer Miller',
     title: 'Senior Recruiter, Tech Innovations',
@@ -306,6 +428,22 @@ const mockWorkshopData = {
     { id: 3, name: 'Michael Brown', initials: 'MB' },
     { id: 4, name: 'Emily Davis', initials: 'ED' },
     { id: 5, name: 'David Wilson', initials: 'DW' }
+  ],
+  feedback: [
+    {
+      id: 1,
+      user: 'Michael Brown',
+      date: 'June 16, 2023',
+      rating: 5,
+      text: 'Excellent workshop! I learned a lot of useful techniques that I immediately applied to my resume.'
+    },
+    {
+      id: 2,
+      user: 'Emily Davis',
+      date: 'June 17, 2023',
+      rating: 4,
+      text: 'Very informative and practical. Would have liked more examples specific to UX/UI design roles.'
+    }
   ]
 };
 
@@ -317,6 +455,9 @@ const WorkshopDetails = () => {
   const [error, setError] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
   
   useEffect(() => {
     // In a real app, we would fetch the workshop data based on the ID
@@ -340,6 +481,84 @@ const WorkshopDetails = () => {
   const handleRatingChange = (newRating) => {
     setRating(newRating);
     // In a real app, we would submit the rating to the server
+  };
+
+  const handleFeedbackChange = (e) => {
+    setFeedback(e.target.value);
+  };
+
+  const handleSubmitFeedback = () => {
+    if (!rating) {
+      alert('Please provide a rating before submitting feedback.');
+      return;
+    }
+
+    if (!feedback.trim()) {
+      alert('Please provide some feedback text.');
+      return;
+    }
+
+    // In a real app, we would submit the feedback to the server
+    alert('Thank you for your feedback!');
+    
+    // Add feedback to the local state
+    const newFeedback = {
+      id: workshop.feedback.length + 1,
+      user: 'You', // In a real app, would use the actual user name
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      rating,
+      text: feedback
+    };
+    
+    setWorkshop(prev => ({
+      ...prev,
+      feedback: [newFeedback, ...prev.feedback]
+    }));
+    
+    // Reset form
+    setFeedback('');
+    setRating(0);
+  };
+  
+  // Function to check if URL is YouTube
+  const isYouTubeUrl = (url) => {
+    return url && url.includes('youtube.com');
+  };
+  
+  // Function to extract YouTube video ID
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+  
+  // Function to get YouTube embed URL
+  const getYouTubeEmbedUrl = (url) => {
+    const videoId = getYouTubeVideoId(url);
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  };
+  
+  const handlePlayVideo = () => {
+    if (videoRef.current && !isYouTubeUrl(workshop.videoUrl)) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+  
+  const handlePauseVideo = () => {
+    if (videoRef.current && !isYouTubeUrl(workshop.videoUrl)) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+  
+  const handleStopVideo = () => {
+    if (videoRef.current && !isYouTubeUrl(workshop.videoUrl)) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
   };
   
   if (loading) {
@@ -413,6 +632,52 @@ const WorkshopDetails = () => {
               <SectionTitle>Workshop Description</SectionTitle>
               <Description>{workshop.description}</Description>
               
+              {workshop.isRecorded && (
+                <VideoSection>
+                  <SectionTitle>Workshop Recording</SectionTitle>
+                  <VideoContainer>
+                    {workshop.videoUrl ? (
+                      isYouTubeUrl(workshop.videoUrl) ? (
+                        <YouTubeEmbed
+                          src={getYouTubeEmbedUrl(workshop.videoUrl)}
+                          title="Workshop Video"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video 
+                          ref={videoRef}
+                          width="100%" 
+                          height="auto"
+                          controls
+                        >
+                          <source src={workshop.videoUrl} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      )
+                    ) : (
+                      <VideoPlaceholder>
+                        Video will be available here after the workshop
+                      </VideoPlaceholder>
+                    )}
+                  </VideoContainer>
+                  
+                  {workshop.videoUrl && !isYouTubeUrl(workshop.videoUrl) && (
+                    <VideoControls>
+                      <ControlButton onClick={handlePlayVideo} disabled={!workshop.videoUrl || isPlaying}>
+                        <FaPlay />
+                      </ControlButton>
+                      <ControlButton onClick={handlePauseVideo} disabled={!workshop.videoUrl || !isPlaying}>
+                        <FaPause />
+                      </ControlButton>
+                      <ControlButton onClick={handleStopVideo} disabled={!workshop.videoUrl || !isPlaying}>
+                        <FaStop />
+                      </ControlButton>
+                    </VideoControls>
+                  )}
+                </VideoSection>
+              )}
+              
               <SectionTitle>Learning Outcomes</SectionTitle>
               <LearningOutcomesList>
                 {workshop.learningOutcomes.map((outcome, index) => (
@@ -444,23 +709,58 @@ const WorkshopDetails = () => {
                 <Description>{workshop.presenter.bio}</Description>
               </PresenterSection>
               
-              {workshop.status === 'completed' && (
-                <div>
-                  <SectionTitle>Rate this Workshop</SectionTitle>
-                  <RatingSection>
-                    <RatingLabel>Your Rating:</RatingLabel>
-                    <StarContainer>
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star 
-                          key={star} 
-                          filled={star <= rating}
-                          onClick={() => handleRatingChange(star)}
-                        />
-                      ))}
-                    </StarContainer>
-                  </RatingSection>
+              <FeedbackSection>
+                <SectionTitle>Rate & Provide Feedback</SectionTitle>
+                <RatingSection>
+                  <RatingLabel>Your Rating:</RatingLabel>
+                  <StarContainer>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star 
+                        key={star} 
+                        filled={star <= rating}
+                        onClick={() => handleRatingChange(star)}
+                      />
+                    ))}
+                  </StarContainer>
+                </RatingSection>
+                
+                <FeedbackTextarea
+                  placeholder="Share your thoughts about this workshop..."
+                  value={feedback}
+                  onChange={handleFeedbackChange}
+                  rows={4}
+                />
+                
+                <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+                  <Button 
+                    variant="primary" 
+                    size="small"
+                    icon={<FaComments />}
+                    onClick={handleSubmitFeedback}
+                  >
+                    Submit Feedback
+                  </Button>
                 </div>
-              )}
+                
+                {workshop.feedback && workshop.feedback.length > 0 && (
+                  <div style={{ marginTop: '2rem' }}>
+                    <h4>Workshop Feedback</h4>
+                    {workshop.feedback.map(item => (
+                      <FeedbackItem key={item.id}>
+                        <FeedbackHeader>
+                          <FeedbackUser>{item.user}</FeedbackUser>
+                          <FeedbackDate>{item.date}</FeedbackDate>
+                        </FeedbackHeader>
+                        <FeedbackRating>
+                          <FaStar />
+                          {item.rating}/5
+                        </FeedbackRating>
+                        <FeedbackText>{item.text}</FeedbackText>
+                      </FeedbackItem>
+                    ))}
+                  </div>
+                )}
+              </FeedbackSection>
             </Card>
           </div>
           
@@ -545,4 +845,4 @@ const WorkshopDetails = () => {
   );
 };
 
-export default WorkshopDetails; 
+export default WorkshopDetails;
