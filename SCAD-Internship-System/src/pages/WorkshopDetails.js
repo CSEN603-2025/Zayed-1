@@ -413,7 +413,7 @@ const mockWorkshopData = {
   maxAttendees: 25,
   currentAttendees: 12,
   isRecorded: true,
-  videoUrl: 'https://www.youtube.com/watch?v=R_m50z0W9Yc', // Placeholder for video URL
+  videoUrl: 'https://www.youtube.com/watch?v=CgkZ7MvWUAA', // Placeholder for video URL
   presenter: {
     name: 'Jennifer Miller',
     title: 'Senior Recruiter, Tech Innovations',
