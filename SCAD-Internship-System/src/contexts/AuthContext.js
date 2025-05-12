@@ -13,7 +13,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [userType, setUserType] = useState('');
+  // Initialize userType from localStorage, default to empty string if not found
+  const [userType, setUserType] = useState(() => {
+    const savedUserType = localStorage.getItem('userType');
+    return savedUserType || '';
+  });
 
   // Login function
   const login = async (email, password, userType) => {
@@ -28,6 +32,8 @@ export const AuthProvider = ({ children }) => {
           name: 'Demo User'
         });
         setUserType(userType);
+        // Save userType to localStorage
+        localStorage.setItem('userType', userType);
         setLoading(false);
       }, 1000);
     } catch (err) {
@@ -41,6 +47,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setUserType('');
+    // Remove userType from localStorage on logout
+    localStorage.removeItem('userType');
   };
 
   // Value object that will be passed to consumers
