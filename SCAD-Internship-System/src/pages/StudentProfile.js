@@ -907,7 +907,6 @@ const StudentProfile = () => {
       <ContentContainer>
         <ProfileHeader>
           <PageTitle>My Profile</PageTitle>
-          <p>Current User Type: {userType}</p>
         </ProfileHeader>
         
         {/* Work Experience Modal */}
