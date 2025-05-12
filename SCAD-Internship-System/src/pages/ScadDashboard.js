@@ -21,12 +21,10 @@ import {
   FaFlag,
   FaDownload,
   FaStar,
-
   FaChartLine,
   FaBook,
   FaThumbsUp,
-  FaPrint
-
+  FaPrint,
   FaChalkboardTeacher,
   FaGlobe
 
