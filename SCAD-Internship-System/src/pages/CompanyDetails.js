@@ -335,8 +335,10 @@ const CompanyDetails = () => {
   };
   
   const handleDownloadDocument = (documentId) => {
-    // In a real app, we would initiate a download of the document
-    alert(`Downloading document ID: ${documentId}`);
+    const anchor = document.createElement('a');
+    anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+    anchor.download = 'Dummy_pdf.pdf';
+    anchor.click();
   };
   
   if (loading) {
