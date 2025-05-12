@@ -504,8 +504,34 @@ const NotificationCenter = ({ userType = 'student' }) => {
         time: new Date(Date.now() - 9 * 3600000).toISOString(), // 9 hours ago
         read: false,
         userType: 'company',
-        applicationStatus: null
+        applicationStatus: 'Accepted'
+      },{
+          id: 17,
+        title: ' caller left the call',
+         message: 'Prof. mona  left the call ',
+         type: 'success',
+        time: new Date(Date.now() - 6 * 3600000).toISOString(), // 6 hours ago
+        read: false,
+        userType: 'proStudent'
+      },{
+          id: 18,
+        title: ' caller left the call',
+         message: 'khalid left the call ',
+         type: 'success',
+        time: new Date(Date.now() - 4 * 3600000).toISOString(), // 2 hours ago
+        read: false,
+        userType: 'SCAD Office'
+      },{
+         id: 19,
+        title: ' caller left the call',
+         message: 'Medhat left the call ',
+         type: 'success',
+        time: new Date(Date.now() - 7* 3600000).toISOString(), // 2 hours ago
+        read: false,
+        userType: 'SCAD Office'
       }
+      
+
       
     ];
     

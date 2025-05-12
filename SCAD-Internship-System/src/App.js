@@ -28,6 +28,7 @@ import Workshop from './pages/Workshop';
 import WorkshopDetails from './pages/WorkshopDetails';
 import WorkshopCall from './pages/WorkshopCall';
 import WorkshopProposal from './pages/WorkshopProposal';
+import WorkshopManagement from './pages/WorkshopManagement';
 import CompanyDetails from './pages/CompanyDetails';
 import CompanyList from './pages/CompanyList';
 import InternProfilePreview from './pages/InternProfilePreview';
@@ -81,6 +82,7 @@ function App() {
               <Route path="/scad/companies" element={<CompanyList />} />
               <Route path="/scad/companies/:id" element={<CompanyDetails />} />
               <Route path="/scad/dashboard" element={<ScadDashboard />} />
+              <Route path="/scad/workshops" element={<WorkshopManagement />} />
               <Route path="/scad/studentPreview" element={<InternProfilePreview />} />
               <Route path="/scad/viewReport" element={<ReportDetails />} />
               
