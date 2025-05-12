@@ -585,7 +585,12 @@ const InternProfilePreview = () => {
                       </AttachmentIcon>
                       <AttachmentName>{attachment.name}</AttachmentName>
                     </AttachmentInfo>
-                    <AttachmentAction>
+                    <AttachmentAction onClick={() => {
+                      const anchor = document.createElement('a');
+                      anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+                      anchor.download = 'Dummy_pdf.pdf';
+                      anchor.click();
+                    }}>
                       <FaDownload />
                     </AttachmentAction>
                   </AttachmentItem>

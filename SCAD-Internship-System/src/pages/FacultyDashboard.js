@@ -718,7 +718,12 @@ const FacultyDashboard = () => {
         
         {activeTab === 'statistics' && (
           <>
-            <GenerateReportButton onClick={handleGenerateReport}>
+            <GenerateReportButton onClick={() => {
+              const anchor = document.createElement('a');
+              anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+              anchor.download = 'Dummy_pdf.pdf';
+              anchor.click();
+            }}>
               <FaDownload />
               Generate Statistical Report
             </GenerateReportButton>
@@ -835,7 +840,12 @@ const FacultyDashboard = () => {
                             <ActionButton title="View Evaluation Report" onClick={() => handleViewEvaluation(evaluation.id)}>
                               <FaEye />
                             </ActionButton>
-                            <ActionButton title="Download Evaluation Report" onClick={() => alert(`Downloading evaluation ID: ${evaluation.id}`)}>
+                            <ActionButton title="Download Evaluation Report" onClick={() => {
+                              const anchor = document.createElement('a');
+                              anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+                              anchor.download = 'Dummy_pdf.pdf';
+                              anchor.click();
+                            }}>
                               <FaDownload />
                             </ActionButton>
                           </ActionButtons>

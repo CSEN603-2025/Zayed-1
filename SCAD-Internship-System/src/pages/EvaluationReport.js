@@ -588,7 +588,12 @@ const EvaluationReport = () => {
             </InfoItem>
           </Section>
           
-          <DownloadButton onClick={() => alert('Downloading evaluation report...')}>
+          <DownloadButton onClick={() => {
+            const anchor = document.createElement('a');
+            anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+            anchor.download = 'Dummy_pdf.pdf';
+            anchor.click();
+          }}>
             <FaDownload /> Download Full Evaluation Report
           </DownloadButton>
         </ReportCard>
