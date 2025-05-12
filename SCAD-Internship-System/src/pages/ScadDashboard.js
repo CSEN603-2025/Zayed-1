@@ -21,10 +21,15 @@ import {
   FaFlag,
   FaDownload,
   FaStar,
+
   FaChartLine,
   FaBook,
   FaThumbsUp,
   FaPrint
+
+  FaChalkboardTeacher,
+  FaGlobe
+
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -1050,7 +1055,9 @@ const ScadDashboard = () => {
       <ContentContainer>
         <DashboardHeader>
           <PageTitle>SCAD Office Dashboard</PageTitle>
-          <PageDescription>Manage company applications, students, and internship reports</PageDescription>
+          <PageDescription>
+            Manage internship registrations, verify companies, and oversee the internship program
+          </PageDescription>
         </DashboardHeader>
         
         <StatCardsContainer>
@@ -1060,27 +1067,27 @@ const ScadDashboard = () => {
             </StatIconContainer>
             <StatContent>
               <StatValue>{companies.filter(c => c.status === 'pending').length}</StatValue>
-              <StatLabel>Pending Company Applications</StatLabel>
+              <StatLabel>Companies Pending Approval</StatLabel>
             </StatContent>
           </StatCard>
           
-          <StatCard onClick={() => handleTabChange('students')}>
+          <StatCard onClick={() => navigate('/applications')}>
             <StatIconContainer>
               <FaGraduationCap />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockStudents.length}</StatValue>
-              <StatLabel>Registered Students</StatLabel>
+              <StatValue>{mockReports.filter(r => r.status === 'pending').length}</StatValue>
+              <StatLabel>Reports Pending Review</StatLabel>
             </StatContent>
           </StatCard>
           
-          <StatCard onClick={() => handleTabChange('reports')}>
+          <StatCard onClick={() => navigate('/scad/workshops')}>
             <StatIconContainer>
-              <FaFileAlt />
+              <FaChalkboardTeacher />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{mockReports.filter(r => r.status === 'pending').length}</StatValue>
-              <StatLabel>Pending Reports</StatLabel>
+              <StatValue>12</StatValue>
+              <StatLabel>Manage Workshops</StatLabel>
             </StatContent>
           </StatCard>
           
@@ -1091,6 +1098,7 @@ const ScadDashboard = () => {
             <StatContent>
               <StatValue>{statistics.cycleMetrics.placementRate}%</StatValue>
               <StatLabel>Placement Rate</StatLabel>
+
             </StatContent>
           </StatCard>
         </StatCardsContainer>
@@ -1455,7 +1463,12 @@ const ScadDashboard = () => {
                             <ActionButton title="View Evaluation Report" onClick={() => handleViewEvaluation(evaluation.id)}>
                               <FaEye />
                             </ActionButton>
-                            <ActionButton title="Download Evaluation Report" onClick={() => alert(`Downloading evaluation ID: ${evaluation.id}`)}>
+                            <ActionButton title="Download Evaluation Report" onClick={() => {
+                              const anchor = document.createElement('a');
+                              anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+                              anchor.download = 'Dummy_pdf.pdf';
+                              anchor.click();
+                            }}>
                               <FaDownload />
                             </ActionButton>
                           </ActionButtons>

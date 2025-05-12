@@ -459,8 +459,10 @@ const CompanyList = () => {
   };
   
   const handleExportCompanies = () => {
-    alert("Exporting company list to CSV...");
-    // In a real app, we would generate and download a CSV file
+    const anchor = document.createElement('a');
+    anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+    anchor.download = 'Dummy_pdf.pdf';
+    anchor.click();
   };
   
   return (

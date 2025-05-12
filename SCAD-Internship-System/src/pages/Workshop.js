@@ -253,7 +253,7 @@ const mockWorkshops = [
       initials: 'JM'
     },
     tags: ['Resume', 'Tech Careers', 'Job Application'],
-    status: 'upcoming',
+    status: 'completed',
     registered: false
   },
   {

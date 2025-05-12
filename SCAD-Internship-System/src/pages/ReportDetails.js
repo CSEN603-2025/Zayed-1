@@ -902,7 +902,12 @@ const ReportDetails = () => {
                     variant="secondary" 
                     size="small" 
                     icon={<FaDownload />}
-                    onClick={() => alert(`Downloading ${attachment.name}`)}
+                    onClick={() => {
+                      const anchor = document.createElement('a');
+                      anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+                      anchor.download = 'Dummy_pdf.pdf';
+                      anchor.click();
+                    }}
                   >
                     Download
                   </Button>

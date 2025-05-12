@@ -4,6 +4,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import GlobalStyle from './styles/GlobalStyle';
 import theme from './styles/theme';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Login from './pages/Login';
@@ -30,6 +31,7 @@ import Workshop from './pages/Workshop';
 import WorkshopDetails from './pages/WorkshopDetails';
 import WorkshopCall from './pages/WorkshopCall';
 import WorkshopProposal from './pages/WorkshopProposal';
+import WorkshopManagement from './pages/WorkshopManagement';
 import CompanyDetails from './pages/CompanyDetails';
 import CompanyList from './pages/CompanyList';
 import InternProfilePreview from './pages/InternProfilePreview';
@@ -60,60 +62,279 @@ function App() {
               <Route path="/register/company" element={<CompanyRegistration />} />
               
               {/* Student routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<StudentProfile />} />
-              <Route path="/report/create" element={<ReportCreate />} />
-              <Route path="/report/list" element={<ReportList />} />
-              <Route path="/report/:id" element={<ReportDetails />} />
-              <Route path="/report-management/:id" element={<ReportCRUD />} />
-              <Route path="/my-reports" element={<MyReports />} />
-              <Route path="/internship-details/:id" element={<InternshipDetailView />} />
-              <Route path="/student/internships/:id" element={<MyInternships />} />
-              <Route path="/student/companies/:id" element={<CompanyDetails />} />
-              <Route path="/student/companies/:id/evaluate" element={<CompanyEvaluation />} />
+              <Route path="/report-management/:id" element={
+                <ProtectedRoute 
+                  element={<ReportCRUD />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/internship-details/:id" element={
+                <ProtectedRoute 
+                  element={<InternshipDetailView />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/student/internships/:id" element={
+                <ProtectedRoute 
+                  element={<MyInternships />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/student/companies/:id/evaluate" element={
+                <ProtectedRoute 
+                  element={<CompanyEvaluation />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+
+
+              <Route path="/dashboard" element={
+                <ProtectedRoute 
+                  element={<Dashboard />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute 
+                  element={<StudentProfile />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/report/create" element={
+                <ProtectedRoute 
+                  element={<ReportCreate />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/report/list" element={
+                <ProtectedRoute 
+                  element={<ReportList />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/my-reports" element={
+                <ProtectedRoute 
+                  element={<MyReports />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/student/companies/:id" element={
+                <ProtectedRoute 
+                  element={<CompanyDetails />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+
               
               {/* Routes for workshops */}
-              <Route path="/workshops" element={<Workshop />} />
-              <Route path="/workshops/calls" element={<WorkshopCall />} />
-              <Route path="/workshops/calls/:id" element={<WorkshopCall />} />
-              <Route path="/workshops/proposal/:id" element={<WorkshopProposal />} />
-              <Route path="/workshops/:id" element={<WorkshopDetails />} />
+              <Route path="/workshops" element={
+                <ProtectedRoute 
+                  element={<Workshop />} 
+                  allowedUserTypes={['student', 'proStudent']} 
+                />
+              } />
+              <Route path="/workshops/calls" element={
+                <ProtectedRoute 
+                  element={<WorkshopCall />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/workshops/calls/:id" element={
+                <ProtectedRoute 
+                  element={<WorkshopCall />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/workshops/proposal/:id" element={
+                <ProtectedRoute 
+                  element={<WorkshopProposal />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
+              <Route path="/workshops/:id" element={
+                <ProtectedRoute 
+                  element={<WorkshopDetails />} 
+                  allowedUserTypes={['student', 'proStudent', 'scadOffice']} 
+                />
+              } />
               
               {/* Company routes */}
-              <Route path="/company/dashboard" element={<CompanyDashboard />} />
-              <Route path="/company/interns" element={<InternList />} />
-              <Route path="/company/interns/evaluation/:id" element={<EvaluationForm />} />
-              <Route path="/company/interns/:id" element={<InternProfilePreview />} />
-              <Route path="/company/applicants/:id" element={<InternProfilePreview />} />
+              <Route path="/company/dashboard" element={
+                <ProtectedRoute 
+                  element={<CompanyDashboard />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
+              <Route path="/company/interns" element={
+                <ProtectedRoute 
+                  element={<InternList />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
+              <Route path="/company/interns/evaluation/:id" element={
+                <ProtectedRoute 
+                  element={<EvaluationForm />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
+              <Route path="/company/interns/:id" element={
+                <ProtectedRoute 
+                  element={<InternProfilePreview />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
+              <Route path="/company/applicants/:id" element={
+                <ProtectedRoute 
+                  element={<InternProfilePreview />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
               
               {/* SCAD Office routes */}
-              <Route path="/scad/companies" element={<CompanyList />} />
-              <Route path="/scad/companies/:id" element={<CompanyDetails />} />
-              <Route path="/scad/dashboard" element={<ScadDashboard />} />
-              <Route path="/scad/studentPreview" element={<InternProfilePreview />} />
-              <Route path="/scad/viewReport" element={<ReportDetails />} />
+              <Route path="/scad/companies" element={
+                <ProtectedRoute 
+                  element={<CompanyList />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/scad/companies/:id" element={
+                <ProtectedRoute 
+                  element={<CompanyDetails />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/scad/dashboard" element={
+                <ProtectedRoute 
+                  element={<ScadDashboard />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/scad/workshops" element={
+                <ProtectedRoute 
+                  element={<WorkshopManagement />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/scad/studentPreview" element={
+                <ProtectedRoute 
+                  element={<InternProfilePreview />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
+              <Route path="/scad/viewReport" element={
+                <ProtectedRoute 
+                  element={<ReportDetails />} 
+                  allowedUserTypes={['scadOffice']} 
+                />
+              } />
               
               {/* Faculty routes */}
-              <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
-              <Route path="/faculty/feedback" element={<FacultyFeedback />} />
-              <Route path="/faculty/reports" element={<ReportList />} />
+              <Route path="/faculty/dashboard" element={
+                <ProtectedRoute 
+                  element={<FacultyDashboard />} 
+                  allowedUserTypes={['faculty']} 
+                />
+              } />
+              <Route path="/faculty/feedback" element={
+                <ProtectedRoute 
+                  element={<FacultyFeedback />} 
+                  allowedUserTypes={['faculty']} 
+                />
+              } />
+              <Route path="/faculty/reports" element={
+                <ProtectedRoute 
+                  element={<ReportList />} 
+                  allowedUserTypes={['faculty']} 
+                />
+              } />
               
               {/* Career Guidance routes */}
-              <Route path="/career-guidance" element={<CareerGuidance />} />
-              <Route path="/career-guidance/call/:appointmentId" element={<VideoCall />} />
+              <Route path="/career-guidance" element={
+                <ProtectedRoute 
+                  element={<CareerGuidance />} 
+                  allowedUserTypes={['student', 'proStudent', 'scadOffice']} 
+                />
+              } />
+              <Route path="/career-guidance/call/:appointmentId" element={
+                <ProtectedRoute 
+                  element={<VideoCall />} 
+                  allowedUserTypes={['student', 'proStudent', 'scadOffice']} 
+                />
+              } />
               
               {/* PRO Student routes */}
-              <Route path="/internships" element={<InternshipListings />} />
-              <Route path="/internships/post" element={<InternshipPost />} />
-              <Route path="/internships/edit/:id" element={<InternshipPost />} />
-              <Route path="/internships/:id" element={<InternshipDetails />} />
-              <Route path="/applications" element={<ApplicationList />} />
-              <Route path="/interns" element={<InternList />} />
-              <Route path="/evaluation/create/:id" element={<EvaluationForm />} />
-              <Route path="/evaluation/:id" element={<EvaluationReport />} />
-              <Route path="/assessments" element={<Assessments />} />
-              <Route path="/assessments/take/:id" element={<AssessmentTaking />} />
-              <Route path="/assessments/results/:id" element={<AssessmentResults />} />
+              <Route path="/internships" element={
+                <ProtectedRoute 
+                  element={<InternshipListings />} 
+                  allowedUserTypes={['proStudent']} 
+                />
+              } />
+              <Route path="/internships/post" element={
+                <ProtectedRoute 
+                  element={<InternshipPost />} 
+                  allowedUserTypes={['company', 'scadOffice']} 
+                />
+              } />
+              <Route path="/internships/edit/:id" element={
+                <ProtectedRoute 
+                  element={<InternshipPost />} 
+                  allowedUserTypes={['company', 'scadOffice']} 
+                />
+              } />
+              <Route path="/internships/:id" element={
+                <ProtectedRoute 
+                  element={<InternshipDetails />} 
+                  allowedUserTypes={['proStudent', 'company', 'scadOffice']} 
+                />
+              } />
+              <Route path="/applications" element={
+                <ProtectedRoute 
+                  element={<ApplicationList />} 
+                  allowedUserTypes={['proStudent', 'company', 'scadOffice']} 
+                />
+              } />
+              <Route path="/interns" element={
+                <ProtectedRoute 
+                  element={<InternList />} 
+                  allowedUserTypes={['company', 'scadOffice']} 
+                />
+              } />
+              <Route path="/report/:id" element={
+                <ProtectedRoute 
+                  element={<ReportDetails />} 
+                  allowedUserTypes={['student', 'proStudent', 'faculty', 'scadOffice']} 
+                />
+              } />
+              <Route path="/evaluation/create/:id" element={
+                <ProtectedRoute 
+                  element={<EvaluationForm />} 
+                  allowedUserTypes={['company']} 
+                />
+              } />
+              <Route path="/evaluation/:id" element={
+                <ProtectedRoute 
+                  element={<EvaluationReport />} 
+                  allowedUserTypes={['company', 'proStudent', 'scadOffice']} 
+                />
+              } />
+              <Route path="/assessments" element={
+                <ProtectedRoute 
+                  element={<Assessments />} 
+                  allowedUserTypes={['proStudent']} 
+                />
+              } />
+              <Route path="/assessments/take/:id" element={
+                <ProtectedRoute 
+                  element={<AssessmentTaking />} 
+                  allowedUserTypes={['proStudent']} 
+                />
+              } />
+              <Route path="/assessments/results/:id" element={
+                <ProtectedRoute 
+                  element={<AssessmentResults />} 
+                  allowedUserTypes={['proStudent']} 
+                />
+              } />
 
               {/* Fallback route */}
               <Route path="*" element={<Navigate to="/" />} />

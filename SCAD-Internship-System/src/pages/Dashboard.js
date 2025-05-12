@@ -711,7 +711,7 @@ const Dashboard = () => {
             title="Internship Guide Video"
             width="100%" 
             height="500" 
-            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+            src="https://www.youtube.com/embed/CmP3XXwKJ60?si=y0Ds20kPrEhCxY1T"
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen

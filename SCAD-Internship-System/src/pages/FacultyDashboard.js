@@ -681,8 +681,10 @@ const FacultyDashboard = () => {
   };
   
   const handleGenerateReport = () => {
-    alert(`Generating ${selectedReportFormat.toUpperCase()} report with current statistics...`);
-    // In a real implementation, this would call an API to generate the report
+    const anchor = document.createElement('a');
+          anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+          anchor.download = 'Dummy_pdf.pdf';
+          anchor.click();
   };
   
   return (
@@ -1116,7 +1118,12 @@ const FacultyDashboard = () => {
                             <ActionButton title="View Evaluation Report" onClick={() => handleViewEvaluation(evaluation.id)}>
                               <FaEye />
                             </ActionButton>
-                            <ActionButton title="Download Evaluation Report" onClick={() => alert(`Downloading evaluation ID: ${evaluation.id}`)}>
+                            <ActionButton title="Download Evaluation Report" onClick={() => {
+                              const anchor = document.createElement('a');
+                              anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
+                              anchor.download = 'Dummy_pdf.pdf';
+                              anchor.click();
+                            }}>
                               <FaDownload />
                             </ActionButton>
                           </ActionButtons>
