@@ -294,7 +294,18 @@ const InternshipDetailView = () => {
   };
   
   const handleViewCertificate = () => {
-    alert(`Viewing certificate for internship #${id}`);
+    // Create a link element
+    const link = document.createElement('a');
+    // Set the href to the PDF file path
+    link.href = '/static/Dummy_pdf.pdf';
+    // Set the download attribute with the desired filename
+    link.download = 'Dummy_pdf.pdf';
+    // Append the link to the body
+    document.body.appendChild(link);
+    // Programmatically click the link to trigger the download
+    link.click();
+    // Remove the link from the body
+    document.body.removeChild(link);
   };
   
   const handleViewReports = () => {
