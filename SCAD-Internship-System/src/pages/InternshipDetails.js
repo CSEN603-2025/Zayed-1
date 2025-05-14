@@ -471,7 +471,7 @@ const InternshipDetails = () => {
   
   // Helper to check if application form should be visible
   const shouldShowApplicationForm = () => {
-    return userType === "student" || userType === "prostudent";
+    return userType === "student" || userType === "proStudent";
   };
   
   const handleFileChange = (e) => {

@@ -268,7 +268,7 @@ function App() {
               <Route path="/internships" element={
                 <ProtectedRoute 
                   element={<InternshipListings />} 
-                  allowedUserTypes={['proStudent']} 
+                  allowedUserTypes={['proStudent','student']} 
                 />
               } />
               <Route path="/internships/post" element={
@@ -286,7 +286,7 @@ function App() {
               <Route path="/internships/:id" element={
                 <ProtectedRoute 
                   element={<InternshipDetails />} 
-                  allowedUserTypes={['proStudent', 'company', 'scadOffice']} 
+                  allowedUserTypes={['proStudent', 'company', 'scadOffice','student']} 
                 />
               } />
               <Route path="/applications" element={
