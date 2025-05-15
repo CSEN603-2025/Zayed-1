@@ -6,6 +6,8 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Select from '../components/Select';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   FaBuilding, 
   FaGraduationCap, 
@@ -27,8 +29,12 @@ import {
   FaPrint,
   FaChalkboardTeacher,
   FaGlobe
-
 } from 'react-icons/fa';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, RadarChart, Radar, PolarGrid,
+  PolarAngleAxis, PolarRadiusAxis, ComposedChart, Scatter
+} from 'recharts';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -649,6 +655,143 @@ const mockStatistics = {
   }
 };
 
+// Add these new data arrays for the charts
+const reportStatusData = [
+  { name: 'Accepted', value: mockStatistics.reportStats.accepted, color: '#4CAF50' },
+  { name: 'Pending', value: mockStatistics.reportStats.pending, color: '#2196F3' },
+  { name: 'Rejected', value: mockStatistics.reportStats.rejected, color: '#F44336' },
+  { name: 'Flagged', value: mockStatistics.reportStats.flagged, color: '#FF9800' }
+];
+
+const majorDistributionData = [
+  { name: 'Computer Science', students: 45 },
+  { name: 'Information Systems', students: 30 },
+  { name: 'Computer Engineering', students: 25 },
+  { name: 'Electrical Engineering', students: 20 },
+  { name: 'Software Engineering', students: 35 }
+];
+
+// Add company rating data for the charts
+const companyRatingData = mockStatistics.topCompanies.byRating.map(company => ({
+  name: company.name,
+  rating: company.rating,
+  students: company.count
+}));
+
+// Add skills radar data for the comparison chart
+const skillsRadarData = [
+  { subject: 'Programming', A: 120, B: 110, fullMark: 150 },
+  { subject: 'Communication', A: 98, B: 130, fullMark: 150 },
+  { subject: 'Problem Solving', A: 86, B: 130, fullMark: 150 },
+  { subject: 'Teamwork', A: 99, B: 100, fullMark: 150 },
+  { subject: 'Technical', A: 85, B: 90, fullMark: 150 },
+  { subject: 'Leadership', A: 65, B: 85, fullMark: 150 }
+];
+
+// Add application trend data for the area chart
+const applicationTrendData = [
+  { month: 'Jan', applications: 65, placements: 40 },
+  { month: 'Feb', applications: 75, placements: 55 },
+  { month: 'Mar', applications: 85, placements: 60 },
+  { month: 'Apr', applications: 70, placements: 45 },
+  { month: 'May', applications: 95, placements: 70 },
+  { month: 'Jun', applications: 110, placements: 85 },
+  { month: 'Jul', applications: 120, placements: 90 },
+  { month: 'Aug', applications: 100, placements: 75 }
+];
+
+const generatePdfReport = (filename) => {
+  const doc = new jsPDF();
+  
+  // Add title and date
+  doc.setFontSize(20);
+  doc.setTextColor(8, 75, 138); // #084B8A color
+  doc.text('Internship Program Statistics', 105, 20, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+  
+  // Add horizontal line
+  doc.setDrawColor(200, 200, 200);
+  doc.line(20, 35, 190, 35);
+  
+  // Report summary
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  doc.text('Report Summary', 20, 45);
+  
+  // Report statistics table
+  autoTable(doc, {
+    startY: 50,
+    head: [['Metric', 'Value']],
+    body: [
+      ['Total Reports', mockStatistics.reportStats.total],
+      ['Accepted Reports', mockStatistics.reportStats.accepted],
+      ['Rejected Reports', mockStatistics.reportStats.rejected],
+      ['Flagged Reports', mockStatistics.reportStats.flagged],
+      ['Pending Review', mockStatistics.reportStats.pending],
+      ['Average Review Time', `${mockStatistics.reviewTime.average} days`],
+      ['Placement Rate', `${mockStatistics.cycleMetrics.placementRate}%`],
+      ['Total Students', mockStatistics.cycleMetrics.totalStudents],
+      ['Placed Students', mockStatistics.cycleMetrics.placedStudents],
+      ['Average Salary', `$${mockStatistics.cycleMetrics.averageSalary}`]
+    ],
+    theme: 'striped',
+    headStyles: { fillColor: [8, 75, 138], textColor: 255 },
+    margin: { top: 50 }
+  });
+  
+  // Get the last table's Y position
+  const lastY = doc.lastAutoTable.finalY || 50;
+  
+  // Top Companies by Rating
+  doc.text('Top Companies by Rating', 20, lastY + 20);
+  
+  autoTable(doc, {
+    startY: lastY + 25,
+    head: [['Rank', 'Company', 'Rating', 'Interns']],
+    body: mockStatistics.topCompanies.byRating.map((company, index) => [
+      index + 1,
+      company.name,
+      company.rating.toFixed(1),
+      company.count
+    ]),
+    theme: 'striped',
+    headStyles: { fillColor: [8, 75, 138], textColor: 255 }
+  });
+  
+  // Get the last table's Y position
+  const lastY2 = doc.lastAutoTable.finalY || (lastY + 25);
+  
+  // Top Courses
+  doc.text('Most Frequently Used Courses', 20, lastY2 + 20);
+  
+  autoTable(doc, {
+    startY: lastY2 + 25,
+    head: [['Rank', 'Course', 'Students']],
+    body: mockStatistics.topCourses.map((course, index) => [
+      index + 1,
+      course.name,
+      course.count
+    ]),
+    theme: 'striped',
+    headStyles: { fillColor: [8, 75, 138], textColor: 255 }
+  });
+  
+  // Add footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Page ${i} of ${pageCount} | Internship Program Statistics Report`, 105, 285, { align: 'center' });
+  }
+  
+  // Save the PDF
+  doc.save(`${filename}.pdf`);
+};
+
 const ScadDashboard = () => {
   const navigate = useNavigate();
   const tabsRef = useRef(null);
@@ -899,183 +1042,96 @@ const ScadDashboard = () => {
   };
 
   // Add a function to generate reports
-  const handleGenerateReport = () => {
-    alert(`Generating ${selectedReportFormat.toUpperCase()} report with current statistics...`);
-    // In a real implementation, this would call an API to generate the report
-  };
-
-  // Add a new statistics tab renderer
-  const renderStatisticsTab = () => {
-    return (
-      <>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ margin: 0, color: '#084B8A' }}>Internship Program Statistics</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <select 
-              value={selectedReportFormat} 
-              onChange={(e) => setSelectedReportFormat(e.target.value)}
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
-            >
-              <option value="pdf">PDF Report</option>
-              <option value="excel">Excel Report</option>
-              <option value="csv">CSV Data</option>
-            </select>
-            <ReportButton onClick={handleGenerateReport}>
-              <FaPrint /> Generate Report
-            </ReportButton>
-          </div>
-        </div>
-        
-        <StatsContainer>
-          <StatsCard>
-            <StatsHeader>
-              <StatsTitle><FaFileAlt /> Report Statistics</StatsTitle>
-            </StatsHeader>
-            <StatsValue>{statistics.reportStats.total}</StatsValue>
-            <div>
-              <StatsDetail>
-                <StatsLabel>Accepted Reports</StatsLabel>
-                <StatsNumber>{statistics.reportStats.accepted}</StatsNumber>
-              </StatsDetail>
-              <StatsDetail>
-                <StatsLabel>Rejected Reports</StatsLabel>
-                <StatsNumber>{statistics.reportStats.rejected}</StatsNumber>
-              </StatsDetail>
-              <StatsDetail>
-                <StatsLabel>Flagged Reports</StatsLabel>
-                <StatsNumber>{statistics.reportStats.flagged}</StatsNumber>
-              </StatsDetail>
-              <StatsDetail>
-                <StatsLabel>Pending Review</StatsLabel>
-                <StatsNumber>{statistics.reportStats.pending}</StatsNumber>
-              </StatsDetail>
-            </div>
-          </StatsCard>
-          
-          <StatsCard>
-            <StatsHeader>
-              <StatsTitle><FaClock /> Review Time</StatsTitle>
-            </StatsHeader>
-            <StatsValue>{statistics.reviewTime.average} days</StatsValue>
-            <div>
-              <StatsDetail>
-                <StatsLabel>Fastest Review</StatsLabel>
-                <StatsNumber>{statistics.reviewTime.fastest} days</StatsNumber>
-              </StatsDetail>
-              <StatsDetail>
-                <StatsLabel>Slowest Review</StatsLabel>
-                <StatsNumber>{statistics.reviewTime.slowest} days</StatsNumber>
-              </StatsDetail>
-            </div>
-          </StatsCard>
-          
-          <StatsCard>
-            <StatsHeader>
-              <StatsTitle><FaChartLine /> Placement Metrics</StatsTitle>
-            </StatsHeader>
-            <StatsValue>{statistics.cycleMetrics.placementRate}%</StatsValue>
-            <div>
-              <StatsDetail>
-                <StatsLabel>Total Students</StatsLabel>
-                <StatsNumber>{statistics.cycleMetrics.totalStudents}</StatsNumber>
-              </StatsDetail>
-              <StatsDetail>
-                <StatsLabel>Placed Students</StatsLabel>
-                <StatsNumber>{statistics.cycleMetrics.placedStudents}</StatsNumber>
-              </StatsDetail>
-              <StatsDetail>
-                <StatsLabel>Average Salary</StatsLabel>
-                <StatsNumber>${statistics.cycleMetrics.averageSalary}</StatsNumber>
-              </StatsDetail>
-            </div>
-          </StatsCard>
-        </StatsContainer>
-        
-        <ChartContainer>
-          <RankingTitle><FaChartLine /> Report Status Distribution</RankingTitle>
-          <div style={{ fontSize: '5rem', opacity: 0.3, margin: '2rem 0' }}>📊</div>
-          <div>Chart visualization would be displayed here</div>
-        </ChartContainer>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-          <RankingContainer>
-            <RankingTitle><FaBook /> Most Frequently Used Courses</RankingTitle>
-            {statistics.topCourses.map((course, index) => (
-              <RankingItem key={`course-${index}`}>
-                <RankingNameContainer>
-                  <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
-                  <RankingName>{course.name}</RankingName>
-                </RankingNameContainer>
-                <RankingValue>{course.count} students</RankingValue>
-              </RankingItem>
-            ))}
-          </RankingContainer>
-          
-          <RankingContainer>
-            <RankingTitle><FaThumbsUp /> Top Rated Companies</RankingTitle>
-            {statistics.topCompanies.byRating.map((company, index) => (
-              <RankingItem key={`rating-${index}`}>
-                <RankingNameContainer>
-                  <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
-                  <RankingName>{company.name}</RankingName>
-                </RankingNameContainer>
-                <RankingValue>⭐ {company.rating.toFixed(1)}</RankingValue>
-              </RankingItem>
-            ))}
-          </RankingContainer>
-          
-          <RankingContainer>
-            <RankingTitle><FaBuilding /> Top Companies by Internship Count</RankingTitle>
-            {statistics.topCompanies.byInternshipCount.map((company, index) => (
-              <RankingItem key={`count-${index}`}>
-                <RankingNameContainer>
-                  <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
-                  <RankingName>{company.name}</RankingName>
-                </RankingNameContainer>
-                <RankingValue>{company.count} interns</RankingValue>
-              </RankingItem>
-            ))}
-          </RankingContainer>
-          
-          <ChartContainer style={{ height: 'auto' }}>
-            <RankingTitle><FaCalendarAlt /> Current Internship Cycle</RankingTitle>
-            <div style={{ width: '100%', padding: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div>
-                  <Label>Start Date</Label>
-                  <div>{cycleDates.startDate}</div>
-                </div>
-                <div>
-                  <Label>End Date</Label>
-                  <div>{cycleDates.endDate}</div>
-                </div>
-              </div>
-              <div style={{ padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '4px', textAlign: 'center' }}>
-                <p style={{ margin: '0 0 0.5rem', fontWeight: '600' }}>Current Cycle Progress</p>
-                <div style={{ 
-                  height: '20px', 
-                  backgroundColor: '#e0e0e0', 
-                  borderRadius: '10px', 
-                  position: 'relative', 
-                  overflow: 'hidden' 
-                }}>
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: 0, 
-                    left: 0, 
-                    height: '100%', 
-                    width: '65%', 
-                    backgroundColor: '#084B8A',
-                    borderRadius: '10px' 
-                  }}></div>
-                </div>
-                <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem' }}>65% Complete</p>
-              </div>
-            </div>
-          </ChartContainer>
-        </div>
-      </>
-    );
+  const handleGenerateReport = (filename) => {
+    const doc = new jsPDF();
+    
+    // Add title and date
+    doc.setFontSize(20);
+    doc.setTextColor(8, 75, 138); // #084B8A color
+    doc.text('Internship Program Statistics', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+    
+    // Add horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 35, 190, 35);
+    
+    // Report summary
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Report Summary', 20, 45);
+    
+    // Report statistics table
+    autoTable(doc, {
+      startY: 50,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Reports', statistics.reportStats.total],
+        ['Accepted Reports', statistics.reportStats.accepted],
+        ['Rejected Reports', statistics.reportStats.rejected],
+        ['Flagged Reports', statistics.reportStats.flagged],
+        ['Pending Review', statistics.reportStats.pending],
+        ['Average Review Time', `${statistics.reviewTime.average} days`],
+        ['Placement Rate', `${statistics.cycleMetrics.placementRate}%`],
+        ['Total Students', statistics.cycleMetrics.totalStudents],
+        ['Placed Students', statistics.cycleMetrics.placedStudents],
+        ['Average Salary', `$${statistics.cycleMetrics.averageSalary}`]
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [8, 75, 138], textColor: 255 },
+      margin: { top: 50 }
+    });
+    
+    // Get the last table's Y position
+    const lastY = doc.lastAutoTable.finalY || 50;
+    
+    // Top Companies by Rating
+    doc.text('Top Companies by Rating', 20, lastY + 20);
+    
+    autoTable(doc, {
+      startY: lastY + 25,
+      head: [['Rank', 'Company', 'Rating', 'Interns']],
+      body: statistics.topCompanies.byRating.map((company, index) => [
+        index + 1,
+        company.name,
+        company.rating.toFixed(1),
+        company.count
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [8, 75, 138], textColor: 255 }
+    });
+    
+    // Get the last table's Y position
+    const lastY2 = doc.lastAutoTable.finalY || (lastY + 25);
+    
+    // Top Courses
+    doc.text('Most Frequently Used Courses', 20, lastY2 + 20);
+    
+    autoTable(doc, {
+      startY: lastY2 + 25,
+      head: [['Rank', 'Course', 'Students']],
+      body: statistics.topCourses.map((course, index) => [
+        index + 1,
+        course.name,
+        course.count
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [8, 75, 138], textColor: 255 }
+    });
+    
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${pageCount} | Internship Program Statistics Report`, 105, 285, { align: 'center' });
+    }
+    
+    // Save the PDF
+    doc.save(`${filename}.pdf`);
   };
 
   return (
@@ -1126,7 +1182,7 @@ const ScadDashboard = () => {
               <FaChartLine />
             </StatIconContainer>
             <StatContent>
-              <StatValue>{statistics.cycleMetrics.placementRate}%</StatValue>
+              <StatValue>{mockStatistics.cycleMetrics.placementRate}%</StatValue>
               <StatLabel>Placement Rate</StatLabel>
 
             </StatContent>
@@ -1175,7 +1231,204 @@ const ScadDashboard = () => {
         </div>
         
         {/* Add the statistics tab content */}
-        {activeTab === 'statistics' && renderStatisticsTab()}
+        {activeTab === 'statistics' && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0, color: '#084B8A' }}>Internship Program Statistics</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <ReportButton onClick={() => handleGenerateReport(`Internship_Program_Statistics_${new Date().toISOString().split('T')[0]}`)}>
+                  <FaPrint /> Generate Report
+                </ReportButton>
+              </div>
+            </div>
+            
+            <StatsContainer>
+              <StatsCard>
+                <StatsHeader>
+                  <StatsTitle><FaFileAlt /> Report Statistics</StatsTitle>
+                </StatsHeader>
+                <StatsValue>{mockStatistics.reportStats.total}</StatsValue>
+                <div>
+                  <StatsDetail>
+                    <StatsLabel>Accepted Reports</StatsLabel>
+                    <StatsNumber>{mockStatistics.reportStats.accepted}</StatsNumber>
+                  </StatsDetail>
+                  <StatsDetail>
+                    <StatsLabel>Rejected Reports</StatsLabel>
+                    <StatsNumber>{mockStatistics.reportStats.rejected}</StatsNumber>
+                  </StatsDetail>
+                  <StatsDetail>
+                    <StatsLabel>Flagged Reports</StatsLabel>
+                    <StatsNumber>{mockStatistics.reportStats.flagged}</StatsNumber>
+                  </StatsDetail>
+                  <StatsDetail>
+                    <StatsLabel>Pending Review</StatsLabel>
+                    <StatsNumber>{mockStatistics.reportStats.pending}</StatsNumber>
+                  </StatsDetail>
+                </div>
+              </StatsCard>
+              
+              <StatsCard>
+                <StatsHeader>
+                  <StatsTitle><FaClock /> Review Time</StatsTitle>
+                </StatsHeader>
+                <StatsValue>{mockStatistics.reviewTime.average} days</StatsValue>
+                <div>
+                  <StatsDetail>
+                    <StatsLabel>Fastest Review</StatsLabel>
+                    <StatsNumber>{mockStatistics.reviewTime.fastest} days</StatsNumber>
+                  </StatsDetail>
+                  <StatsDetail>
+                    <StatsLabel>Slowest Review</StatsLabel>
+                    <StatsNumber>{mockStatistics.reviewTime.slowest} days</StatsNumber>
+                  </StatsDetail>
+                </div>
+              </StatsCard>
+              
+              <StatsCard>
+                <StatsHeader>
+                  <StatsTitle><FaChartLine /> Placement Metrics</StatsTitle>
+                </StatsHeader>
+                <StatsValue>{mockStatistics.cycleMetrics.placementRate}%</StatsValue>
+                <div>
+                  <StatsDetail>
+                    <StatsLabel>Total Students</StatsLabel>
+                    <StatsNumber>{mockStatistics.cycleMetrics.totalStudents}</StatsNumber>
+                  </StatsDetail>
+                  <StatsDetail>
+                    <StatsLabel>Placed Students</StatsLabel>
+                    <StatsNumber>{mockStatistics.cycleMetrics.placedStudents}</StatsNumber>
+                  </StatsDetail>
+                  <StatsDetail>
+                    <StatsLabel>Average Salary</StatsLabel>
+                    <StatsNumber>${mockStatistics.cycleMetrics.averageSalary}</StatsNumber>
+                  </StatsDetail>
+                </div>
+              </StatsCard>
+            </StatsContainer>
+            
+            <ChartContainer style={{ height: 'auto', display: 'block', padding: '1.5rem' }}>
+              <RankingTitle><FaChartLine /> Report Status & Student Major Distribution</RankingTitle>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
+                <div style={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={reportStatusData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {reportStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${value} Reports`, 'Count']} />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div style={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={majorDistributionData}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [`${value} Students`, 'Count']} />
+                      <Legend />
+                      <Bar dataKey="students" fill="#8884d8" name="Students by Major" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </ChartContainer>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>           
+              <RankingContainer>
+                <RankingTitle><FaBook /> Most Frequently Used Courses</RankingTitle>
+                {mockStatistics.topCourses.map((course, index) => (
+                  <RankingItem key={`course-${index}`}>
+                    <RankingNameContainer>
+                      <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
+                      <RankingName>{course.name}</RankingName>
+                    </RankingNameContainer>
+                    <RankingValue>{course.count} students</RankingValue>
+                  </RankingItem>
+                ))}
+              </RankingContainer>
+              
+              <ChartContainer style={{ height: 'auto' }}>
+                <RankingTitle><FaThumbsUp /> Top Rated Companies</RankingTitle>
+                {mockStatistics.topCompanies.byRating.map((company, index) => (
+                  <RankingItem key={`rating-${index}`}>
+                    <RankingNameContainer>
+                      <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
+                      <RankingName>{company.name}</RankingName>
+                    </RankingNameContainer>
+                    <RankingValue>⭐ {company.rating.toFixed(1)}</RankingValue>
+                  </RankingItem>
+                ))}
+              </ChartContainer>
+              
+              <RankingContainer>
+                <RankingTitle><FaBuilding /> Top Companies by Internship Count</RankingTitle>
+                {mockStatistics.topCompanies.byInternshipCount.map((company, index) => (
+                  <RankingItem key={`count-${index}`}>
+                    <RankingNameContainer>
+                      <RankingIndex index={index + 1}>{index + 1}</RankingIndex>
+                      <RankingName>{company.name}</RankingName>
+                    </RankingNameContainer>
+                    <RankingValue>{company.count} interns</RankingValue>
+                  </RankingItem>
+                ))}
+              </RankingContainer>
+              
+              <ChartContainer style={{ height: 'auto' }}>
+                <RankingTitle><FaCalendarAlt /> Current Internship Cycle</RankingTitle>
+                <div style={{ width: '100%', padding: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <div>
+                      <Label>Start Date</Label>
+                      <div>{cycleDates.startDate}</div>
+                    </div>
+                    <div>
+                      <Label>End Date</Label>
+                      <div>{cycleDates.endDate}</div>
+                    </div>
+                  </div>
+                  <div style={{ padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '4px', textAlign: 'center' }}>
+                    <p style={{ margin: '0 0 0.5rem', fontWeight: '600' }}>Current Cycle Progress</p>
+                    <div style={{ 
+                      height: '20px', 
+                      backgroundColor: '#e0e0e0', 
+                      borderRadius: '10px', 
+                      position: 'relative', 
+                      overflow: 'hidden' 
+                    }}>
+                      <div style={{ 
+                        position: 'absolute', 
+                        top: 0, 
+                        left: 0, 
+                        height: '100%', 
+                        width: '65%', 
+                        backgroundColor: '#084B8A',
+                        borderRadius: '10px' 
+                      }}></div>
+                    </div>
+                    <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem' }}>65% Complete</p>
+                  </div>
+                </div>
+              </ChartContainer>
+            </div>
+          </>
+        )}
 
         {/* Other existing tab content */}
         {activeTab === 'companies' && (

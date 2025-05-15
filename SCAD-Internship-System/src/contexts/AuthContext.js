@@ -41,19 +41,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, userType) => {
     setLoading(true);
     try {
-      // In a real app, this would call an authentication API
-      // For this demo, we'll just simulate a successful login
-      setTimeout(() => {
-        setUser({
-          id: '123',
-          email,
-          name: 'Demo User'
-        });
-        setUserType(userType);
-        // Save userType to localStorage
-        localStorage.setItem('userType', userType);
-        setLoading(false);
-      }, 1000);
+      setUser({
+        id: '123',
+        email,
+        name: 'Demo User'
+      });
+      setUserType(userType);
+      // Save userType to localStorage
+      localStorage.setItem('userType', userType);
     } catch (err) {
       setError('Login failed');
       setLoading(false);
