@@ -93,27 +93,7 @@ const FacultyFeedback = () => {
           </Description>
         </Header>
         
-        <TabsContainer>
-          <Tab 
-            active={activeTab === 'overview'} 
-            onClick={() => setActiveTab('overview')}
-          >
-            <FaComments /> Feedback Overview
-          </Tab>
-          <Tab 
-            active={activeTab === 'analytics'} 
-            onClick={() => setActiveTab('analytics')}
-          >
-            <FaChartBar /> Feedback Analytics
-          </Tab>
-        </TabsContainer>
-        
         {activeTab === 'overview' && <FeedbackOverview />}
-        {activeTab === 'analytics' && (
-          <div>
-            <p>Feedback analytics will be available in a future update.</p>
-          </div>
-        )}
       </ContentContainer>
     </PageContainer>
   );

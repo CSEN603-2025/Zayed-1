@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Card from './Card';
+import Select from './Select';
 import { FaChartBar, FaComments, FaFilter, FaFileAlt, FaUser, FaSearch } from 'react-icons/fa';
 
 const SearchFilterContainer = styled.div`
@@ -34,18 +35,6 @@ const SearchInput = styled.div`
     top: 50%;
     transform: translateY(-50%);
     color: ${props => props.theme.colors.secondary};
-  }
-`;
-
-const FilterSelect = styled.select`
-  padding: 0.75rem 1rem;
-  border: 1px solid ${props => props.theme.colors.tertiary};
-  border-radius: 5px;
-  font-size: 0.9rem;
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.secondary};
   }
 `;
 
@@ -342,17 +331,18 @@ const FeedbackOverview = () => {
           />
         </SearchInput>
         
-        <FilterSelect
+        <Select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option value="all">All Categories</option>
-          <option value="general">General</option>
-          <option value="content">Content</option>
-          <option value="format">Format</option>
-          <option value="technical">Technical</option>
-          <option value="communication">Communication</option>
-        </FilterSelect>
+          options={[
+            { value: 'all', label: 'All Categories' },
+            { value: 'general', label: 'General' },
+            { value: 'content', label: 'Content' },
+            { value: 'format', label: 'Format' },
+            { value: 'technical', label: 'Technical' },
+            { value: 'communication', label: 'Communication' }
+          ]}
+        />
       </SearchFilterContainer>
       
       <StatsContainer>

@@ -216,8 +216,8 @@ const Login = () => {
             {errors.password && <ErrorMessage>{errors.password}</ErrorMessage>}
           </FormGroup>
           
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+          <Button type="submit">
+            Login
           </Button>
           
           <RegisterLink>

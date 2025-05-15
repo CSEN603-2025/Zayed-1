@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   FaFileAlt, 
   FaChartBar, 
@@ -21,6 +23,10 @@ import {
   FaThumbsUp,
   FaPrint
 } from 'react-icons/fa';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
+} from 'recharts';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -602,6 +608,41 @@ const rejectionReasons = [
   { value: 'other', label: 'Other (Contact Faculty)' }
 ];
 
+// Add this near the other mock data
+const reportStatusData = [
+  { name: 'Accepted', value: 35, color: '#28a745' },
+  { name: 'Pending', value: 12, color: '#ffc107' },
+  { name: 'Rejected', value: 8, color: '#dc3545' },
+  { name: 'Flagged', value: 5, color: '#17a2b8' }
+];
+
+const monthlyReportData = [
+  { name: 'Jan', reports: 12 },
+  { name: 'Feb', reports: 19 },
+  { name: 'Mar', reports: 15 },
+  { name: 'Apr', reports: 8 },
+  { name: 'May', reports: 22 },
+  { name: 'Jun', reports: 17 },
+  { name: 'Jul', reports: 10 },
+  { name: 'Aug', reports: 24 }
+];
+
+const majorDistributionData = [
+  { name: 'Computer Science', students: 45 },
+  { name: 'Marketing', students: 28 },
+  { name: 'Data Science', students: 22 },
+  { name: 'Graphic Design', students: 15 },
+  { name: 'Finance', students: 10 }
+];
+
+const placementTrendData = [
+  { year: '2019', rate: 58 },
+  { year: '2020', rate: 62 },
+  { year: '2021', rate: 65 },
+  { year: '2022', rate: 68 },
+  { year: '2023', rate: 71 }
+];
+
 const FacultyDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('reports');
@@ -611,7 +652,6 @@ const FacultyDashboard = () => {
   const [reports, setReports] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [statistics, setStatistics] = useState(mockStatistics);
-  const [selectedReportFormat, setSelectedReportFormat] = useState('pdf');
   const [cycleDates, setCycleDates] = useState({
     startDate: '2023-05-01',
     endDate: '2023-08-31'
@@ -681,10 +721,105 @@ const FacultyDashboard = () => {
   };
   
   const handleGenerateReport = () => {
-    const anchor = document.createElement('a');
-          anchor.href = `${process.env.PUBLIC_URL}/static/Dummy_pdf.pdf`;
-          anchor.download = 'Dummy_pdf.pdf';
-          anchor.click();
+    // Get current date for the filename
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `Internship_Program_Statistics_${dateStr}`;
+    
+    // Handle different report formats
+    generatePdfReport(filename);
+  };
+  
+  // Function to generate PDF report
+  const generatePdfReport = (filename) => {
+    const doc = new jsPDF();
+    
+    // Add title and date
+    doc.setFontSize(20);
+    doc.setTextColor(8, 75, 138); // #084B8A color
+    doc.text('Internship Program Statistics', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+    
+    // Add horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 35, 190, 35);
+    
+    // Report summary
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Report Summary', 20, 45);
+    
+    // Report statistics table
+    autoTable(doc, {
+      startY: 50,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Reports', statistics.reportStats.total],
+        ['Accepted Reports', statistics.reportStats.accepted],
+        ['Rejected Reports', statistics.reportStats.rejected],
+        ['Flagged Reports', statistics.reportStats.flagged],
+        ['Pending Review', statistics.reportStats.pending],
+        ['Average Review Time', `${statistics.reviewTime.average} days`],
+        ['Placement Rate', `${statistics.cycleMetrics.placementRate}%`],
+        ['Total Students', statistics.cycleMetrics.totalStudents],
+        ['Placed Students', statistics.cycleMetrics.placedStudents],
+        ['Average Salary', `$${statistics.cycleMetrics.averageSalary}`]
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [8, 75, 138], textColor: 255 },
+      margin: { top: 50 }
+    });
+    
+    // Get the last table's Y position
+    const lastY = doc.lastAutoTable.finalY || 50;
+    
+    // Top Companies by Rating
+    doc.text('Top Companies by Rating', 20, lastY + 20);
+    
+    autoTable(doc, {
+      startY: lastY + 25,
+      head: [['Rank', 'Company', 'Rating', 'Interns']],
+      body: statistics.topCompanies.byRating.map((company, index) => [
+        index + 1,
+        company.name,
+        company.rating.toFixed(1),
+        company.count
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [8, 75, 138], textColor: 255 }
+    });
+    
+    // Get the last table's Y position
+    const lastY2 = doc.lastAutoTable.finalY || (lastY + 25);
+    
+    // Top Courses
+    doc.text('Most Frequently Used Courses', 20, lastY2 + 20);
+    
+    autoTable(doc, {
+      startY: lastY2 + 25,
+      head: [['Rank', 'Course', 'Students']],
+      body: statistics.topCourses.map((course, index) => [
+        index + 1,
+        course.name,
+        course.count
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [8, 75, 138], textColor: 255 }
+    });
+    
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${pageCount} | Internship Program Statistics Report`, 105, 285, { align: 'center' });
+    }
+    
+    // Save the PDF
+    doc.save(`${filename}.pdf`);
   };
   
   return (
@@ -878,14 +1013,6 @@ const FacultyDashboard = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ margin: 0, color: '#084B8A' }}>Internship Program Statistics</h2>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <FilterSelect 
-                  value={selectedReportFormat} 
-                  onChange={(e) => setSelectedReportFormat(e.target.value)}
-                >
-                  <option value="pdf">PDF Report</option>
-                  <option value="excel">Excel Report</option>
-                  <option value="csv">CSV Data</option>
-                </FilterSelect>
                 <ReportButton onClick={handleGenerateReport}>
                   <FaPrint /> Generate Report
                 </ReportButton>
@@ -957,10 +1084,47 @@ const FacultyDashboard = () => {
               </StatsCard>
             </StatsContainer>
             
-            <ChartContainer>
+            <ChartContainer style={{ height: 'auto', display: 'block', padding: '1.5rem' }}>
               <RankingTitle><FaChartLine /> Report Status Distribution</RankingTitle>
-              <div style={{ fontSize: '5rem', opacity: 0.3, margin: '2rem 0' }}>📊</div>
-              <div>Chart visualization would be displayed here</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
+                <div style={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={reportStatusData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {reportStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${value} Reports`, 'Count']} />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div style={{ height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={majorDistributionData}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [`${value} Students`, 'Count']} />
+                      <Legend />
+                      <Bar dataKey="students" fill="#8884d8" name="Students by Major" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </ChartContainer>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -1004,8 +1168,8 @@ const FacultyDashboard = () => {
               </RankingContainer>
               
               <ChartContainer style={{ height: 'auto' }}>
-                <RankingTitle><FaCalendarAlt /> Current Internship Cycle</RankingTitle>
                 <div style={{ width: '100%', padding: '1rem' }}>
+                  <RankingTitle style={{ marginBottom: '1rem' }}><FaCalendarAlt /> Current Internship Cycle</RankingTitle>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                     <div>
                       <Label>Start Date</Label>
