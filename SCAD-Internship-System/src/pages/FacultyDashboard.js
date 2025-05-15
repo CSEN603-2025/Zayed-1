@@ -21,6 +21,7 @@ import {
   FaThumbsUp,
   FaPrint
 } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -604,6 +605,7 @@ const rejectionReasons = [
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
+  const { userType } = useAuth();
   const [activeTab, setActiveTab] = useState('reports');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -617,18 +619,20 @@ const FacultyDashboard = () => {
     endDate: '2023-08-31'
   });
   
-  // Add clarification handler
-  const handleClarificationChange = (id, reason) => {
-    setReports(prevReports => 
-      prevReports.map(report => 
-        report.id === id ? { ...report, clarification: reason } : report
-      )
-    );
-  };
-  
   useEffect(() => {
     // Filter reports based on search term and filters
-    let filteredReports = [...mockReports];
+    let filteredReports = [...mockReports].map(report => {
+      // Add mock clarification text for rejected/flagged reports
+      if (report.status === 'rejected' || report.status === 'flagged') {
+        return {
+          ...report,
+          clarification: report.status === 'rejected' 
+            ? 'This report was rejected due to incomplete information and formatting issues.'
+            : 'This report has been flagged for review due to potential academic integrity concerns.'
+        };
+      }
+      return report;
+    });
     
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -689,7 +693,7 @@ const FacultyDashboard = () => {
   
   return (
     <PageContainer>
-      <Navbar userType="faculty" />
+      <Navbar userType={userType} />
       
       <ContentContainer>
         <Header>
@@ -848,15 +852,18 @@ const FacultyDashboard = () => {
                         </TableCell>
                         <TableCell>
                           {(report.status === 'rejected' || report.status === 'flagged') && (
-                            <FilterSelect
-                              value={report.clarification || ''}
-                              onChange={(e) => handleClarificationChange(report.id, e.target.value)}
+                            <div
+                              style={{
+                                padding: '0.5rem',
+                                backgroundColor: '#f8f9fa',
+                                border: '1px solid #e2e3e5',
+                                borderRadius: '4px',
+                                fontSize: '0.9rem',
+                                color: '#495057'
+                              }}
                             >
-                              <option value="">Select reason</option>
-                              {rejectionReasons.map(reason => (
-                                <option key={reason.value} value={reason.value}>{reason.label}</option>
-                              ))}
-                            </FilterSelect>
+                              {report.clarification || 'No clarification provided'}
+                            </div>
                           )}
                         </TableCell>
                       </TableRow>

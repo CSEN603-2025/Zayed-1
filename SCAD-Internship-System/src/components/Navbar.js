@@ -139,7 +139,6 @@ const Navbar = () => {
         return (
           <>
             <NavLink to="/faculty/dashboard">Dashboard</NavLink>
-            <NavLink to="/faculty/reports">Reports</NavLink>
             <NavLink to="/faculty/feedback">Feedback</NavLink>
           </>
         );

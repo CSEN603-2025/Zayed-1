@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   FaArrowLeft, 
   FaUser, 
@@ -308,6 +309,7 @@ const mockEvaluations = [
 const EvaluationReport = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { userType } = useAuth();
   const [evaluation, setEvaluation] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -322,7 +324,7 @@ const EvaluationReport = () => {
   if (loading) {
     return (
       <PageContainer>
-        <Navbar userType="faculty" />
+        <Navbar userType={userType} />
         <ContentContainer>
           <p>Loading evaluation report...</p>
         </ContentContainer>
@@ -333,7 +335,7 @@ const EvaluationReport = () => {
   if (!evaluation) {
     return (
       <PageContainer>
-        <Navbar userType="faculty" />
+        <Navbar userType={userType} />
         <ContentContainer>
           <BackButton onClick={() => navigate(-1)}>
             <FaArrowLeft /> Back to Dashboard
@@ -349,7 +351,7 @@ const EvaluationReport = () => {
   
   return (
     <PageContainer>
-      <Navbar userType="faculty" />
+      <Navbar userType={userType} />
       <ContentContainer>
         <BackButton onClick={() => navigate(-1)}>
           <FaArrowLeft /> Back to Dashboard
