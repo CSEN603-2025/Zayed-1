@@ -318,7 +318,7 @@ function App() {
               <Route path="/evaluation/:id" element={
                 <ProtectedRoute 
                   element={<EvaluationReport />} 
-                  allowedUserTypes={['company', 'proStudent', 'scadOffice']} 
+                  allowedUserTypes={['company', 'proStudent', 'scadOffice', 'faculty']} 
                 />
               } />
               <Route path="/assessments" element={

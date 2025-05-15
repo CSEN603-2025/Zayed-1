@@ -797,7 +797,7 @@ const ScadDashboard = () => {
   const tabsRef = useRef(null);
   const [activeTab, setActiveTab] = useState('companies');
   const [searchTerm, setSearchTerm] = useState('');
-  const [companies, setCompanies] = useState(mockCompanies);
+  const [companies, setCompanies] = useState([]);
   const [filters, setFilters] = useState({
     companyIndustry: '',
     reportStatus: '',
@@ -812,6 +812,22 @@ const ScadDashboard = () => {
   const [evaluations, setEvaluations] = useState([]);
   const [statistics, setStatistics] = useState(mockStatistics);
   const [selectedReportFormat, setSelectedReportFormat] = useState('pdf');
+  
+  // Load companies from localStorage on component mount
+  useEffect(() => {
+    // Check if there are companies in localStorage
+    const storedCompanies = localStorage.getItem('companies');
+    
+    if (storedCompanies) {
+      // If companies exist in localStorage, combine them with mock data
+      const parsedCompanies = JSON.parse(storedCompanies);
+      setCompanies([...mockCompanies, ...parsedCompanies]);
+    } else {
+      // If no companies in localStorage, use mock data and initialize localStorage
+      setCompanies(mockCompanies);
+      localStorage.setItem('companies', JSON.stringify([]));
+    }
+  }, []);
   
   // Add clarification handler
   const handleClarificationChange = (id, reason) => {
@@ -948,21 +964,37 @@ const ScadDashboard = () => {
   };
   
   const handleApproveCompany = (id) => {
-    setCompanies(prevCompanies => 
-      prevCompanies.map(company => 
-        company.id === id ? { ...company, status: 'approved' } : company
-      )
+    const updatedCompanies = companies.map(company => 
+      company.id === id ? { ...company, status: 'approved' } : company
     );
+    
+    setCompanies(updatedCompanies);
+    
+    // Update localStorage with the new status
+    const storedCompanies = JSON.parse(localStorage.getItem('companies') || '[]');
+    const updatedStoredCompanies = storedCompanies.map(company =>
+      company.id === id ? { ...company, status: 'approved' } : company
+    );
+    localStorage.setItem('companies', JSON.stringify(updatedStoredCompanies));
+    
     // Optional: Show a success message
     alert('Company has been approved');
   };
   
   const handleRejectCompany = (id) => {
-    setCompanies(prevCompanies => 
-      prevCompanies.map(company => 
-        company.id === id ? { ...company, status: 'rejected' } : company
-      )
+    const updatedCompanies = companies.map(company => 
+      company.id === id ? { ...company, status: 'rejected' } : company
     );
+    
+    setCompanies(updatedCompanies);
+    
+    // Update localStorage with the new status
+    const storedCompanies = JSON.parse(localStorage.getItem('companies') || '[]');
+    const updatedStoredCompanies = storedCompanies.map(company =>
+      company.id === id ? { ...company, status: 'rejected' } : company
+    );
+    localStorage.setItem('companies', JSON.stringify(updatedStoredCompanies));
+    
     // Optional: Show a rejection message
     alert('Company has been rejected');
   };
@@ -1437,7 +1469,9 @@ const ScadDashboard = () => {
                     <TableRow key={company.id}>
                       <TableCell>{company.name}</TableCell>
                       <TableCell>{company.industry}</TableCell>
-                      <TableCell>{company.size.charAt(0).toUpperCase() + company.size.slice(1)}</TableCell>
+                      <TableCell>{typeof company.size === 'string' ? 
+                        company.size.charAt(0).toUpperCase() + company.size.slice(1) : 
+                        company.size}</TableCell>
                       <TableCell>{company.email}</TableCell>
                       <TableCell>{company.applied}</TableCell>
                       <TableCell>
