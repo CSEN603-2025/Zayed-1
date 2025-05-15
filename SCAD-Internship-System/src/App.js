@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CompanyRegistration from './pages/CompanyRegistration';
+import CompanyRejected from './pages/CompanyRejected';
 import StudentProfile from './pages/StudentProfile';
 import CompanyDashboard from './pages/CompanyDashboard/CompanyDashboard';
 import ScadDashboard from './pages/ScadDashboard';
@@ -61,6 +62,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Login />} />
               <Route path="/register/company" element={<CompanyRegistration />} />
+              <Route path="/reject" element={<CompanyRejected />} />
               <Route path="/error" element={<ErrorPage />} />
               
               {/* Student routes */}
