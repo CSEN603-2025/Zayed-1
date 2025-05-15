@@ -224,8 +224,27 @@ const CompanyRegistration = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      // In a real application, we would submit the registration data to the server
-      // For this demo, we'll just show a success message and navigate back to login
+      // Create a new company object with pending status
+      const newCompany = {
+        id: Date.now(), // Use timestamp as a simple unique ID
+        name: formData.companyName,
+        industry: formData.industry,
+        size: formData.companySize,
+        email: formData.email,
+        status: 'pending',
+        applied: new Date().toLocaleDateString(),
+        logo: null // Can't store the actual file, so just use null
+      };
+      
+      // Get existing companies from localStorage or use empty array if none exist
+      const existingCompanies = JSON.parse(localStorage.getItem('companies') || '[]');
+      
+      // Add new company to the array
+      const updatedCompanies = [...existingCompanies, newCompany];
+      
+      // Save back to localStorage
+      localStorage.setItem('companies', JSON.stringify(updatedCompanies));
+      
       alert('Registration successful! Please wait for approval from SCAD Office.');
       navigate('/');
     }
