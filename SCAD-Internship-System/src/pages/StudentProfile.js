@@ -24,7 +24,8 @@ import {
   FaEyeSlash,
   FaBuilding,
   FaCalendarAlt,
-  FaClock
+  FaClock,
+  FaClipboardCheck
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -550,6 +551,89 @@ const ViewCount = styled.div`
   font-weight: bold;
 `;
 
+const EvaluationCard = styled(Card)`
+  margin-bottom: 1.5rem;
+`;
+
+const EvaluationHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+`;
+
+const CompanyInfo = styled.div`
+  flex: 1;
+`;
+
+const CompanyName = styled.h3`
+  margin: 0 0 0.5rem;
+  color: ${props => props.theme.colors.primary};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const InternshipInfo = styled.div`
+  color: ${props => props.theme.colors.darkGray};
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+`;
+
+const RatingGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+`;
+
+const RatingItem = styled.div`
+  background-color: ${props => props.theme.colors.lightGray};
+  padding: 1rem;
+  border-radius: 8px;
+`;
+
+const RatingLabel = styled.div`
+  font-size: 0.9rem;
+  color: ${props => props.theme.colors.darkGray};
+  margin-bottom: 0.5rem;
+`;
+
+const RatingValue = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: ${props => props.theme.colors.primary};
+  font-weight: 600;
+`;
+
+const FeedbackSection = styled.div`
+  margin: 1rem 0;
+`;
+
+const FeedbackTitle = styled.h4`
+  color: ${props => props.theme.colors.primary};
+  margin: 1rem 0 0.5rem;
+`;
+
+const FeedbackText = styled.p`
+  color: ${props => props.theme.colors.darkGray};
+  margin: 0;
+  line-height: 1.5;
+`;
+
+const RecommendationBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: ${props => props.theme.colors.success};
+  color: white;
+`;
+
 // Mock data
 const mockUserData = {
   id: 1,
@@ -687,6 +771,31 @@ const mockUserData = {
       time: "13:30",
       viewCount: 4,
       interested: true
+    }
+  ],
+  companyEvaluations: [
+    {
+      id: 1,
+      company: "Tech Innovations",
+      internshipTitle: "Software Developer Intern",
+      departmentName: "Product Development",
+      period: "May 2023 - July 2023",
+      supervisor: "Sarah Parker",
+      ratings: {
+        technicalSkills: 4.5,
+        communicationSkills: 4.2,
+        problemSolving: 4.7,
+        teamwork: 4.3,
+        professionalism: 4.6,
+        overall: 4.5
+      },
+      feedback: {
+        strengths: "Strong analytical skills, excellent problem-solving abilities, and a quick learner. Able to work independently after minimal guidance.",
+        areasForImprovement: "Could improve communication with non-technical team members and documentation practices.",
+        additionalComments: "Very impressed with performance and would be happy to have them return for another internship or consider for a full-time position after graduation."
+      },
+      recommendationLevel: "Highly Recommend",
+      submittedDate: "2023-08-05"
     }
   ]
 };
@@ -1104,6 +1213,67 @@ const StudentProfile = () => {
     );
   };
   
+  const renderCompanyEvaluations = () => {
+    if (!userData.companyEvaluations?.length) {
+      return (
+        <Card>
+          <p>No company evaluations available yet.</p>
+        </Card>
+      );
+    }
+
+    return userData.companyEvaluations.map(evaluation => (
+      <EvaluationCard key={evaluation.id}>
+        <EvaluationHeader>
+          <CompanyInfo>
+            <CompanyName>
+              <FaBuilding />
+              {evaluation.company}
+            </CompanyName>
+            <InternshipInfo>
+              <div>{evaluation.internshipTitle} - {evaluation.departmentName}</div>
+              <div>{evaluation.period}</div>
+              <div>Supervisor: {evaluation.supervisor}</div>
+            </InternshipInfo>
+          </CompanyInfo>
+          <RecommendationBadge>
+            <FaClipboardCheck />
+            {evaluation.recommendationLevel}
+          </RecommendationBadge>
+        </EvaluationHeader>
+
+        <RatingGrid>
+          {Object.entries(evaluation.ratings).map(([key, value]) => (
+            <RatingItem key={key}>
+              <RatingLabel>
+                {key.split(/(?=[A-Z])/).join(' ')}
+              </RatingLabel>
+              <RatingValue>
+                {value}
+                <FaStar style={{ color: '#ffc107' }} />
+              </RatingValue>
+            </RatingItem>
+          ))}
+        </RatingGrid>
+
+        <FeedbackSection>
+          <FeedbackTitle>Strengths</FeedbackTitle>
+          <FeedbackText>{evaluation.feedback.strengths}</FeedbackText>
+
+          <FeedbackTitle>Areas for Improvement</FeedbackTitle>
+          <FeedbackText>{evaluation.feedback.areasForImprovement}</FeedbackText>
+
+          {evaluation.feedback.additionalComments && (
+            <>
+              <FeedbackTitle>Additional Comments</FeedbackTitle>
+              <FeedbackText>{evaluation.feedback.additionalComments}</FeedbackText>
+            </>
+          )}
+        </FeedbackSection>
+      </EvaluationCard>
+    ));
+  };
+  
   return (
     <PageContainer>
       <Navbar userType="student" />
@@ -1360,6 +1530,12 @@ const StudentProfile = () => {
                 onClick={() => setActiveTab('viewers')}
               >
                 Profile Viewers
+              </Tab>
+              <Tab 
+                active={activeTab === 'evaluations'} 
+                onClick={() => setActiveTab('evaluations')}
+              >
+                Company Evaluations
               </Tab>
             </TabsContainer>
             
@@ -1677,6 +1853,15 @@ const StudentProfile = () => {
                     </VisibilityToggle>
                   </AssessmentCard>
                 ))}
+              </>
+            )}
+            
+            {activeTab === 'evaluations' && (
+              <>
+                <SectionTitle>
+                  <FaBuilding /> Company Evaluations
+                </SectionTitle>
+                {renderCompanyEvaluations()}
               </>
             )}
           </div>
