@@ -17,7 +17,8 @@ import {
   FaCircle,
   FaPlus,
   FaFilter,
-  FaSearch
+  FaSearch,
+  FaBell
 } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -296,6 +297,35 @@ const mockAppointments = [
   }
 ];
 
+// Add new styled components for incoming calls
+const IncomingCallCard = styled(Card)`
+  background-color: ${props => props.theme.colors.light};
+  border: 2px solid ${props => props.theme.colors.primary};
+  margin-bottom: 1rem;
+`;
+
+const IncomingCallHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const CallerInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  svg {
+    color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const CallActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
 const CareerGuidance = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -312,6 +342,20 @@ const CareerGuidance = () => {
     duration: 30,
     notes: ''
   });
+  const [incomingCalls, setIncomingCalls] = useState([
+    // Mock data for incoming calls
+    {
+      id: 1,
+      caller: {
+        id: 3,
+        name: 'John Smith',
+        type: 'proStudent',
+        online: true
+      },
+      timestamp: new Date(),
+      type: 'career'
+    }
+  ]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -374,6 +418,21 @@ const CareerGuidance = () => {
     setCurrentCall(null);
   };
 
+  const handleAcceptCall = (callId) => {
+    const call = incomingCalls.find(c => c.id === callId);
+    if (call) {
+      // Remove from incoming calls
+      setIncomingCalls(prev => prev.filter(c => c.id !== callId));
+      // Navigate to video call page
+      navigate(`/career-guidance/call/${callId}`);
+    }
+  };
+
+  const handleRejectCall = (callId) => {
+    // Remove from incoming calls
+    setIncomingCalls(prev => prev.filter(c => c.id !== callId));
+  };
+
   const filteredAppointments = appointments.filter(appointment => {
     if (activeTab === 'upcoming') return appointment.status === 'scheduled';
     if (activeTab === 'completed') return appointment.status === 'completed';
@@ -430,6 +489,12 @@ const CareerGuidance = () => {
             Upcoming
           </Tab>
           <Tab 
+            active={activeTab === 'received'} 
+            onClick={() => setActiveTab('received')}
+          >
+            Received Calls
+          </Tab>
+          <Tab 
             active={activeTab === 'completed'} 
             onClick={() => setActiveTab('completed')}
           >
@@ -443,7 +508,50 @@ const CareerGuidance = () => {
           </Tab>
         </TabsContainer>
 
-        {isCreating ? (
+        {activeTab === 'received' ? (
+          <>
+            {incomingCalls.length > 0 ? (
+              incomingCalls.map(call => (
+                <IncomingCallCard key={call.id}>
+                  <IncomingCallHeader>
+                    <CallerInfo>
+                      <FaVideo />
+                      <div>
+                        <strong>{call.caller.name}</strong>
+                        <div>{call.type === 'career' ? 'Career Guidance' : 'Report Clarification'}</div>
+                        <small>{new Date(call.timestamp).toLocaleTimeString()}</small>
+                      </div>
+                    </CallerInfo>
+                    <CallActions>
+                      <Button
+                        variant="primary"
+                        icon={<FaCheck />}
+                        onClick={() => handleAcceptCall(call.id)}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        icon={<FaTimes />}
+                        onClick={() => handleRejectCall(call.id)}
+                      >
+                        Reject
+                      </Button>
+                    </CallActions>
+                  </IncomingCallHeader>
+                </IncomingCallCard>
+              ))
+            ) : (
+              <Card>
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <FaBell style={{ fontSize: '2rem', color: '#ccc', marginBottom: '1rem' }} />
+                  <h3>No Incoming Calls</h3>
+                  <p>When someone calls you, their request will appear here.</p>
+                </div>
+              </Card>
+            )}
+          </>
+        ) : isCreating ? (
           <Card title="Request New Appointment">
             <form onSubmit={handleCreateAppointment}>
               <Input

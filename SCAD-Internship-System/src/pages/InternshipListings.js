@@ -14,6 +14,7 @@ import {
   FaDollarSign,
   FaMapMarkerAlt
 } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -294,6 +295,7 @@ const mockInternships = [
 
 const InternshipListings = () => {
   const navigate = useNavigate();
+  const { userType } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     industry: '',
@@ -381,12 +383,17 @@ const InternshipListings = () => {
   
   return (
     <PageContainer>
-      <Navbar userType="student" />
+      <Navbar userType={userType} />
       
       <ContentContainer>
         <PageHeader>
           <PageTitle>Internship Opportunities</PageTitle>
-          <PageDescription>Discover and apply for internships that match your interests and skills</PageDescription>
+          <PageDescription>
+            {userType === 'scadOffice' 
+              ? 'Manage and monitor all available internships in SCAD'
+              : 'Discover and apply for internships that match your interests and skills'
+            }
+          </PageDescription>
         </PageHeader>
         
         <FiltersSection>
