@@ -132,6 +132,7 @@ const Navbar = () => {
             <NavLink to="/scad/companies">Companies</NavLink>
             <NavLink to="/internships">All Internships</NavLink>
             <NavLink to="/scad/workshops">Workshops</NavLink>
+            <NavLink to="/career-guidance">Appointments and Calls</NavLink>
             <NavLink to="/workshops/calls">Workshop Calls</NavLink>
           </>
         );

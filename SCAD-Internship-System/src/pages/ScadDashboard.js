@@ -792,6 +792,48 @@ const generatePdfReport = (filename) => {
   doc.save(`${filename}.pdf`);
 };
 
+// Add these styled components at the top with the other styled components
+const CycleDatesContainer = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
+
+const CycleDatesHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const CycleDatesTitle = styled.h3`
+  color: ${props => props.theme.colors.primary};
+  font-size: 1.2rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const DateInputsContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const DateInputWrapper = styled.div`
+  flex: 1;
+`;
+
+const DateLabel = styled.label`
+  display: block;
+  margin-bottom: 0.5rem;
+  color: ${props => props.theme.colors.darkGray};
+  font-size: 0.9rem;
+`;
+
 const ScadDashboard = () => {
   const navigate = useNavigate();
   const tabsRef = useRef(null);
@@ -863,9 +905,13 @@ const ScadDashboard = () => {
   };
   
   const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    // Scroll to tabs container smoothly
-    tabsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (tab === 'internships') {
+      navigate('/internships'); // This is correct, but we need to update App.js to allow SCAD access
+    } else {
+      setActiveTab(tab);
+      // Scroll to tabs container smoothly
+      tabsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
   const filteredCompanies = companies.filter(company => {
@@ -1189,6 +1235,44 @@ const ScadDashboard = () => {
           </StatCard>
         </StatCardsContainer>
         
+        <CycleDatesContainer>
+          <CycleDatesHeader>
+            <CycleDatesTitle>
+              <FaCalendarAlt /> Internship Cycle Dates
+            </CycleDatesTitle>
+          </CycleDatesHeader>
+          
+          <DateInputsContainer>
+            <DateInputWrapper>
+              <DateLabel>Start Date</DateLabel>
+              <Input
+                type="date"
+                name="startDate"
+                value={cycleDates.startDate}
+                onChange={handleDateChange}
+              />
+            </DateInputWrapper>
+            
+            <DateInputWrapper>
+              <DateLabel>End Date</DateLabel>
+              <Input
+                type="date"
+                name="endDate"
+                value={cycleDates.endDate}
+                onChange={handleDateChange}
+              />
+            </DateInputWrapper>
+          </DateInputsContainer>
+          
+          <Button 
+            variant="primary"
+            onClick={handleSaveCycleDates}
+            style={{ width: 'fit-content' }}
+          >
+            Set Cycle Dates
+          </Button>
+        </CycleDatesContainer>
+        
         <div ref={tabsRef}>
           <TabsContainer>
             <Tab 
@@ -1202,6 +1286,12 @@ const ScadDashboard = () => {
               onClick={() => handleTabChange('students')}
             >
               Students
+            </Tab>
+            <Tab 
+              active={activeTab === 'internships'} 
+              onClick={() => handleTabChange('internships')}
+            >
+              All Internships
             </Tab>
             <Tab 
               active={activeTab === 'reports'} 

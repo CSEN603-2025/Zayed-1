@@ -214,30 +214,31 @@ const ConfirmationModal = styled.div`
   z-index: 1000;
 `;
 
-const ModalContent = styled(Card)`
-  max-width: 400px;
-  width: 90%;
+const ModalContent = styled.div`
+  background-color: white;
   padding: 2rem;
-  text-align: center;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
 `;
 
-const ModalTitle = styled.h2`
-  color: ${props => props.theme.colors.primary};
-  margin: 0 0 1rem;
+const ModalTitle = styled.h3`
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  color: ${props => props.theme.colors.primary};
+  margin: 0 0 1rem;
   
   svg {
-    margin-right: 0.5rem;
+    color: #ff9800;
   }
 `;
 
 const ModalButtons = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 `;
 
 const ActionButtons = styled.div`
@@ -245,6 +246,25 @@ const ActionButtons = styled.div`
   justify-content: center;
   gap: 1rem;
   margin-top: 2rem;
+`;
+
+const PrivacySettings = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: ${props => props.theme.colors.light};
+  border-radius: 0.5rem;
+`;
+
+const PrivacyOption = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  
+  input {
+    cursor: pointer;
+  }
 `;
 
 const AssessmentResults = () => {
@@ -256,6 +276,7 @@ const AssessmentResults = () => {
   const [assessmentDetails, setAssessmentDetails] = useState(null);
   const [isPostedToProfile, setIsPostedToProfile] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [privacyLevel, setPrivacyLevel] = useState('public');
   
   useEffect(() => {
     // Get score from URL query parameter
@@ -275,7 +296,8 @@ const AssessmentResults = () => {
         correctAnswers: Math.round((newScore / 100) * 30),
         duration: '45 minutes',
         status: 'completed',
-        posted: false // New field to track if posted to profile
+        posted: false, // New field to track if posted to profile
+        privacyLevel: 'public' // New field to track privacy level
       };
       
       setAssessmentDetails(newAssessment);
@@ -297,11 +319,11 @@ const AssessmentResults = () => {
     setIsPostedToProfile(true);
     setShowConfirmation(false);
     
-    // Update localStorage
+    // Update localStorage with privacy settings
     const savedAssessments = JSON.parse(localStorage.getItem('studentAssessments') || '[]');
     const updatedAssessments = savedAssessments.map(assessment =>
       assessment.id === parseInt(id)
-        ? { ...assessment, posted: true }
+        ? { ...assessment, posted: true, privacyLevel }
         : assessment
     );
     localStorage.setItem('studentAssessments', JSON.stringify(updatedAssessments));
@@ -394,10 +416,35 @@ const AssessmentResults = () => {
                 </ProfilePostingDescription>
                 
                 {isPostedToProfile ? (
-                  <PostingStatus posted={true}>
-                    <FaCheckCircle />
-                    This result is posted on your profile
-                  </PostingStatus>
+                  <>
+                    <PostingStatus posted={true}>
+                      <FaCheckCircle />
+                      This result is posted on your profile
+                    </PostingStatus>
+                    <PrivacySettings>
+                      <h4>Visibility Settings</h4>
+                      <PrivacyOption>
+                        <input
+                          type="radio"
+                          name="privacy"
+                          value="public"
+                          checked={privacyLevel === 'public'}
+                          onChange={(e) => setPrivacyLevel(e.target.value)}
+                        />
+                        Public - Visible to employers and advisors
+                      </PrivacyOption>
+                      <PrivacyOption>
+                        <input
+                          type="radio"
+                          name="privacy"
+                          value="private"
+                          checked={privacyLevel === 'private'}
+                          onChange={(e) => setPrivacyLevel(e.target.value)}
+                        />
+                        Private - Only visible to you
+                      </PrivacyOption>
+                    </PrivacySettings>
+                  </>
                 ) : (
                   <PostToProfileButton
                     variant="primary"
@@ -439,8 +486,32 @@ const AssessmentResults = () => {
             
             <p>
               This will make your assessment score visible on your profile. 
-              Other users, including potential employers and advisors, will be able to see your score.
+              You can control who sees your results with the privacy settings.
             </p>
+
+            <PrivacySettings>
+              <h4>Choose Visibility</h4>
+              <PrivacyOption>
+                <input
+                  type="radio"
+                  name="privacy"
+                  value="public"
+                  checked={privacyLevel === 'public'}
+                  onChange={(e) => setPrivacyLevel(e.target.value)}
+                />
+                Public - Visible to employers and advisors
+              </PrivacyOption>
+              <PrivacyOption>
+                <input
+                  type="radio"
+                  name="privacy"
+                  value="private"
+                  checked={privacyLevel === 'private'}
+                  onChange={(e) => setPrivacyLevel(e.target.value)}
+                />
+                Private - Only visible to you
+              </PrivacyOption>
+            </PrivacySettings>
             
             <ModalButtons>
               <Button
@@ -449,7 +520,6 @@ const AssessmentResults = () => {
               >
                 Cancel
               </Button>
-              
               <Button
                 variant="primary"
                 onClick={confirmPostToProfile}

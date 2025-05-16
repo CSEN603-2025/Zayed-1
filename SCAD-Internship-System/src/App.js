@@ -270,7 +270,7 @@ function App() {
               <Route path="/internships" element={
                 <ProtectedRoute 
                   element={<InternshipListings />} 
-                  allowedUserTypes={['proStudent','student']} 
+                  allowedUserTypes={['proStudent', 'student', 'scadOffice']} 
                 />
               } />
               <Route path="/internships/post" element={
